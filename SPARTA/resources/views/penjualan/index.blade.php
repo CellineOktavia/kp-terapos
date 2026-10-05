@@ -199,7 +199,7 @@
             <div>
 
                 <h2 class="page-title">
-                    Data Penjualan
+                    Riwayat Penjualan
                 </h2>
 
                 <p class="page-subtitle">
@@ -247,26 +247,47 @@
 
                     <div class="row g-3">
 
-                        <div class="col-md-10">
+                        <div class="col-lg-4 col-md-6">
 
                             <div class="search-box">
 
                                 <i class="bi bi-search"></i>
 
                                 <input type="text" name="search" class="form-control search-input"
-                                    placeholder="Cari nomor penjualan..." value="{{ $search ?? '' }}">
+                                    placeholder="Nomor, pelanggan, produk, kode, atau kasir..."
+                                    value="{{ $filters['search'] ?? '' }}">
 
                             </div>
 
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="start_date" class="form-label">Tanggal Mulai</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control"
+                                value="{{ $filters['start_date'] ?? '' }}">
+                        </div>
 
-                            <button type="submit" class="btn btn-primary btn-search w-100">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="end_date" class="form-label">Tanggal Akhir</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control"
+                                value="{{ $filters['end_date'] ?? '' }}">
+                        </div>
 
-                                Cari
+                        <div class="col-lg-2 col-md-6">
+                            <label for="user_id" class="form-label">Kasir/User</label>
+                            <select id="user_id" name="user_id" class="form-select">
+                                <option value="">Semua user</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        @selected(($filters['user_id'] ?? '') == $user->id)>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            </button>
+                        <div class="col-lg-2 col-md-6">
+                            <button type="submit" class="btn btn-primary btn-search w-100">Cari</button>
 
                         </div>
 
@@ -304,13 +325,13 @@
 
                             <tr>
 
-                                <th>Nomor Transaksi</th>
+                                <th>Nomor</th>
                                 <th>Tanggal</th>
-                                <th>Jumlah Item</th>
+                                <th>Pelanggan</th>
+                                <th>Jenis Item</th>
+                                <th>Total Qty</th>
                                 <th>Total</th>
-                                <th>Bayar</th>
-                                <th>Kembalian</th>
-                                <th>Dibuat Oleh</th>
+                                <th>Kasir</th>
                                 <th width="150">
                                     Aksi
                                 </th>
@@ -338,7 +359,9 @@
                                         {{ \Carbon\Carbon::parse($penjualan->tanggal)->format('d M Y') }}
                                     </td>
 
+                                    <td>{{ $penjualan->customer->nama_customer ?? 'Pelanggan Umum' }}</td>
                                     <td>{{ $penjualan->detail_penjualans_count }}</td>
+                                    <td>{{ number_format($penjualan->detail_penjualans_sum_qty ?? 0, 0, ',', '.') }}</td>
 
                                     <td>
                                         <span class="amount-badge">
@@ -346,8 +369,6 @@
                                         </span>
                                     </td>
 
-                                    <td>Rp {{ number_format($penjualan->bayar, 0, ',', '.') }}</td>
-                                    <td>Rp {{ number_format($penjualan->kembalian, 0, ',', '.') }}</td>
                                     <td>{{ $penjualan->user->name ?? '-' }}</td>
 
                                     <td>
@@ -394,7 +415,7 @@
 
                                             <i class="bi bi-receipt"></i>
 
-                                            Tidak ada data penjualan
+                                            Tidak ada transaksi yang sesuai dengan pencarian/filter.
 
                                         </div>
 

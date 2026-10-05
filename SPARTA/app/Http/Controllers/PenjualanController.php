@@ -7,6 +7,7 @@ use App\Models\DetailPenjualan;
 use App\Models\Penjualan;
 use App\Models\Product;
 use App\Models\StockMovement;
+use App\Models\User;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,19 +18,47 @@ class PenjualanController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->search;
+        $endDateRules = ['nullable', 'date'];
+        if ($request->filled('start_date')) {
+            $endDateRules[] = 'after_or_equal:start_date';
+        }
+
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+            'start_date' => ['nullable', 'date'],
+            'end_date' => $endDateRules,
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+        ]);
 
         $penjualans = Penjualan::query()
             ->with(['customer', 'user'])
             ->withCount('detailPenjualans')
-            ->when($search, function ($query) use ($search) {
-                $query->where('nomor_penjualan', 'like', "%{$search}%");
+            ->withSum('detailPenjualans', 'qty')
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($saleQuery) use ($search) {
+                    $saleQuery->where('nomor_penjualan', 'like', "%{$search}%")
+                        ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                            $customerQuery->where('nama_customer', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('user', function ($userQuery) use ($search) {
+                            $userQuery->where('name', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('detailPenjualans.product', function ($productQuery) use ($search) {
+                            $productQuery->where('nama_produk', 'like', "%{$search}%")
+                                ->orWhere('kode_produk', 'like', "%{$search}%");
+                        });
+                });
             })
+            ->when($filters['start_date'] ?? null, fn ($query, $date) => $query->whereDate('tanggal', '>=', $date))
+            ->when($filters['end_date'] ?? null, fn ($query, $date) => $query->whereDate('tanggal', '<=', $date))
+            ->when($filters['user_id'] ?? null, fn ($query, $userId) => $query->where('user_id', $userId))
             ->latest()
-            ->paginate(10)
+            ->paginate(25)
             ->withQueryString();
 
-        return view('penjualan.index', compact('penjualans', 'search'));
+        $users = User::query()->orderBy('name')->get(['id', 'name']);
+
+        return view('penjualan.index', compact('penjualans', 'users', 'filters'));
     }
 
     public function create()

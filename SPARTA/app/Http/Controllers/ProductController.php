@@ -16,13 +16,15 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $search = $request->search;
+        $filters = $request->validate([
+            'search' => ['nullable', 'string', 'max:100'],
+        ]);
 
         $products = Product::query()
             ->with('category')
-            ->when($search, function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nama_produk', 'like', "%{$search}%")
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where(function ($productQuery) use ($search) {
+                    $productQuery->where('nama_produk', 'like', "%{$search}%")
                         ->orWhere('kode_produk', 'like', "%{$search}%")
                         ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhere('merk', 'like', "%{$search}%")
@@ -32,10 +34,10 @@ class ProductController extends Controller
                 });
             })
             ->latest()
-            ->paginate(10)
+            ->paginate(25)
             ->withQueryString();
 
-        return view('produk.index', compact('products', 'search'));
+        return view('produk.index', ['products' => $products, 'search' => $filters['search'] ?? '']);
     }
 
     public function show(Product $product)

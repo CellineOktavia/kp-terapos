@@ -334,7 +334,7 @@
                                     <td colspan="6">
                                         <div class="empty-state text-center">
                                             <i class="bi bi-box-seam"></i>
-                                            Tidak ada data produk
+                                            Tidak ada produk yang sesuai dengan pencarian.
                                         </div>
                                     </td>
                                 </tr>
