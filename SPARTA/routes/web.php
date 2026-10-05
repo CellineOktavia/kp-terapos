@@ -13,6 +13,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\OwnerDashboardController;
+use App\Http\Controllers\BackupController;
 
 Route::get('/', function () {
     return view('landing-page');
@@ -221,6 +222,14 @@ Route::middleware('auth')->group(function () {
             ->name('stok.adjustment.create');
         Route::post('/stok/adjustment', [StockController::class, 'storeAdjustment'])
             ->name('stok.adjustment.store');
+
+        Route::get('/backup', [BackupController::class, 'index'])
+            ->name('backup.index');
+        Route::post('/backup', [BackupController::class, 'store'])
+            ->name('backup.store');
+        Route::get('/backup/{filename}/download', [BackupController::class, 'download'])
+            ->where('filename', 'terapos-backup-[0-9]{8}-[0-9]{6}(-[0-9]+)?\\.sqlite')
+            ->name('backup.download');
     });
 
 

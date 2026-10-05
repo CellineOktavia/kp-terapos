@@ -155,6 +155,13 @@
             <i class="bi bi-truck"></i>
             Laporan Supplier
         </a>
+
+        <div class="sidebar-title">Sistem</div>
+        <a href="{{ route('backup.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('backup*') ? 'active' : '' }}">
+            <i class="bi bi-database-down"></i>
+            Backup Database
+        </a>
     @endif
 
     @if (Auth::user()->role == 'co_owner')
