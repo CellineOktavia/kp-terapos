@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\DetailFaktur;
 use App\Models\Faktur;
 use App\Models\Product;
-use App\Models\Supplier;
-use App\Models\DetailFaktur;
+use App\Models\StockMovement;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\StockMovement;
+use Illuminate\Validation\ValidationException;
 
 class FakturController extends Controller
 {
@@ -18,299 +19,220 @@ class FakturController extends Controller
         $search = $request->search;
 
         $fakturs = Faktur::query()
-
+            ->with('user')
+            ->withCount('detailFakturs')
             ->when($search, function ($query) use ($search) {
-
-                $query->where(
-                    'nomor_faktur',
-                    'like',
-                    "%{$search}%"
-                );
+                $query->where('nomor_faktur', 'like', "%{$search}%");
             })
-
             ->latest()
-
             ->paginate(10)
-
             ->withQueryString();
 
-        return view(
-            'faktur.index',
-            compact(
-                'fakturs',
-                'search'
-            )
-        );
+        return view('faktur.index', compact('fakturs', 'search'));
     }
 
     public function create()
     {
-        $suppliers = Supplier::all();
-
-        $products = Product::all();
+        $products = Product::orderBy('nama_produk')->get();
+        $generatedNumber = $this->generateNextPurchaseNumber();
 
         return view(
             'faktur.create',
-            compact(
-                'suppliers',
-                'products'
-            )
+            compact('products', 'generatedNumber')
         );
     }
 
     public function store(Request $request)
     {
-        $request->validate([
-
-            'supplier_id' => 'required|exists:suppliers,id',
-
-            'product_id' => 'required|exists:products,id',
-
-            'qty' => 'required|integer|min:1',
-
-            'harga' => 'required|numeric|min:1',
-
-            'tanggal' => 'required|date',
-
+        $validated = $request->validate([
+            'tanggal' => ['required', 'date'],
+            'items' => ['required', 'array', 'min:1'],
+            'items.*.product_id' => [
+                'required',
+                'distinct',
+                'exists:products,id',
+            ],
+            'items.*.qty' => [
+                'required',
+                'integer',
+                'min:1',
+            ],
+            'items.*.harga' => [
+                'required',
+                'numeric',
+                'min:0',
+            ],
         ]);
 
-        $subtotal =
-            $request->qty *
-            $request->harga;
+        for ($attempt = 1; ; $attempt++) {
+            try {
+                DB::transaction(function () use ($validated) {
+                    $purchaseNumber = $this->generateNextPurchaseNumber();
+                    $items = collect($validated['items']);
+                    $productIds = $items->pluck('product_id')->map(
+                        fn ($id) => (int) $id
+                    )->unique()->sort()->values();
 
-        $faktur = Faktur::create([
+                    $products = Product::query()
+                        ->whereIn('id', $productIds)
+                        ->orderBy('id')
+                        ->lockForUpdate()
+                        ->get()
+                        ->keyBy('id');
 
-            'nomor_faktur' =>
-            'INV-' . now()->format('YmdHis'),
+                    if ($products->count() !== $productIds->count()) {
+                        throw ValidationException::withMessages([
+                            'items' => 'Salah satu produk tidak lagi tersedia.',
+                        ]);
+                    }
 
-            'user_id' =>
-            Auth::id(),
+                    $faktur = Faktur::create([
+                        'nomor_faktur' => $purchaseNumber,
+                        'user_id' => Auth::id(),
+                        'supplier_id' => null,
+                        'tanggal' => $validated['tanggal'],
+                        'total' => 0,
+                    ]);
 
-            'supplier_id' =>
-            $request->supplier_id,
+                    $total = 0;
+                    foreach ($items as $item) {
+                        $product = $products->get((int) $item['product_id']);
+                        $qty = (int) $item['qty'];
+                        $harga = (float) $item['harga'];
+                        $subtotal = round($qty * $harga, 2);
+                        $total += $subtotal;
 
-            'tanggal' =>
-            $request->tanggal,
+                        DetailFaktur::create([
+                            'faktur_id' => $faktur->id,
+                            'product_id' => $product->id,
+                            'qty' => $qty,
+                            'harga' => $harga,
+                            'subtotal' => $subtotal,
+                        ]);
 
-            'total' =>
-            $subtotal,
+                        $product->stok += $qty;
+                        $product->harga_beli = $harga;
+                        $product->save();
 
-        ]);
+                        StockMovement::create([
+                            'product_id' => $product->id,
+                            'jenis' => 'masuk',
+                            'qty' => $qty,
+                            'keterangan' => 'Pembelian ' . $purchaseNumber,
+                        ]);
+                    }
 
-        DetailFaktur::create([
+                    $faktur->update(['total' => round($total, 2)]);
+                });
 
-            'faktur_id' =>
-            $faktur->id,
-
-            'product_id' =>
-            $request->product_id,
-
-            'qty' =>
-            $request->qty,
-
-            'harga' =>
-            $request->harga,
-
-            'subtotal' =>
-            $subtotal,
-
-        ]);
-
-        $product = Product::findOrFail(
-            $request->product_id
-        );
-
-        $product->increment(
-            'stok',
-            $request->qty
-        );
-
-        StockMovement::create([
-
-            'product_id' =>
-            $product->id,
-
-            'jenis' =>
-            'masuk',
-
-            'qty' =>
-            $request->qty,
-
-            'keterangan' =>
-            'Faktur ' .
-                $faktur->nomor_faktur,
-
-        ]);
+                break;
+            } catch (QueryException $exception) {
+                if ($attempt >= 5 || !$this->isPurchaseNumberCollision($exception)) {
+                    throw $exception;
+                }
+            }
+        }
 
         return redirect()
             ->route('faktur.index')
-            ->with(
-                'success',
-                'Faktur berhasil dibuat'
-            );
+            ->with('success', 'Pembelian berhasil disimpan dan stok telah diperbarui.');
     }
 
     public function show(Faktur $faktur)
     {
         $faktur->load([
-
-            'supplier',
-
             'user',
-
-            'detailFakturs.product'
-
+            'detailFakturs.product',
         ]);
 
-        return view(
-            'faktur.show',
-            compact('faktur')
-        );
+        return view('faktur.show', compact('faktur'));
     }
 
     public function destroy(Faktur $faktur)
     {
         if (Auth::user()->role !== 'owner') {
-
             abort(403);
         }
-        foreach (
-            $faktur->detailFakturs
-            as $detail
-        ) {
 
-            if ($detail->product) {
+        try {
+            DB::transaction(function () use ($faktur) {
+                $lockedFaktur = Faktur::query()
+                    ->whereKey($faktur->id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-                $detail->product->decrement(
-                    'stok',
-                    $detail->qty
-                );
+                $details = $lockedFaktur->detailFakturs()
+                    ->orderBy('product_id')
+                    ->get();
 
-                StockMovement::create([
+                $products = Product::query()
+                    ->whereIn('id', $details->pluck('product_id')->unique())
+                    ->orderBy('id')
+                    ->lockForUpdate()
+                    ->get()
+                    ->keyBy('id');
 
-                    'product_id' =>
-                    $detail->product->id,
+                foreach ($details as $detail) {
+                    $product = $products->get($detail->product_id);
 
-                    'jenis' =>
-                    'keluar',
+                    if (!$product || $product->stok < $detail->qty) {
+                        throw ValidationException::withMessages([
+                            'purchase' => "Pembelian {$lockedFaktur->nomor_faktur} tidak dapat dibatalkan karena stok {$detail->product?->nama_produk} sudah digunakan atau keluar.",
+                        ]);
+                    }
 
-                    'qty' =>
-                    $detail->qty,
+                    $product->stok -= $detail->qty;
+                    $product->save();
 
-                    'keterangan' =>
-                    'Pembatalan Faktur ' .
-                        $faktur->nomor_faktur,
+                    StockMovement::create([
+                        'product_id' => $product->id,
+                        'jenis' => 'keluar',
+                        'qty' => $detail->qty,
+                        'keterangan' => 'Pembatalan Pembelian ' . $lockedFaktur->nomor_faktur,
+                    ]);
+                }
 
-                ]);
-            }
+                $lockedFaktur->delete();
+            });
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
         }
-
-        $faktur->delete();
 
         return redirect()
             ->route('faktur.index')
-            ->with(
-                'success',
-                'Faktur berhasil dihapus'
-            );
+            ->with('success', 'Pembelian dibatalkan dan stok telah dikoreksi.');
     }
 
-    public function edit(Faktur $faktur)
+    private function generateNextPurchaseNumber(): string
     {
-        if (Auth::user()->role !== 'owner') {
-            abort(403);
-        }
-
-        $suppliers = Supplier::all();
-        $products = Product::all();
-
-        $faktur->load('detailFakturs');
-
-        $detail = $faktur->detailFakturs->first();
-
-        return view(
-            'faktur.edit',
-            compact(
-                'faktur',
-                'suppliers',
-                'products',
-                'detail'
-            )
-        );
-    }
-
-    public function update(Request $request, Faktur $faktur)
-{
-    if (Auth::user()->role !== 'owner') {
-        abort(403);
-    }
-
-    $request->validate([
-        'supplier_id' => 'required|exists:suppliers,id',
-        'product_id' => 'required|exists:products,id',
-        'qty' => 'required|integer|min:1',
-        'harga' => 'required|numeric|min:1',
-        'tanggal' => 'required|date',
-    ]);
-
-    DB::transaction(function () use ($request, $faktur) {
-
-        $detail = $faktur->detailFakturs()->first();
-
-        $subtotal = $request->qty * $request->harga;
-
-        $faktur->update([
-            'supplier_id' => $request->supplier_id,
-            'tanggal' => $request->tanggal,
-            'total' => $subtotal,
-        ]);
-
-        if ($detail) {
-            $oldProduct = Product::find($detail->product_id);
-            $newProduct = Product::findOrFail($request->product_id);
-
-            if ($oldProduct && $oldProduct->id != $newProduct->id) {
-                $oldProduct->decrement('stok', $detail->qty);
-                $newProduct->increment('stok', $request->qty);
-            } else {
-                $selisihQty = $request->qty - $detail->qty;
-
-                if ($selisihQty > 0) {
-                    $newProduct->increment('stok', $selisihQty);
-                } elseif ($selisihQty < 0) {
-                    $newProduct->decrement('stok', abs($selisihQty));
+        $largestNumber = Faktur::query()
+            ->where('nomor_faktur', 'like', 'PB%')
+            ->pluck('nomor_faktur')
+            ->reduce(function (int $largest, string $number): int {
+                if (preg_match('/^PB(\d+)$/', $number, $matches)) {
+                    return max($largest, (int) $matches[1]);
                 }
-            }
 
-            $detail->update([
-                'product_id' => $request->product_id,
-                'qty' => $request->qty,
-                'harga' => $request->harga,
-                'subtotal' => $subtotal,
-            ]);
-        } else {
-            DetailFaktur::create([
-                'faktur_id' => $faktur->id,
-                'product_id' => $request->product_id,
-                'qty' => $request->qty,
-                'harga' => $request->harga,
-                'subtotal' => $subtotal,
-            ]);
+                return $largest;
+            }, 0);
 
-            $product = Product::findOrFail($request->product_id);
-            $product->increment('stok', $request->qty);
-        }
+        $sequence = $largestNumber + 1;
+        do {
+            $number = 'PB' . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
+            $sequence++;
+        } while (Faktur::where('nomor_faktur', $number)->exists());
 
-        StockMovement::create([
-            'product_id' => $request->product_id,
-            'jenis' => 'masuk',
-            'qty' => $request->qty,
-            'keterangan' => 'Edit Faktur ' . $faktur->nomor_faktur,
-        ]);
-    });
+        return $number;
+    }
 
-    return redirect()
-        ->route('faktur.index')
-        ->with('success', 'Faktur berhasil diperbarui');
-}
+    private function isPurchaseNumberCollision(QueryException $exception): bool
+    {
+        $sqlState = $exception->errorInfo[0] ?? null;
+        $message = strtolower(
+            $exception->getPrevious()?->getMessage() ?? $exception->getMessage()
+        );
+
+        return in_array($sqlState, ['23000', '23505'], true)
+            && str_contains($message, 'nomor_faktur');
+    }
 }

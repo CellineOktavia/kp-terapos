@@ -135,16 +135,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/faktur/{faktur}', [FakturController::class, 'destroy'])
         ->name('faktur.destroy');
 
-    Route::get(
-        '/faktur/{faktur}/edit',
-        [FakturController::class, 'edit']
-    )->name('faktur.edit');
-
-    Route::put(
-        '/faktur/{faktur}',
-        [FakturController::class, 'update']
-    )->name('faktur.update');
-
     // Laporan Routes
     Route::get(
         '/laporan',
@@ -285,16 +275,6 @@ Route::middleware('auth')->group(function () {
         '/penjualan/{penjualan}',
         [PenjualanController::class, 'destroy']
     )->name('penjualan.destroy');
-
-    Route::get(
-        '/penjualan/{penjualan}/edit',
-        [PenjualanController::class, 'edit']
-    )->name('penjualan.edit');
-
-    Route::put(
-        '/penjualan/{penjualan}',
-        [PenjualanController::class, 'update']
-    )->name('penjualan.update');
 
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout'])

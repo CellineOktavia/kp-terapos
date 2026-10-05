@@ -173,7 +173,7 @@
         <a href="/faktur"
             class="list-group-item list-group-item-action {{ request()->is('faktur*') ? 'active' : '' }}">
             <i class="bi bi-cart3"></i>
-            Faktur Pembelian
+            Pembelian
         </a>
 
         <div class="sidebar-title">

@@ -127,11 +127,6 @@
             font-weight: 700;
         }
 
-        .customer-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
         .amount-badge {
             background: rgba(16, 185, 129, .12);
             color: #059669;
@@ -283,6 +278,19 @@
 
         </div>
 
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         {{-- TABLE --}}
         <div class="card data-card">
 
@@ -296,10 +304,13 @@
 
                             <tr>
 
-                                <th>No Penjualan</th>
-                                <th>Pelanggan</th>
+                                <th>Nomor Transaksi</th>
                                 <th>Tanggal</th>
+                                <th>Jumlah Item</th>
                                 <th>Total</th>
+                                <th>Bayar</th>
+                                <th>Kembalian</th>
+                                <th>Dibuat Oleh</th>
                                 <th width="150">
                                     Aksi
                                 </th>
@@ -324,30 +335,20 @@
                                     </td>
 
                                     <td>
-
-                                        <span class="customer-name">
-
-                                            {{ $penjualan->customer->nama_customer }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
                                         {{ \Carbon\Carbon::parse($penjualan->tanggal)->format('d M Y') }}
-
                                     </td>
+
+                                    <td>{{ $penjualan->detail_penjualans_count }}</td>
 
                                     <td>
-
                                         <span class="amount-badge">
-
                                             Rp {{ number_format($penjualan->total, 0, ',', '.') }}
-
                                         </span>
-
                                     </td>
+
+                                    <td>Rp {{ number_format($penjualan->bayar, 0, ',', '.') }}</td>
+                                    <td>Rp {{ number_format($penjualan->kembalian, 0, ',', '.') }}</td>
+                                    <td>{{ $penjualan->user->name ?? '-' }}</td>
 
                                     <td>
 
@@ -361,20 +362,14 @@
                                             </a>
 
                                             @if (Auth::user()->role === 'owner')
-                                                <a href="{{ route('penjualan.edit', $penjualan) }}"
-                                                    class="btn action-btn btn-edit" title="Edit">
-
-                                                    <i class="bi bi-pencil-fill"></i>
-
-                                                </a>
-
                                                 <form action="{{ route('penjualan.destroy', $penjualan) }}" method="POST">
 
                                                     @csrf
                                                     @method('DELETE')
 
-                                                    <button type="submit" class="btn action-btn btn-delete" title="Hapus"
-                                                        onclick="return confirm('Yakin ingin menghapus transaksi ini?')">
+                                                    <button type="submit" class="btn action-btn btn-delete"
+                                                        title="Batalkan Penjualan"
+                                                        onclick="return confirm('Batalkan penjualan ini dan kembalikan stok?')">
 
                                                         <i class="bi bi-trash-fill"></i>
 
@@ -393,7 +388,7 @@
 
                                 <tr>
 
-                                    <td colspan="5">
+                                    <td colspan="8">
 
                                         <div class="empty-state text-center">
 

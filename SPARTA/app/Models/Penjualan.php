@@ -12,9 +12,21 @@ class Penjualan extends Model
         'customer_id',
         'user_id',
         'total',
-        'tanggal'
+        'tanggal',
+        'bayar',
+        'kembalian',
 
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'total' => 'decimal:2',
+            'bayar' => 'decimal:2',
+            'kembalian' => 'decimal:2',
+            'tanggal' => 'date',
+        ];
+    }
 
     public function customer()
     {
