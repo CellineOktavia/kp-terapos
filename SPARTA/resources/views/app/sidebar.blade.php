@@ -114,11 +114,11 @@
         </a>
     @endif
 
-    @if (Auth::user()->role == 'admin')
+    @if (Auth::user()->role == 'co_owner')
         <a href="/dashboard"
             class="list-group-item list-group-item-action {{ request()->is('dashboard') ? 'active' : '' }}">
             <i class="bi bi-grid-1x2-fill"></i>
-            Dashboard Admin
+            Dashboard Co-Owner
         </a>
 
         <div class="sidebar-title">

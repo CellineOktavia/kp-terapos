@@ -689,7 +689,7 @@
             <h5>Tentang SPARTA</h5>
             <p class="sp-sub">Sparepart Inventory Management System · Richie Motor</p>
             <p>
-                SPARTA membantu administrator mengelola <strong>produk</strong>,
+                SPARTA membantu Co-Owner mengelola <strong>produk</strong>,
                 <strong>supplier</strong>, <strong>transaksi pembelian</strong>,
                 <strong>transaksi penjualan</strong>, serta <strong>pemantauan stok kritis</strong>
                 secara terintegrasi dalam satu dashboard yang efisien.

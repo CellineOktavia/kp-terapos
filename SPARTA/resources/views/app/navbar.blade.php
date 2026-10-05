@@ -5,7 +5,7 @@
 
         <h2>
 
-            SPARTA
+            TERAPOS
 
         </h2>
 
@@ -37,7 +37,7 @@
 
                 <div class="role">
 
-                    {{ strtoupper(Auth::user()->role) }}
+                    {{ Auth::user()->isOwner() ? 'Owner' : 'Co-Owner' }}
 
                 </div>
 

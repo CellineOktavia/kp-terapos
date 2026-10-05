@@ -304,10 +304,10 @@ Route::get('/syarat-dan-ketentuan', function () {
     return view('privasi.terms');
 })->name('privasi.terms');
 
-// Admin Dashboard Routes
+// Co-Owner Dashboard Routes
 Route::middleware([
     'auth',
-    'role:admin'
+    'role:co_owner'
 ])->group(function () {
 
     Route::get(
