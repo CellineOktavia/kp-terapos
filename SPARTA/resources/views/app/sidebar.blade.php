@@ -64,6 +64,23 @@
             Dashboard Owner
         </a>
 
+        <div class="sidebar-title">Master Data</div>
+        <a href="{{ route('produk.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('produk*') ? 'active' : '' }}">
+            <i class="bi bi-box-seam"></i>
+            Produk
+        </a>
+        <a href="{{ route('kategori.index') }}"
+            class="list-group-item list-group-item-action {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
+            <i class="bi bi-tags"></i>
+            Kategori
+        </a>
+        <a href="{{ route('supplier.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('supplier*') ? 'active' : '' }}">
+            <i class="bi bi-truck"></i>
+            Supplier
+        </a>
+
         <div class="sidebar-title">
             Transaksi
         </div>
@@ -135,6 +152,12 @@
             class="list-group-item list-group-item-action {{ request()->is('produk*') ? 'active' : '' }}">
             <i class="bi bi-box-seam"></i>
             Produk
+        </a>
+
+        <a href="{{ route('kategori.index') }}"
+            class="list-group-item list-group-item-action {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
+            <i class="bi bi-tags"></i>
+            Kategori
         </a>
 
         <a href="/supplier"

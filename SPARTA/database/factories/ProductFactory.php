@@ -25,18 +25,16 @@ class ProductFactory extends Factory
             'supplier_id' => Supplier::inRandomOrder()->value('id'),
 
             'nama_produk' => fake()->randomElement([
-                'Oli Yamalube',
-                'Ban IRC',
-                'Kampas Rem',
-                'Aki GS Astra',
-                'Busi NGK'
+                'Air Mineral',
+                'Mie Instan',
+                'Kopi Sachet',
+                'Teh Botol',
+                'Biskuit'
             ]),
 
-            'merk' => fake()->randomElement([
-                'Yamaha',
-                'Honda',
-                'Suzuki'
-            ]),
+            'merk' => fake()->optional()->company(),
+
+            'satuan' => fake()->randomElement(['pcs', 'pack', 'box', 'botol']),
 
             'stok' => fake()->numberBetween(0, 100),
 

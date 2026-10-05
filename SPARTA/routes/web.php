@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\FakturController;
 use App\Http\Controllers\StockController;
@@ -23,6 +24,11 @@ Route::get('/login', [AuthController::class, 'showLogin'])
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth')->group(function () {
+    Route::get('/kategori', [CategoryController::class, 'index'])->name('kategori.index');
+    Route::post('/kategori', [CategoryController::class, 'store'])->name('kategori.store');
+    Route::put('/kategori/{category}', [CategoryController::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{category}', [CategoryController::class, 'destroy'])->name('kategori.destroy');
+
     // Product Routes
     Route::get(
         '/produk',
@@ -330,7 +336,8 @@ Route::middleware([
 
 // routes/web.php
 Route::get('/api/produk-by-barcode', function (Illuminate\Http\Request $request) {
-    $produk = \App\Models\Product::where('kode_produk', $request->kode)->first();
+    $produk = \App\Models\Product::where('barcode', $request->kode)->first()
+        ?? \App\Models\Product::where('kode_produk', $request->kode)->first();
 
     if ($produk) {
         return response()->json([
