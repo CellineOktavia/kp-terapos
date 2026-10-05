@@ -6,8 +6,8 @@ Review date: 2026-10-05
 
 | # | Severity | File | Lines | Finding | Confidence |
 |---|---|---|---|---|---:|
-| 1 | HIGH | `app/Http/Controllers/Api/AuthController.php` | 52-68 | Public API registration creates a `co_owner` account and immediately issues an authentication token. Because the registration route is public, an unauthenticated visitor can create an account and access routes available to authenticated Co-Owners. | 9/10 |
-| 2 | MEDIUM | `app/Http/Controllers/ProductController.php` | 143-146 | Product deletion physically removes products. The product foreign-key cascades can delete related sale details, purchase details, and stock movements, destroying transaction and inventory history. The delete route is available to authenticated users. | 9/10 |
+| 1 | HIGH — RESOLVED | `app/Http/Controllers/Api/AuthController.php` | 52-68 | Public API registration created a `co_owner` account and issued an authentication token. The public `POST /api/register` route has been removed; the controller method remains unexposed and never takes the role from the request. | 9/10 |
+| 2 | MEDIUM — RESOLVED | `app/Http/Controllers/ProductController.php` | 143-146 | Product deletion could cascade-delete sale details, purchase details, and stock movements. Product deletion now checks these history relationships and refuses deletion when any history exists. | 9/10 |
 
 ## Reviewed Areas With No Additional Findings
 
@@ -15,4 +15,4 @@ The review found no additional issues in the checked product mass-assignment han
 
 ## Scope
 
-This document records source-level findings only. No database changes, transactions, backup creation, migrations, or seeders were run as part of the review.
+This document records source-level findings and their remediation. No database changes, transactions, backup creation, migrations, or seeders were run as part of the review or fixes.

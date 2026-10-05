@@ -244,6 +244,12 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if (session('error'))
+            <div class="alert alert-danger border-0 shadow-sm">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ session('error') }}
+            </div>
+        @endif
 
         {{-- SEARCH --}}
         <div class="card search-card mb-4">

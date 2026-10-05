@@ -142,6 +142,16 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $hasHistory = $product->detailPenjualans()->exists()
+            || $product->detailFakturs()->exists()
+            || $product->stockMovements()->exists();
+
+        if ($hasHistory) {
+            return redirect()
+                ->route('produk.index')
+                ->with('error', 'Produk tidak dapat dihapus karena sudah memiliki riwayat transaksi atau pergerakan stok.');
+        }
+
         $product->delete();
 
         return redirect()
