@@ -1,9 +1,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="SPARTA - Sistem Manajemen Sparepart Richie Motor">
+    <meta name="description" content="TERAPOS - Sistem Penjualan dan Persediaan Barang Richie Motor">
 
-    <title>SPARTA</title>
+    <title>TERAPOS</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
         rel="stylesheet">
@@ -690,7 +690,7 @@
         <div class="container">
             <a class="navbar-brand" href="#">
                 <i class="bi bi-box-seam"></i>
-                SPARTA
+                TERAPOS
             </a>
             <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
@@ -728,12 +728,12 @@
                 <div class="col-lg-6">
                     <div class="hero-badge">
                         <i class="bi bi-stars"></i>
-                        Sistem Manajemen Sparepart
+                        Sistem Manajemen Penjualan dan Stok
                     </div>
                     <h1 class="hero-title">
                         <span id="typing"></span>
                         <br>
-                        Kelola Bisnis Sparepart
+                        Kelola Bisnis Produk
                         Lebih Mudah
                     </h1>
                     <p class="hero-text">
@@ -853,16 +853,16 @@
 
                     <h2 class="section-title">
                         Richie Motor &
-                        <span>SPARTA</span>
+                        <span>TERAPOS</span>
                     </h2>
                     <p class="section-text">
                         Richie Motor merupakan usaha
                         yang bergerak di bidang
-                        penjualan sparepart kendaraan.
+                        penjualan produk listrik dan kebutuhan rumah tangga.
                     </p>
                     <p class="section-text">
-                        SPARTA dikembangkan untuk
-                        membantu pengelolaan barang,
+                        TERAPOS membantu
+                        pengelolaan produk,
                         supplier, pelanggan, dan
                         statistik penjualan secara
                         real-time sehingga proses bisnis
@@ -879,7 +879,7 @@
         <div class="container">
             <div class="text-center mb-5">
                 <span class="section-badge">
-                    Fitur SPARTA
+                    Fitur TERAPOS
                 </span>
                 <h2 class="section-title">
                     Semua Yang Anda
@@ -1003,11 +1003,11 @@
         <div class="container">
             <div class="cta-box">
                 <h2 class="section-title">
-                    Siap Menggunakan SPARTA?
+                    Siap Menggunakan TERAPOS?
                 </h2>
 
                 <p class="section-text">
-                    Kelola sparepart dan supplier
+                    Kelola produk dan supplier
                     dengan lebih cepat dan efisien.
                 </p>
 
@@ -1042,14 +1042,14 @@
 
                     <i class="bi bi-box-seam"></i>
 
-                    <span>SPARTA</span>
+                    <span>TERAPOS</span>
 
                 </div>
 
                 <p class="footer-desc">
 
-                    Sistem manajemen sparepart yang membantu
-                    Richie Motor mengelola barang, supplier,
+                    Sistem penjualan dan persediaan barang yang membantu
+                    Richie Motor mengelola produk, supplier,
                     pelanggan, dan statistik penjualan secara
                     lebih cepat dan terorganisir.
 
@@ -1109,7 +1109,7 @@
 
         <div class="footer-bottom">
 
-            © {{ date('Y') }} SPARTA - Richie Motor.
+            © {{ date('Y') }} TERAPOS - Richie Motor.
             All Rights Reserved.
 
         </div>
@@ -1129,7 +1129,7 @@
 
         const typingElement = document.getElementById("typing");
         if (typingElement) {
-            const text = "SPARTA";
+            const text = "TERAPOS";
             let index = 0;
 
             function typeEffect() {

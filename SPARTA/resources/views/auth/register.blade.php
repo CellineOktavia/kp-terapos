@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar — SPARTA</title>
+    <title>Daftar — TERAPOS</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
@@ -567,7 +567,7 @@
             <div class="brand-icon">
                 <i class="bi bi-box-seam-fill"></i>
             </div>
-            <span class="brand-name">SPARTA</span>
+            <span class="brand-name">TERAPOS</span>
         </div>
 
         <div class="auth-card">
@@ -683,7 +683,7 @@
                         <a href="#">Syarat &amp; Ketentuan</a>
                         dan
                         <a href="#">Kebijakan Privasi</a>
-                        SPARTA.
+                        TERAPOS.
                     </span>
                 </div>
 
@@ -703,7 +703,7 @@
         </div>
 
         <p class="auth-footer">
-            &copy; {{ date('Y') }} SPARTA — Sistem CRUD Barang &amp; Supplier
+            &copy; {{ date('Y') }} TERAPOS — Sistem Penjualan dan Persediaan Barang
         </p>
     </div>
 

@@ -25,11 +25,11 @@ class ProductFactory extends Factory
             'supplier_id' => Supplier::inRandomOrder()->value('id'),
 
             'nama_produk' => fake()->randomElement([
-                'Air Mineral',
-                'Mie Instan',
-                'Kopi Sachet',
-                'Teh Botol',
-                'Biskuit'
+                'Lampu LED',
+                'Kabel NYM',
+                'Saklar Tunggal',
+                'Stop Kontak',
+                'Fitting Lampu'
             ]),
 
             'merk' => fake()->optional()->company(),

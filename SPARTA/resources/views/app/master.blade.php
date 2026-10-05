@@ -318,7 +318,7 @@
         }
 
         /* =====================================
-   SPARTA GLOBAL ANIMATION
+   TERAPOS GLOBAL ANIMATION
 ===================================== */
 
         /* Smooth Scroll */
@@ -503,7 +503,7 @@
 
             <div class="header-brand">
                 <h2>TERAPOS</h2>
-                <small>Sparepart Inventory Management System</small>
+                <small>Sistem Penjualan dan Persediaan Barang</small>
             </div>
 
             <div class="user-panel">

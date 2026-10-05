@@ -236,7 +236,7 @@
                         <p>
 
                             Menampilkan data produk, stok barang,
-                            dan informasi sparepart yang tersedia.
+                            dan informasi barang yang tersedia.
 
                         </p>
 
@@ -325,7 +325,7 @@
 
                         <p>
 
-                            Menampilkan transaksi pembelian sparepart
+                            Menampilkan transaksi pembelian barang
                             dari supplier.
 
                         </p>

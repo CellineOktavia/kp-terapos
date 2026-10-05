@@ -659,7 +659,7 @@
         </div>
 
         <p class="auth-footer">
-            © {{ date('Y') }} SPARTA • Richie Motor
+            © {{ date('Y') }} TERAPOS • Richie Motor
         </p>
     </div>
 

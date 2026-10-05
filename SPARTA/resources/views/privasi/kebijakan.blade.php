@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy | SPARTA</title>
+    <title>Privacy Policy | TERAPOS</title>
 
     
     <!-- Bootstrap -->
@@ -220,7 +220,7 @@
             <h1>Privacy Policy</h1>
 
             <p>
-                Kebijakan privasi SPARTA menjelaskan bagaimana Richie Motor
+                Kebijakan privasi TERAPOS menjelaskan bagaimana Richie Motor
                 mengumpulkan, menggunakan, menyimpan, dan melindungi data pengguna.
             </p>
 
@@ -272,7 +272,7 @@
 
                             <p>
                                 The Application collects information when you
-                                access and use SPARTA.
+                                access and use TERAPOS.
                             </p>
 
                             <ul>
@@ -309,7 +309,7 @@
                             </h2>
 
                             <p>
-                                SPARTA may use AI technologies to provide
+                                TERAPOS may use AI technologies to provide
                                 recommendations and enhance user experience.
                             </p>
 
@@ -370,7 +370,7 @@
     </section>
 
     <footer class="footer">
-        © {{ date('Y') }} SPARTA - Richie Motor. All Rights Reserved.
+        © {{ date('Y') }} TERAPOS - Richie Motor. All Rights Reserved.
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

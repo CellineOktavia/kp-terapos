@@ -9,15 +9,6 @@ class CategorySeeder extends Seeder
 {
     public function run(): void
     {
-        
-        Category::whereIn('nama_kategori', [
-            'Makanan',
-            'Minuman',
-            'Snack',
-            'Sembako',
-            'Perlengkapan',
-        ])->delete();
-
         $categories = [
             'Lampu',
             'Elektronik',

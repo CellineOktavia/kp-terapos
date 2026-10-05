@@ -1,6 +1,6 @@
 <style>
     /* =========================
-   SIDEBAR SPARTA
+   SIDEBAR TERAPOS
 ========================= */
 
     .sidebar-menu {

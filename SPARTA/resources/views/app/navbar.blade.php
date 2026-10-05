@@ -11,7 +11,7 @@
 
         <small>
 
-            Sparepart Inventory Management System
+            Sistem Penjualan dan Persediaan Barang
 
         </small>
 

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms & Conditions | SPARTA</title>
+    <title>Terms & Conditions | TERAPOS</title>
 
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -233,7 +233,7 @@
             <h1>Terms & Conditions</h1>
 
             <p>
-                Ketentuan penggunaan aplikasi SPARTA yang dikelola oleh Richie Motor.
+                Ketentuan penggunaan aplikasi TERAPOS yang dikelola oleh Richie Motor.
                 Harap membaca seluruh syarat dan ketentuan sebelum menggunakan layanan.
             </p>
 
@@ -376,7 +376,7 @@
     <!-- Footer -->
 
     <footer class="footer">
-        © {{ date('Y') }} SPARTA - Richie Motor. All Rights Reserved.
+        © {{ date('Y') }} TERAPOS - Richie Motor. All Rights Reserved.
     </footer>
 
     <!-- Bootstrap -->

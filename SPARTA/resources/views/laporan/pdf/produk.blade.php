@@ -120,12 +120,12 @@
     </style>
     <div class="header">
 
-        <h1>SPARTA</h1>
+        <h1>TERAPOS</h1>
 
         <h2>LAPORAN DATA PRODUK</h2>
 
         <p>
-            Sparepart Inventory Management System
+            Sistem Penjualan dan Persediaan Barang
         </p>
 
     </div>
@@ -282,8 +282,8 @@
 
     <div class="footer">
 
-        <strong>SPARTA</strong>
-        - Sparepart Inventory Management System
+        <strong>TERAPOS</strong>
+        - Sistem Penjualan dan Persediaan Barang
 
         <br>
 
