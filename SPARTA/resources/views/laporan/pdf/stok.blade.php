@@ -1,312 +1,68 @@
-<!DOCTYPE html>
-
-<html>
-
+<!doctype html>
+<html lang="id">
 <head>
-
-    
-    <meta charset="UTF-8">
-
-    <title>
-        Laporan Stok Produk
-    </title>
-
+    <meta charset="utf-8">
+    <title>Laporan Stok TERAPOS</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 11px;
-            color: #333;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #2563eb;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            color: #2563eb;
-            margin-bottom: 4px;
-        }
-
-        .header h2 {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 11px;
-        }
-
-        .info {
-            margin-bottom: 15px;
-        }
-
-        .info table {
-            width: 100%;
-        }
-
-        .info td {
-            padding: 2px 0;
-            border: none;
-        }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .report-table th {
-            background: #2563eb;
-            color: white;
-            padding: 10px;
-            text-align: left;
-            font-size: 11px;
-        }
-
-        .report-table td {
-            padding: 8px;
-            border: 1px solid #d1d5db;
-        }
-
-        .report-table tr:nth-child(even) {
-            background: #f8fafc;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .footer {
-            margin-top: 25px;
-            border-top: 1px solid #d1d5db;
-            padding-top: 10px;
-            text-align: center;
-            font-size: 10px;
-            color: #777;
-        }
-
-        .summary {
-            margin-top: 15px;
-            text-align: right;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .status-normal {
-            color: #16a34a;
-            font-weight: bold;
-        }
-
-        .status-kritis {
-            color: #dc2626;
-            font-weight: bold;
-        }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #1f2937; }
+        h1, h2, p { margin: 0 0 6px; text-align: center; }
+        h1 { color: #1d4ed8; font-size: 20px; }
+        h2 { font-size: 14px; }
+        .summary { width: 100%; margin: 12px 0; border-collapse: collapse; }
+        .summary td { border: 1px solid #cbd5e1; padding: 6px; }
+        table.report { width: 100%; border-collapse: collapse; }
+        .report th, .report td { border: 1px solid #cbd5e1; padding: 5px; }
+        .report th { background: #dbeafe; text-align: left; }
+        .right { text-align: right; }
+        .center { text-align: center; }
+        .out { color: #b91c1c; font-weight: bold; }
+        .low { color: #b45309; font-weight: bold; }
+        .safe { color: #15803d; font-weight: bold; }
+        .empty { text-align: center; padding: 18px; }
     </style>
-    
-
 </head>
-
 <body>
-
-    
-    {{-- HEADER --}}
-    <div class="header">
-
-        <h1>SPARTA</h1>
-
-        <h2>LAPORAN STOK PRODUK</h2>
-
-        <p>
-            Sparepart Inventory Management System
-        </p>
-
-    </div>
-
-    {{-- INFORMASI LAPORAN --}}
-    <div class="info">
-
-        <table>
-
-            <tr>
-                <td width="150">
-                    Tanggal Cetak
-                </td>
-
-                <td>
-                    : {{ now()->format('d-m-Y H:i') }}
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    Total Produk
-                </td>
-
-                <td>
-                    : {{ $products->count() }}
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    Produk Stok Kritis
-                </td>
-
-                <td>
-                    : {{ $products->where('stok', '<=', 'stok_minimum')->count() }}
-                </td>
-            </tr>
-
-        </table>
-
-    </div>
-
-    {{-- TABEL --}}
-    <table class="report-table">
-
-        <thead>
-
-            <tr>
-
-                <th width="40">
-                    No
-                </th>
-
-                <th width="90">
-                    Kode
-                </th>
-
-                <th>
-                    Produk
-                </th>
-
-                <th width="110">
-                    Merk
-                </th>
-
-                <th width="70">
-                    Stok
-                </th>
-
-                <th width="80">
-                    Minimum
-                </th>
-
-                <th width="90">
-                    Status
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            @forelse($products as $product)
-                <tr>
-
-                    <td class="text-center">
-
-                        {{ $loop->iteration }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $product->kode_produk }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $product->nama_produk }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $product->merk }}
-
-                    </td>
-
-                    <td class="text-center">
-
-                        {{ $product->stok }}
-
-                    </td>
-
-                    <td class="text-center">
-
-                        {{ $product->stok_minimum }}
-
-                    </td>
-
-                    <td class="text-center">
-
-                        @if ($product->stok <= $product->stok_minimum)
-                            <span class="status-kritis">
-                                KRITIS
-                            </span>
-                        @else
-                            <span class="status-normal">
-                                NORMAL
-                            </span>
-                        @endif
-
-                    </td>
-
-                </tr>
-
-            @empty
-
-                <tr>
-
-                    <td colspan="7" class="text-center">
-
-                        Tidak ada data stok produk
-
-                    </td>
-
-                </tr>
-            @endforelse
-
-        </tbody>
-
+    <h1>TERAPOS</h1>
+    <h2>Laporan Stok</h2>
+    <p>Dicetak: {{ now()->format('d/m/Y H:i') }}</p>
+    <table class="summary">
+        <tr>
+            <td><strong>Total Produk:</strong> {{ number_format($summary['products'], 0, ',', '.') }}</td>
+            <td><strong>Stok Kritis:</strong> {{ number_format($summary['critical'], 0, ',', '.') }}</td>
+            <td><strong>Nilai Persediaan (Harga Beli):</strong> Rp {{ number_format($summary['inventoryValue'], 0, ',', '.') }}</td>
+        </tr>
     </table>
-
-    {{-- RINGKASAN --}}
-    <div class="summary">
-
-        Total Item Produk :
-        {{ $products->sum('stok') }}
-
-    </div>
-
-    {{-- FOOTER --}}
-    <div class="footer">
-
-        <strong>SPARTA</strong>
-        - Sparepart Inventory Management System
-
-        <br>
-
-        © {{ date('Y') }} Richie Motor
-
-    </div>
-    
-
+    <table class="report">
+        <thead><tr>
+            <th>Kode</th><th>Barcode</th><th>Nama Produk</th><th>Kategori</th><th>Satuan</th>
+            <th>Stok</th><th>Minimum</th><th>Harga Beli</th><th>Harga Jual</th><th>Status</th>
+        </tr></thead>
+        <tbody>
+            @forelse ($products as $product)
+                <tr>
+                    <td>{{ $product->kode_produk }}</td>
+                    <td>{{ $product->barcode ?? '-' }}</td>
+                    <td>{{ $product->nama_produk }}</td>
+                    <td>{{ $product->category?->nama_kategori ?? '-' }}</td>
+                    <td>{{ $product->satuan }}</td>
+                    <td class="center">{{ $product->stok }}</td>
+                    <td class="center">{{ $product->stok_minimum }}</td>
+                    <td class="right">Rp {{ number_format($product->harga_beli, 0, ',', '.') }}</td>
+                    <td class="right">Rp {{ number_format($product->harga_jual, 0, ',', '.') }}</td>
+                    <td class="center">
+                        @if ((int) $product->stok === 0)
+                            <span class="out">HABIS</span>
+                        @elseif ($product->stok <= $product->stok_minimum)
+                            <span class="low">MENIPIS</span>
+                        @else
+                            <span class="safe">AMAN</span>
+                        @endif
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="10" class="empty">Tidak ada produk untuk filter ini.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
 </body>
-
 </html>

@@ -183,14 +183,14 @@
         <div class="laporan-header">
 
             <h2 class="laporan-title">
-                Laporan SPARTA
+                Laporan TERAPOS
             </h2>
 
             <p class="laporan-desc">
 
                 Pilih jenis laporan yang ingin ditampilkan untuk memantau
                 data operasional, transaksi, supplier, pelanggan,
-                serta inventori pada sistem SPARTA.
+                serta inventori pada sistem TERAPOS.
 
             </p>
 
