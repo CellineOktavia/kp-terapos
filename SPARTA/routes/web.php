@@ -203,6 +203,9 @@ Route::middleware('auth')->group(function () {
     )->name('laporan.stok.pdf');
 
     // Stock Routes
+    Route::get('/stok', [StockController::class, 'index'])
+        ->name('stok.index');
+
     Route::get(
         '/stok-kritis',
         [StockController::class, 'critical']
@@ -212,6 +215,13 @@ Route::middleware('auth')->group(function () {
         '/riwayat-stok',
         [StockMovementController::class, 'index']
     )->name('stok.riwayat');
+
+    Route::middleware('role:owner')->group(function () {
+        Route::get('/stok/adjustment', [StockController::class, 'createAdjustment'])
+            ->name('stok.adjustment.create');
+        Route::post('/stok/adjustment', [StockController::class, 'storeAdjustment'])
+            ->name('stok.adjustment.store');
+    });
 
 
     // Customer Routes

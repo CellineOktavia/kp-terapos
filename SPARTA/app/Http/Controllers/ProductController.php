@@ -66,7 +66,6 @@ class ProductController extends Controller
             'nama_produk' => 'required|string',
             'merk' => 'nullable|string',
             'satuan' => 'required|string',
-            'stok' => 'required|integer|min:0',
             'stok_minimum' => 'required|integer|min:0',
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',
@@ -85,6 +84,7 @@ class ProductController extends Controller
                         $identity
                     );
                     $validated = Validator::make($input, $rules)->validate();
+                    $validated['stok'] = 0;
 
                     Product::create($validated);
                 });
@@ -125,7 +125,6 @@ class ProductController extends Controller
             'nama_produk' => 'required|string|max:255',
             'merk' => 'nullable|string|max:255',
             'satuan' => 'required|string|max:50',
-            'stok' => 'required|integer|min:0',
             'stok_minimum' => 'required|integer|min:0',
             'harga_beli' => 'required|numeric|min:0',
             'harga_jual' => 'required|numeric|min:0',

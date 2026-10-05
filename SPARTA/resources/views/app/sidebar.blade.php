@@ -57,6 +57,10 @@
 
 <div class="list-group list-group-flush sidebar-menu">
 
+    @php
+        $criticalStockCount = \App\Models\Product::whereColumn('stok', '<=', 'stok_minimum')->count();
+    @endphp
+
     @if (Auth::user()->role == 'owner')
         <a href="{{ route('owner.dashboard') }}"
             class="list-group-item list-group-item-action {{ request()->is('owner/dashboard') ? 'active' : '' }}">
@@ -79,6 +83,28 @@
             class="list-group-item list-group-item-action {{ request()->is('supplier*') ? 'active' : '' }}">
             <i class="bi bi-truck"></i>
             Supplier
+        </a>
+
+        <div class="sidebar-title">Stok</div>
+        <a href="{{ route('stok.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('stok') ? 'active' : '' }}">
+            <i class="bi bi-boxes"></i>
+            Stok Barang
+        </a>
+        <a href="{{ route('stok.kritis') }}"
+            class="list-group-item list-group-item-action {{ request()->is('stok-kritis*') ? 'active' : '' }}">
+            <i class="bi bi-exclamation-triangle"></i>
+            Stok Kritis ({{ $criticalStockCount }})
+        </a>
+        <a href="{{ route('stok.riwayat') }}"
+            class="list-group-item list-group-item-action {{ request()->is('riwayat-stok*') ? 'active' : '' }}">
+            <i class="bi bi-clock-history"></i>
+            Riwayat Stok
+        </a>
+        <a href="{{ route('stok.adjustment.create') }}"
+            class="list-group-item list-group-item-action {{ request()->is('stok/adjustment*') ? 'active' : '' }}">
+            <i class="bi bi-sliders"></i>
+            Penyesuaian Stok
         </a>
 
         <div class="sidebar-title">
@@ -186,17 +212,21 @@
             Faktur Penjualan
         </a>
 
-        <div class="sidebar-title">
-            Inventory
-        </div>
+        <div class="sidebar-title">Stok</div>
 
-        <a href="/stok-kritis"
-            class="list-group-item list-group-item-action {{ request()->is('stok-kritis*') ? 'active' : '' }}">
-            <i class="bi bi-exclamation-triangle"></i>
-            Stok Kritis
+        <a href="{{ route('stok.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('stok') ? 'active' : '' }}">
+            <i class="bi bi-boxes"></i>
+            Stok Barang
         </a>
 
-        <a href="/riwayat-stok"
+        <a href="{{ route('stok.kritis') }}"
+            class="list-group-item list-group-item-action {{ request()->is('stok-kritis*') ? 'active' : '' }}">
+            <i class="bi bi-exclamation-triangle"></i>
+            Stok Kritis ({{ $criticalStockCount }})
+        </a>
+
+        <a href="{{ route('stok.riwayat') }}"
             class="list-group-item list-group-item-action {{ request()->is('riwayat-stok*') ? 'active' : '' }}">
             <i class="bi bi-clock-history"></i>
             Riwayat Stok

@@ -291,15 +291,20 @@
                     <div class="card-body">
                         <div class="info-group">
                             <p class="info-label">Stok Saat Ini</p>
-                            @if ($product->stok <= $product->stok_minimum)
+                            @if ((int) $product->stok === 0)
                                 <span class="stock-critical">
                                     <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    {{ $product->stok }} {{ $product->satuan }} — Stok Kritis
+                                    {{ $product->stok }} {{ $product->satuan }} — HABIS
+                                </span>
+                            @elseif ($product->stok <= $product->stok_minimum)
+                                <span class="stock-critical">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    {{ $product->stok }} {{ $product->satuan }} — STOK MENIPIS
                                 </span>
                             @else
                                 <span class="stock-good">
                                     <i class="bi bi-check-circle-fill me-1"></i>
-                                    {{ $product->stok }} {{ $product->satuan }}
+                                    {{ $product->stok }} {{ $product->satuan }} — AMAN
                                 </span>
                             @endif
                         </div>

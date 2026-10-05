@@ -107,9 +107,12 @@
                             </select>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label">Stok</label>
-                            <input type="number" name="stok" class="form-control"
-                                value="{{ old('stok', $product->stok) }}" min="0" required>
+                            <label class="form-label">Stok Saat Ini</label>
+                            <input type="text" class="form-control" value="{{ $product->stok }} {{ $product->satuan }}"
+                                readonly>
+                            <small class="text-muted">
+                                Perubahan stok dilakukan melalui Pembelian, Penjualan, atau Penyesuaian Stok.
+                            </small>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label">Stok Minimum</label>

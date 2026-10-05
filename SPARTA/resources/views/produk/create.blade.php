@@ -109,10 +109,6 @@
                                 required>
                         </div>
                         <div class="col-md-3 mb-3">
-                            <label class="form-label fw-semibold">Stok</label>
-                            <input type="number" name="stok" class="form-control" value="{{ old('stok', 0) }}" min="0" required>
-                        </div>
-                        <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Stok Minimum</label>
                             <input type="number" name="stok_minimum" class="form-control"
                                 value="{{ old('stok_minimum', 1) }}" min="0" required>
