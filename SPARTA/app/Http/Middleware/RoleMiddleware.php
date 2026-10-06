@@ -4,19 +4,22 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
     public function handle(
         Request $request,
-        Closure $next,
+        Closure $next,  
         string $role
     ): Response {
+        $user = $request->user();
+        $validRoles = ['owner', 'co_owner'];
+
         if (
-            !Auth::check() ||
-            Auth::user()->role !== $role
+            !$user ||
+            !in_array($role, $validRoles, true) ||
+            $user->role !== $role
         ) {
 
             abort(403);

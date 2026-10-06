@@ -23,6 +23,16 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    public function isOwner(): bool
+    {
+        return $this->role === 'owner';
+    }
+
+    public function isCoOwner(): bool
+    {
+        return $this->role === 'co_owner';
+    }
+
     protected function casts(): array
     {
         return [

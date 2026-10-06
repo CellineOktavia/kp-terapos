@@ -1,276 +1,71 @@
-<!DOCTYPE html>
-
-<html>
-
+<!doctype html>
+<html lang="id">
 <head>
-
-    
-    <meta charset="UTF-8">
-
-    <title>
-        Laporan Pembelian
-    </title>
-
+    <meta charset="utf-8">
+    <title>Laporan Pembelian TERAPOS</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: DejaVu Sans, sans-serif;
-            font-size: 11px;
-            color: #333;
-            padding: 20px;
-        }
-
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #2563eb;
-            padding-bottom: 12px;
-            margin-bottom: 20px;
-        }
-
-        .header h1 {
-            font-size: 22px;
-            color: #2563eb;
-            margin-bottom: 4px;
-        }
-
-        .header h2 {
-            font-size: 16px;
-            margin-bottom: 4px;
-        }
-
-        .header p {
-            color: #666;
-            font-size: 11px;
-        }
-
-        .info {
-            margin-bottom: 15px;
-        }
-
-        .info table {
-            width: 100%;
-        }
-
-        .info td {
-            padding: 2px 0;
-            border: none;
-        }
-
-        .report-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .report-table th {
-            background: #2563eb;
-            color: white;
-            padding: 10px;
-            text-align: left;
-            font-size: 11px;
-        }
-
-        .report-table td {
-            padding: 8px;
-            border: 1px solid #d1d5db;
-        }
-
-        .report-table tr:nth-child(even) {
-            background: #f8fafc;
-        }
-
-        .text-center {
-            text-align: center;
-        }
-
-        .text-right {
-            text-align: right;
-        }
-
-        .footer {
-            margin-top: 25px;
-            border-top: 1px solid #d1d5db;
-            padding-top: 10px;
-            text-align: center;
-            font-size: 10px;
-            color: #777;
-        }
-
-        .summary {
-            margin-top: 15px;
-            text-align: right;
-            font-size: 12px;
-            font-weight: bold;
-        }
+        body { font-family: DejaVu Sans, sans-serif; font-size: 9px; color: #1f2937; }
+        h1, h2, p { margin: 0 0 6px; text-align: center; }
+        h1 { color: #1d4ed8; font-size: 20px; }
+        h2 { font-size: 14px; }
+        .period { margin-bottom: 14px; text-align: center; }
+        .summary { width: 100%; margin-bottom: 12px; border-collapse: collapse; }
+        .summary td { border: 1px solid #cbd5e1; padding: 6px; }
+        table.report { width: 100%; border-collapse: collapse; }
+        .report th, .report td { border: 1px solid #cbd5e1; padding: 5px; vertical-align: top; }
+        .report th { background: #dbeafe; text-align: left; }
+        .transaction { background: #f1f5f9; font-weight: bold; }
+        .right { text-align: right; }
+        .center { text-align: center; }
+        .empty { text-align: center; padding: 18px; }
     </style>
-    
-
 </head>
-
 <body>
-
-    
-    {{-- HEADER --}}
-    <div class="header">
-
-        <h1>SPARTA</h1>
-
-        <h2>LAPORAN PEMBELIAN</h2>
-
-        <p>
-            Sparepart Inventory Management System
-        </p>
-
-    </div>
-
-    {{-- INFORMASI LAPORAN --}}
-    <div class="info">
-
-        <table>
-
-            <tr>
-                <td width="150">
-                    Tanggal Cetak
-                </td>
-
-                <td>
-                    : {{ now()->format('d-m-Y H:i') }}
-                </td>
-            </tr>
-
-            <tr>
-                <td>
-                    Total Faktur
-                </td>
-
-                <td>
-                    : {{ $fakturs->count() }}
-                </td>
-            </tr>
-
-        </table>
-
-    </div>
-
-    {{-- TABEL --}}
-    <table class="report-table">
-
-        <thead>
-
-            <tr>
-
-                <th width="40">
-                    No
-                </th>
-
-                <th width="140">
-                    No Faktur
-                </th>
-
-                <th>
-                    Supplier
-                </th>
-
-                <th width="100">
-                    Tanggal
-                </th>
-
-                <th width="130">
-                    Total
-                </th>
-
-            </tr>
-
-        </thead>
-
-        <tbody>
-
-            @php
-                $grandTotal = 0;
-            @endphp
-
-            @forelse($fakturs as $faktur)
-                @php
-                    $grandTotal += $faktur->total;
-                @endphp
-
-                <tr>
-
-                    <td class="text-center">
-
-                        {{ $loop->iteration }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $faktur->nomor_faktur }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $faktur->supplier->nama_supplier ?? '-' }}
-
-                    </td>
-
-                    <td>
-
-                        {{ \Carbon\Carbon::parse($faktur->tanggal)->format('d-m-Y') }}
-
-                    </td>
-
-                    <td class="text-right">
-
-                        Rp {{ number_format($faktur->total, 0, ',', '.') }}
-
-                    </td>
-
-                </tr>
-
-            @empty
-
-                <tr>
-
-                    <td colspan="5" class="text-center">
-
-                        Tidak ada data pembelian
-
-                    </td>
-
-                </tr>
-            @endforelse
-
-        </tbody>
-
+    <h1>TERAPOS</h1>
+    <h2>Laporan Pembelian</h2>
+    <p class="period">Periode: {{ $period['label'] }}</p>
+    <table class="summary">
+        <tr>
+            <td><strong>Total Pembelian:</strong> Rp {{ number_format($summary['total'], 0, ',', '.') }}</td>
+            <td><strong>Transaksi:</strong> {{ number_format($summary['transactions'], 0, ',', '.') }}</td>
+            <td><strong>Qty Dibeli:</strong> {{ number_format($summary['qty'], 0, ',', '.') }} pcs</td>
+        </tr>
     </table>
-
-    {{-- TOTAL --}}
-    <div class="summary">
-
-        Total Pembelian :
-        Rp {{ number_format($grandTotal, 0, ',', '.') }}
-
-    </div>
-
-    {{-- FOOTER --}}
-    <div class="footer">
-
-        <strong>SPARTA</strong>
-        - Sparepart Inventory Management System
-
-        <br>
-
-        © {{ date('Y') }} Richie Motor
-
-    </div>
-    
-
+    <table class="report">
+        <thead><tr>
+            <th>Tanggal</th><th>No. Pembelian</th><th>User</th><th>Kode / Produk</th>
+            <th>Qty</th><th>Harga Beli Saat Transaksi</th><th>Subtotal</th><th>Total Pembelian</th>
+        </tr></thead>
+        <tbody>
+            @forelse ($fakturs as $faktur)
+                @forelse ($faktur->detailFakturs as $detail)
+                    <tr>
+                        <td>{{ $loop->first ? \Carbon\Carbon::parse($faktur->tanggal)->format('d/m/Y') : '' }}</td>
+                        <td>{{ $loop->first ? $faktur->nomor_faktur : '' }}</td>
+                        <td>{{ $loop->first ? ($faktur->user?->name ?? '-') : '' }}</td>
+                        <td>{{ $detail->product?->kode_produk ?? '-' }} / {{ $detail->product?->nama_produk ?? 'Produk tidak tersedia' }}</td>
+                        <td class="center">{{ $detail->qty }}</td>
+                        <td class="right">Rp {{ number_format($detail->harga, 0, ',', '.') }}</td>
+                        <td class="right">Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                        <td class="right">
+                            @if ($loop->first)
+                                Rp {{ number_format($faktur->total, 0, ',', '.') }}
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td>{{ \Carbon\Carbon::parse($faktur->tanggal)->format('d/m/Y') }}</td>
+                        <td>{{ $faktur->nomor_faktur }}</td>
+                        <td>{{ $faktur->user?->name ?? '-' }}</td>
+                        <td colspan="4">Tidak ada detail item.</td>
+                        <td class="right">Rp {{ number_format($faktur->total, 0, ',', '.') }}</td>
+                    </tr>
+                @endforelse
+            @empty
+                <tr><td colspan="8" class="empty">Tidak ada transaksi pada periode ini.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
 </body>
-
 </html>

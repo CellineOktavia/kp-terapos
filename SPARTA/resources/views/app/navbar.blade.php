@@ -5,13 +5,13 @@
 
         <h2>
 
-            SPARTA
+            TERAPOS
 
         </h2>
 
         <small>
 
-            Sparepart Inventory Management System
+            Sistem Penjualan dan Persediaan Barang
 
         </small>
 
@@ -37,7 +37,7 @@
 
                 <div class="role">
 
-                    {{ strtoupper(Auth::user()->role) }}
+                    {{ Auth::user()->isOwner() ? 'Owner' : 'Co-Owner' }}
 
                 </div>
 

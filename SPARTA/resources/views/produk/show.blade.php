@@ -240,7 +240,15 @@
                             </div>
                             <div class="col-md-6 info-group">
                                 <p class="info-label">Kategori</p>
-                                <p class="info-value">{{ $product->kategori ?? '-' }}</p>
+                                <p class="info-value">{{ $product->category?->nama_kategori ?? '-' }}</p>
+                            </div>
+                            <div class="col-md-6 info-group">
+                                <p class="info-label">Barcode</p>
+                                <p class="info-value">{{ $product->barcode ?? '-' }}</p>
+                            </div>
+                            <div class="col-md-6 info-group">
+                                <p class="info-label">Satuan</p>
+                                <p class="info-value">{{ $product->satuan }}</p>
                             </div>
                             <div class="col-md-12 info-group mb-0">
                                 <p class="info-label">Deskripsi</p>
@@ -258,7 +266,7 @@
                             {{-- Canvas barcode digenerate JS di bawah --}}
                             <svg id="barcodesvg"></svg>
                             <p id="barcode-error">Gagal membuat barcode.<br>Periksa kode produk.</p>
-                            <div class="barcode-kode">{{ $product->kode_produk }}</div>
+                            <div class="barcode-kode">{{ $product->barcode ?: $product->kode_produk }}</div>
                             <div class="barcode-nama">{{ $product->nama_produk }}</div>
                         </div>
                         <div class="text-center mt-3">
@@ -283,22 +291,27 @@
                     <div class="card-body">
                         <div class="info-group">
                             <p class="info-label">Stok Saat Ini</p>
-                            @if ($product->stok <= $product->stok_minimum)
+                            @if ((int) $product->stok === 0)
                                 <span class="stock-critical">
                                     <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    {{ $product->stok }} unit — Stok Kritis
+                                    {{ $product->stok }} {{ $product->satuan }} — HABIS
+                                </span>
+                            @elseif ($product->stok <= $product->stok_minimum)
+                                <span class="stock-critical">
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                                    {{ $product->stok }} {{ $product->satuan }} — STOK MENIPIS
                                 </span>
                             @else
                                 <span class="stock-good">
                                     <i class="bi bi-check-circle-fill me-1"></i>
-                                    {{ $product->stok }} unit
+                                    {{ $product->stok }} {{ $product->satuan }} — AMAN
                                 </span>
                             @endif
                         </div>
                         <hr class="divider">
                         <div class="info-group mb-0">
                             <p class="info-label">Stok Minimum</p>
-                            <p class="info-value">{{ $product->stok_minimum }} unit</p>
+                            <p class="info-value">{{ $product->stok_minimum }} {{ $product->satuan }}</p>
                         </div>
                     </div>
                 </div>
@@ -455,5 +468,5 @@
     </script>
 
     {{-- Simpan kode produk di data attribute — cara paling aman, bebas dari escaping/quoting issue --}}
-    <span id="kode_produk_data" data-kode="{{ $product->kode_produk }}" style="display:none;" aria-hidden="true"></span>
+    <span id="kode_produk_data" data-kode="{{ $product->barcode ?: $product->kode_produk }}" style="display:none;" aria-hidden="true"></span>
 @endpush

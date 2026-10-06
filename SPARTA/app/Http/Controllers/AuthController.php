@@ -31,16 +31,29 @@ class AuthController extends Controller
                 ->withInput();
         }
 
+        $user = Auth::user();
+
+        if ($user->role !== 'owner' && $user->role !== 'co_owner') {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()
+                ->route('login')
+                ->withErrors([
+                    'email' => 'Role akun tidak valid. Hubungi pemilik aplikasi.',
+                ]);
+        }
+
         $request->session()->regenerate();
 
-        if (Auth::user()->role === 'owner') {
+        if ($user->role === 'owner') {
 
             return redirect()
                 ->route('owner.dashboard');
         }
 
-        return redirect()
-            ->route('dashboard');
+        return redirect()->route('dashboard');
     }
 
     public function logout(Request $request)

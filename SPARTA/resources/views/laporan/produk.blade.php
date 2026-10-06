@@ -13,7 +13,7 @@
                 </h2>
 
                 <p class="page-subtitle">
-                    Laporan data produk dan persediaan sparepart pada sistem SPARTA
+                    Laporan data produk dan persediaan barang pada sistem TERAPOS
                 </p>
 
             </div>

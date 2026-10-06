@@ -1,296 +1,81 @@
 @extends('app.master')
 
 @section('content')
-    <style>
-        /* ==========================
-           RIWAYAT STOK PAGE
-        ========================== */
-
-        .page-header {
-            margin-bottom: 24px;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-
-        .page-subtitle {
-            color: #64748b;
-            margin: 0;
-        }
-
-        .movement-stat {
-            background: #fff;
-            border-radius: 18px;
-            padding: 22px;
-            box-shadow:
-                0 10px 30px rgba(15, 23, 42, .06);
-
-            border-top: 4px solid #2563eb;
-        }
-
-        .movement-stat h3 {
-            margin: 0;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        .movement-stat p {
-            margin: 6px 0 0;
-            color: #64748b;
-        }
-
-        .data-card {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-
-            box-shadow:
-                0 10px 30px rgba(15, 23, 42, .06);
-        }
-
-        .movement-table thead th {
-            background: #f8fafc;
-            color: #475569;
-            border: none;
-            padding: 18px;
-            font-weight: 700;
-        }
-
-        .movement-table tbody td {
-            padding: 18px;
-            vertical-align: middle;
-            border-color: #f1f5f9;
-        }
-
-        .movement-table tbody tr:hover {
-            background: #f8fbff;
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .qty-in {
-            color: #059669;
-            font-weight: 700;
-        }
-
-        .qty-out {
-            color: #dc2626;
-            font-weight: 700;
-        }
-
-        .badge-in {
-            background: rgba(16, 185, 129, .12);
-            color: #059669;
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 700;
-        }
-
-        .badge-out {
-            background: rgba(239, 68, 68, .12);
-            color: #dc2626;
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 700;
-        }
-
-        .date-text {
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .description-text {
-            color: #334155;
-        }
-
-        .empty-state {
-            padding: 60px 0;
-            color: #94a3b8;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 12px;
-        }
-    </style>
-
     <div class="container-fluid">
-
-        {{-- HEADER --}}
-        <div class="page-header">
-
-            <h2 class="page-title">
-                Riwayat Stok
-            </h2>
-
-            <p class="page-subtitle">
-                Riwayat seluruh pergerakan stok masuk dan keluar
-            </p>
-
+        <div class="mb-4">
+            <h2 class="fw-bold">Riwayat Stok</h2>
+            <p class="text-muted mb-0">Riwayat seluruh pergerakan stok masuk dan keluar.</p>
         </div>
 
-        {{-- STAT CARD --}}
-        <div class="row mb-4">
-
-            <div class="col-md-3">
-
-                <div class="movement-stat">
-
-                    <h3>
-                        {{ $movements->total() }}
-                    </h3>
-
-                    <p>
-                        Total Aktivitas Stok
-                    </p>
-
-                </div>
-
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('stok.riwayat') }}" class="row g-3">
+                    <div class="col-lg-4 col-md-6">
+                        <label for="movement-search" class="form-label">Pencarian</label>
+                        <input id="movement-search" type="search" name="search" class="form-control"
+                            value="{{ request('search') }}" placeholder="Kode, nama produk, atau keterangan">
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="jenis" class="form-label">Jenis</label>
+                        <select id="jenis" name="jenis" class="form-select">
+                            <option value="">Semua</option>
+                            <option value="masuk" @selected(request('jenis') === 'masuk')>Masuk</option>
+                            <option value="keluar" @selected(request('jenis') === 'keluar')>Keluar</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="mulai" class="form-label">Tanggal mulai</label>
+                        <input id="mulai" type="date" name="mulai" class="form-control" value="{{ request('mulai') }}">
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="sampai" class="form-label">Tanggal akhir</label>
+                        <input id="sampai" type="date" name="sampai" class="form-control" value="{{ request('sampai') }}">
+                    </div>
+                    <div class="col-lg-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-outline-primary w-100">Filter</button>
+                    </div>
+                </form>
             </div>
-
         </div>
 
-        {{-- TABLE --}}
-        <div class="card data-card">
-
-            <div class="card-body p-0">
-
-                <div class="table-responsive">
-
-                    <table class="table movement-table mb-0">
-
-                        <thead>
-
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">{{ $movements->total() }} aktivitas stok</div>
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Tanggal/Waktu</th>
+                            <th>Kode Produk</th>
+                            <th>Nama Produk</th>
+                            <th>Jenis</th>
+                            <th>Qty</th>
+                            <th>Keterangan</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($movements as $movement)
                             <tr>
-
-                                <th>Tanggal</th>
-                                <th>Produk</th>
-                                <th>Jenis</th>
-                                <th>Qty</th>
-                                <th>Keterangan</th>
-
+                                <td>{{ $movement->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
+                                <td>{{ $movement->product?->kode_produk ?? '-' }}</td>
+                                <td>{{ $movement->product?->nama_produk ?? 'Produk tidak tersedia' }}</td>
+                                <td>
+                                    <span class="badge {{ $movement->jenis === 'masuk' ? 'text-bg-success' : 'text-bg-danger' }}">
+                                        {{ strtoupper($movement->jenis) }}
+                                    </span>
+                                </td>
+                                <td>{{ $movement->qty }}</td>
+                                <td>{{ $movement->keterangan }}</td>
                             </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @forelse($movements as $movement)
-                                <tr>
-
-                                    <td>
-
-                                        <span class="date-text">
-
-                                            {{ \Carbon\Carbon::parse($movement->created_at)->format('d M Y H:i') }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="product-name">
-
-                                            {{ $movement->product->nama_produk }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        @if ($movement->jenis == 'masuk')
-                                            <span class="badge-in">
-
-                                                Stok Masuk
-
-                                            </span>
-                                        @else
-                                            <span class="badge-out">
-
-                                                Stok Keluar
-
-                                            </span>
-                                        @endif
-
-                                    </td>
-
-                                    <td>
-
-                                        @if ($movement->jenis == 'masuk')
-                                            <span class="qty-in">
-
-                                                +{{ $movement->qty }}
-
-                                            </span>
-                                        @else
-                                            <span class="qty-out">
-
-                                                -{{ $movement->qty }}
-
-                                            </span>
-                                        @endif
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="description-text">
-
-                                            {{ $movement->keterangan }}
-
-                                        </span>
-
-                                    </td>
-
-                                </tr>
-
-                            @empty
-
-                                <tr>
-
-                                    <td colspan="5">
-
-                                        <div class="empty-state text-center">
-
-                                            <i class="bi bi-clock-history"></i>
-
-                                            Belum ada riwayat stok
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-                            @endforelse
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
+                        @empty
+                            <tr>
+                                <td colspan="6" class="text-center text-muted py-4">Belum ada riwayat stok.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
         </div>
 
-        {{-- PAGINATION --}}
-        <div class="mt-4">
-
-            {{ $movements->links() }}
-
-        </div>
-
+        <div class="mt-4">{{ $movements->links() }}</div>
     </div>
 @endsection

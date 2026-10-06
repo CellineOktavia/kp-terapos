@@ -8,11 +8,11 @@
             <div>
 
                 <h2 class="fw-bold">
-                    Detail Faktur
+                    Detail Pembelian
                 </h2>
 
                 <p class="text-muted">
-                    Informasi lengkap transaksi
+                    Informasi lengkap pembelian
                 </p>
 
             </div>
@@ -21,15 +21,15 @@
             </a>
         </div>
 
-        {{-- Informasi Faktur --}}
+        {{-- Informasi Pembelian --}}
         <div class="card shadow-sm mb-4">
             <div class="card-header">
-                Informasi Faktur
+                Informasi Pembelian
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-4">
-                        <strong>No Faktur</strong>
+                        <strong>Nomor Pembelian</strong>
                         <p>
                             {{ $faktur->nomor_faktur }}
                         </p>
@@ -41,17 +41,8 @@
                         </p>
                     </div>
                     <div class="col-md-4">
-                        <strong>Supplier</strong>
-                        <p>
-                            @if ($faktur->supplier)
-                                {{ $faktur->supplier?->nama_supplier ?? '-' }}
-                            @else
-                                <span class="text-danger">
-                                    Supplier tidak ditemukan
-                                </span>
-                            @endif
-                        </p>
-
+                        <strong>Dibuat Oleh</strong>
+                        <p>{{ $faktur->user->name ?? '-' }}</p>
                     </div>
 
                 </div>
@@ -60,12 +51,12 @@
 
         </div>
 
-        {{-- Detail Produk --}}
+        {{-- Item Pembelian --}}
         <div class="card shadow-sm">
 
             <div class="card-header">
 
-                Detail Produk
+                Item Pembelian
 
             </div>
 
@@ -79,6 +70,7 @@
 
                             <tr>
 
+                                <th>Kode</th>
                                 <th>Produk</th>
 
                                 <th>Qty</th>
@@ -96,22 +88,18 @@
                             @foreach ($faktur->detailFakturs as $detail)
                                 <tr>
 
+                                    <td>{{ $detail->product->kode_produk ?? '-' }}</td>
+                                    <td>{{ $detail->product->nama_produk ?? 'Produk tidak ditemukan' }}</td>
+
                                     <td>
 
-                                        {{ $detail->product->nama_produk }}
+                                        {{ $detail->qty }} {{ $detail->product->satuan ?? '' }}
 
                                     </td>
 
                                     <td>
 
-                                        {{ $detail->qty }}
-
-                                    </td>
-
-                                    <td>
-
-                                        Rp
-                                        {{ number_format($detail->harga, 0, ',', '.') }}
+                                        {{ $detail->qty }} x Rp{{ number_format($detail->harga, 0, ',', '.') }}
 
                                     </td>
 

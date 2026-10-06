@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\FakturController;
 use App\Http\Controllers\StockController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\OwnerDashboardController;
+use App\Http\Controllers\BackupController;
 
 Route::get('/', function () {
     return view('landing-page');
@@ -23,6 +25,11 @@ Route::get('/login', [AuthController::class, 'showLogin'])
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware('auth')->group(function () {
+    Route::get('/kategori', [CategoryController::class, 'index'])->name('kategori.index');
+    Route::post('/kategori', [CategoryController::class, 'store'])->name('kategori.store');
+    Route::put('/kategori/{category}', [CategoryController::class, 'update'])->name('kategori.update');
+    Route::delete('/kategori/{category}', [CategoryController::class, 'destroy'])->name('kategori.destroy');
+
     // Product Routes
     Route::get(
         '/produk',
@@ -129,16 +136,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/faktur/{faktur}', [FakturController::class, 'destroy'])
         ->name('faktur.destroy');
 
-    Route::get(
-        '/faktur/{faktur}/edit',
-        [FakturController::class, 'edit']
-    )->name('faktur.edit');
-
-    Route::put(
-        '/faktur/{faktur}',
-        [FakturController::class, 'update']
-    )->name('faktur.update');
-
     // Laporan Routes
     Route::get(
         '/laporan',
@@ -207,6 +204,9 @@ Route::middleware('auth')->group(function () {
     )->name('laporan.stok.pdf');
 
     // Stock Routes
+    Route::get('/stok', [StockController::class, 'index'])
+        ->name('stok.index');
+
     Route::get(
         '/stok-kritis',
         [StockController::class, 'critical']
@@ -216,6 +216,21 @@ Route::middleware('auth')->group(function () {
         '/riwayat-stok',
         [StockMovementController::class, 'index']
     )->name('stok.riwayat');
+
+    Route::middleware('role:owner')->group(function () {
+        Route::get('/stok/adjustment', [StockController::class, 'createAdjustment'])
+            ->name('stok.adjustment.create');
+        Route::post('/stok/adjustment', [StockController::class, 'storeAdjustment'])
+            ->name('stok.adjustment.store');
+
+        Route::get('/backup', [BackupController::class, 'index'])
+            ->name('backup.index');
+        Route::post('/backup', [BackupController::class, 'store'])
+            ->name('backup.store');
+        Route::get('/backup/{filename}/download', [BackupController::class, 'download'])
+            ->where('filename', 'terapos-backup-[0-9]{8}-[0-9]{6}(-[0-9]+)?\\.sqlite')
+            ->name('backup.download');
+    });
 
 
     // Customer Routes
@@ -280,16 +295,6 @@ Route::middleware('auth')->group(function () {
         [PenjualanController::class, 'destroy']
     )->name('penjualan.destroy');
 
-    Route::get(
-        '/penjualan/{penjualan}/edit',
-        [PenjualanController::class, 'edit']
-    )->name('penjualan.edit');
-
-    Route::put(
-        '/penjualan/{penjualan}',
-        [PenjualanController::class, 'update']
-    )->name('penjualan.update');
-
     // Logout Route
     Route::post('/logout', [AuthController::class, 'logout'])
         ->name('logout');
@@ -304,10 +309,10 @@ Route::get('/syarat-dan-ketentuan', function () {
     return view('privasi.terms');
 })->name('privasi.terms');
 
-// Admin Dashboard Routes
+// Co-Owner Dashboard Routes
 Route::middleware([
     'auth',
-    'role:admin'
+    'role:co_owner'
 ])->group(function () {
 
     Route::get(
@@ -330,7 +335,8 @@ Route::middleware([
 
 // routes/web.php
 Route::get('/api/produk-by-barcode', function (Illuminate\Http\Request $request) {
-    $produk = \App\Models\Product::where('kode_produk', $request->kode)->first();
+    $produk = \App\Models\Product::where('barcode', $request->kode)->first()
+        ?? \App\Models\Product::where('kode_produk', $request->kode)->first();
 
     if ($produk) {
         return response()->json([

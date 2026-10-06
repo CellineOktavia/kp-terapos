@@ -144,7 +144,7 @@
                 </h2>
 
                 <p class="page-subtitle">
-                    Daftar seluruh pelanggan yang terdaftar dalam sistem SPARTA
+                    Daftar seluruh pelanggan yang terdaftar dalam sistem TERAPOS
                 </p>
 
             </div>

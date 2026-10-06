@@ -1,307 +1,238 @@
 @extends('app.master')
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
-        rel="stylesheet" />
-@endpush
-
 @section('content')
     <div class="container-fluid">
-
         <div class="d-flex justify-content-between align-items-center mb-4">
-
             <div>
-
-                <h2 class="fw-bold">
-                    Tambah Faktur
-                </h2>
-
-                <p class="text-muted">
-                    Buat transaksi pembelian baru
-                </p>
-
+                <h2 class="fw-bold">Tambah Pembelian</h2>
+                <p class="text-muted">Catat item pembelian. Stok produk bertambah setelah disimpan.</p>
             </div>
-
-            <a href="{{ route('faktur.index') }}" class="btn btn-secondary">
-
-                Kembali
-
-            </a>
-
+            <a href="{{ route('faktur.index') }}" class="btn btn-secondary">Kembali</a>
         </div>
 
-        <div class="card shadow-sm">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-            <div class="card-body">
+        @php($oldItems = old('items', [['product_id' => '', 'qty' => 1, 'harga' => '']]))
 
-                <form action="{{ route('faktur.store') }}" method="POST">
-
-                    @csrf
-
+        <form action="{{ route('faktur.store') }}" method="POST" id="purchase-form">
+            @csrf
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
                     <div class="row">
-
-                        {{-- Nomor Faktur --}}
                         <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Nomor Faktur
-
-                            </label>
-
-                            <input type="text" name="nomor_faktur" class="form-control"
-                                value="INV-{{ now()->format('YmdHis') }}" readonly>
-
+                            <label for="nomor-pembelian" class="form-label">Nomor Pembelian</label>
+                            <input id="nomor-pembelian" type="text" class="form-control"
+                                value="{{ $generatedNumber }}" readonly>
+                            <small class="text-muted">Dibuat otomatis oleh sistem.</small>
                         </div>
-
-                        {{-- Tanggal --}}
                         <div class="col-md-6 mb-3">
-
-                            <label class="form-label">
-
-                                Tanggal
-
-                            </label>
-
-                            <input type="date" name="tanggal" class="form-control" value="{{ date('Y-m-d') }}" required>
-
+                            <label for="tanggal" class="form-label">Tanggal</label>
+                            <input id="tanggal" type="date" name="tanggal" class="form-control"
+                                value="{{ old('tanggal', now()->toDateString()) }}" required>
                         </div>
-
-                        {{-- Supplier --}}
-                        <div class="col-md-12 mb-3">
-
-                            <label class="form-label">
-
-                                Supplier
-
-                            </label>
-
-                            <select name="supplier_id" class="form-select" required>
-
-                                <option value="">
-
-                                    Pilih Supplier
-
-                                </option>
-
-                                @foreach ($suppliers as $supplier)
-                                    <option value="{{ $supplier->id }}">
-
-                                        {{ $supplier->nama_supplier }}
-
-                                    </option>
-                                @endforeach
-
-                            </select>
-
-                        </div>
-
                     </div>
-
-                    <hr>
-
-                    <h5 class="fw-bold mb-3">
-
-                        Detail Produk
-
-                    </h5>
-
-                    <div class="row">
-
-                        <input type="hidden" name="product_id" id="product_id">
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Kode Produk</label>
-
-                            <select id="kode_produk" class="form-select product-select" required>
-                                <option value="">Pilih Kode Produk</option>
-
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}" data-harga="{{ $product->harga_beli }}"
-                                        data-stok="{{ $product->stok }}">
-                                        {{ $product->kode_produk }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Nama Produk</label>
-
-                            <select id="nama_produk" class="form-select product-select" required>
-                                <option value="">Pilih Nama Produk</option>
-
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}" data-harga="{{ $product->harga_beli }}"
-                                        data-stok="{{ $product->stok }}">
-                                        {{ $product->nama_produk }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Merk</label>
-
-                            <select id="merk_produk" class="form-select product-select" required>
-                                <option value="">Pilih Merk</option>
-
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}" data-harga="{{ $product->harga_beli }}"
-                                        data-stok="{{ $product->stok }}">
-                                        {{ $product->merk }} - {{ $product->nama_produk }} ({{ $product->kode_produk }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        {{-- Qty --}}
-                        <div class="col-md-2 mb-3">
-
-                            <label class="form-label">
-
-                                Qty
-
-                            </label>
-
-                            <input type="number" name="qty" id="qty" class="form-control" min="1"
-                                required>
-
-                        </div>
-
-                        {{-- Harga --}}
-                        <div class="col-md-3 mb-3">
-
-                            <label class="form-label">
-
-                                Harga
-
-                            </label>
-
-                            <input type="number" name="harga" id="harga" class="form-control" min="1"
-                                required>
-
-                        </div>
-
-                        {{-- Subtotal --}}
-                        <div class="col-md-3 mb-3">
-
-                            <label class="form-label">
-
-                                Subtotal
-
-                            </label>
-
-                            <input type="text" id="subtotal" class="form-control" readonly>
-
-                        </div>
-
-                    </div>
-
-                    <hr>
-
-                    <div class="text-end">
-
-                        <button type="submit" class="btn btn-primary">
-
-                            Simpan Faktur
-
-                        </button>
-
-                    </div>
-
-                </form>
-
+                </div>
             </div>
 
-        </div>
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Item Pembelian</h5>
+                    <button type="button" class="btn btn-outline-primary btn-sm" id="add-item">
+                        Tambah Baris
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th style="min-width: 300px">Produk</th>
+                                    <th>Kode</th>
+                                    <th style="min-width: 100px">Qty</th>
+                                    <th style="min-width: 160px">Harga Beli</th>
+                                    <th style="min-width: 160px">Subtotal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="purchase-items">
+                                @foreach ($oldItems as $index => $oldItem)
+                                    <tr class="purchase-item">
+                                        <td>
+                                            <select name="items[{{ $index }}][product_id]"
+                                                class="form-select product-select" required>
+                                                <option value="">Pilih produk</option>
+                                                @foreach ($products as $product)
+                                                    <option value="{{ $product->id }}"
+                                                        data-code="{{ $product->kode_produk }}"
+                                                        data-price="{{ $product->harga_beli }}"
+                                                        @selected(($oldItem['product_id'] ?? '') == $product->id)>
+                                                        {{ $product->kode_produk }} - {{ $product->nama_produk }}
+                                                        (Stok: {{ $product->stok }} {{ $product->satuan }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </td>
+                                        <td class="product-code text-muted">-</td>
+                                        <td>
+                                            <input type="number" name="items[{{ $index }}][qty]"
+                                                class="form-control item-qty" min="1"
+                                                value="{{ $oldItem['qty'] ?? 1 }}" required>
+                                        </td>
+                                        <td>
+                                            <input type="number" name="items[{{ $index }}][harga]"
+                                                class="form-control item-price" min="0" step="0.01"
+                                                value="{{ $oldItem['harga'] ?? '' }}" required>
+                                        </td>
+                                        <td class="item-subtotal">Rp 0</td>
+                                        <td>
+                                            <button type="button" class="btn btn-outline-danger btn-sm remove-item">
+                                                Hapus
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="4" class="text-end">Total Pembelian</th>
+                                    <th id="purchase-total">Rp 0</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Simpan Pembelian</button>
+                </div>
+            </div>
+        </form>
 
+        <template id="item-template">
+            <tr class="purchase-item">
+                <td>
+                    <select class="form-select product-select" required>
+                        <option value="">Pilih produk</option>
+                        @foreach ($products as $product)
+                            <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}"
+                                data-price="{{ $product->harga_beli }}">
+                                {{ $product->kode_produk }} - {{ $product->nama_produk }}
+                                (Stok: {{ $product->stok }} {{ $product->satuan }})
+                            </option>
+                        @endforeach
+                    </select>
+                </td>
+                <td class="product-code text-muted">-</td>
+                <td><input type="number" class="form-control item-qty" min="1" value="1" required></td>
+                <td><input type="number" class="form-control item-price" min="0" step="0.01" required></td>
+                <td class="item-subtotal">Rp 0</td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-item">Hapus</button>
+                </td>
+            </tr>
+        </template>
     </div>
 @endsection
+
 @push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
     <script>
-        $(document).ready(function() {
-            let isSyncing = false;
+        document.addEventListener('DOMContentLoaded', function () {
+            const tbody = document.getElementById('purchase-items');
+            const template = document.getElementById('item-template');
 
-            $('.select2').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Cari data...',
-                allowClear: true,
-                width: '100%'
-            });
+            function formatCurrency(value) {
+                return 'Rp ' + Number(value || 0).toLocaleString('id-ID', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 2
+                });
+            }
 
-            $('.product-select').select2({
-                theme: 'bootstrap-5',
-                placeholder: 'Cari produk...',
-                allowClear: true,
-                width: '100%'
-            });
+            function updateTotals() {
+                let total = 0;
+                tbody.querySelectorAll('.purchase-item').forEach(function (row) {
+                    const qty = Number(row.querySelector('.item-qty').value || 0);
+                    const price = Number(row.querySelector('.item-price').value || 0);
+                    const subtotal = qty * price;
+                    total += subtotal;
+                    row.querySelector('.item-subtotal').textContent = formatCurrency(subtotal);
+                });
+                document.getElementById('purchase-total').textContent = formatCurrency(total);
+            }
 
-            $('.product-select').on('change', function() {
-                if (isSyncing) return;
+            function reindexRows() {
+                tbody.querySelectorAll('.purchase-item').forEach(function (row, index) {
+                    row.querySelector('.product-select').name = 'items[' + index + '][product_id]';
+                    row.querySelector('.item-qty').name = 'items[' + index + '][qty]';
+                    row.querySelector('.item-price').name = 'items[' + index + '][harga]';
+                });
+            }
 
-                const productId = $(this).val();
+            function setProductValue(row, preservePrice) {
+                const select = row.querySelector('.product-select');
+                const option = select.options[select.selectedIndex];
+                const selectedId = select.value;
+                row.querySelector('.product-code').textContent = selectedId ? option.dataset.code : '-';
 
-                if (!productId) {
-                    clearProduct();
-                    return;
+                if (selectedId) {
+                    const duplicate = Array.from(tbody.querySelectorAll('.product-select'))
+                        .some(function (other) {
+                            return other !== select && other.value === selectedId;
+                        });
+                    if (duplicate) {
+                        alert('Produk yang sama tidak boleh dimasukkan dua kali.');
+                        select.value = '';
+                        row.querySelector('.product-code').textContent = '-';
+                        row.querySelector('.item-price').value = '';
+                        updateTotals();
+                        return;
+                    }
+                    const priceInput = row.querySelector('.item-price');
+                    if (!preservePrice || !priceInput.value) {
+                        priceInput.value = option.dataset.price || 0;
+                    }
                 }
+                updateTotals();
+            }
 
-                pilihProduk(productId);
+            tbody.addEventListener('change', function (event) {
+                if (event.target.matches('.product-select')) {
+                    setProductValue(event.target.closest('.purchase-item'), false);
+                }
+            });
+            tbody.addEventListener('input', function (event) {
+                if (event.target.matches('.item-qty, .item-price')) {
+                    updateTotals();
+                }
+            });
+            tbody.addEventListener('click', function (event) {
+                if (event.target.matches('.remove-item')) {
+                    if (tbody.querySelectorAll('.purchase-item').length === 1) {
+                        alert('Pembelian harus memiliki minimal satu item.');
+                        return;
+                    }
+                    event.target.closest('.purchase-item').remove();
+                    reindexRows();
+                    updateTotals();
+                }
             });
 
-            $('#qty, #harga').on('input', function() {
-                hitungSubtotal();
+            document.getElementById('add-item').addEventListener('click', function () {
+                const row = template.content.firstElementChild.cloneNode(true);
+                tbody.appendChild(row);
+                reindexRows();
             });
 
-            function pilihProduk(productId) {
-                isSyncing = true;
-
-                $('#product_id').val(productId);
-
-                $('#kode_produk').val(productId).trigger('change.select2');
-                $('#nama_produk').val(productId).trigger('change.select2');
-                $('#merk_produk').val(productId).trigger('change.select2');
-
-                const selected = $('#kode_produk option[value="' + productId + '"]');
-
-                const harga = selected.data('harga') || 0;
-                const stok = selected.data('stok') || 0;
-
-                $('#harga').val(harga);
-                $('#qty').attr('max', stok);
-
-                hitungSubtotal();
-
-                isSyncing = false;
-            }
-
-            function hitungSubtotal() {
-                const qty = Number($('#qty').val() || 0);
-                const harga = Number($('#harga').val() || 0);
-
-                $('#subtotal').val(Number(qty * harga).toLocaleString('id-ID'));
-            }
-
-            function clearProduct() {
-                isSyncing = true;
-
-                $('#product_id').val('');
-                $('#kode_produk').val('').trigger('change.select2');
-                $('#nama_produk').val('').trigger('change.select2');
-                $('#merk_produk').val('').trigger('change.select2');
-
-                $('#harga').val('');
-                $('#subtotal').val('');
-                $('#qty').val('');
-                $('#qty').removeAttr('max');
-
-                isSyncing = false;
-            }
+            reindexRows();
+            tbody.querySelectorAll('.purchase-item').forEach(function (row) {
+                setProductValue(row, true);
+            });
+            updateTotals();
         });
     </script>
 @endpush

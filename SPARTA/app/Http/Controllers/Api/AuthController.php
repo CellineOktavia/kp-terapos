@@ -26,7 +26,16 @@ class AuthController extends Controller
             ], 401);
         }
 
+        /** @var User $user */
         $user = Auth::user();
+
+        if ($user->role !== 'owner' && $user->role !== 'co_owner') {
+            Auth::logout();
+
+            return response()->json([
+                'message' => 'Role akun tidak valid. Hubungi pemilik aplikasi.'
+            ], 403);
+        }
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
@@ -46,14 +55,14 @@ class AuthController extends Controller
             'name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'unique:users,email'],
             'password' => ['required', 'min:6'],
-            'role' => ['required', 'in:admin,owner']
+            'role' => ['prohibited']
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role
+            'role' => 'co_owner'
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;

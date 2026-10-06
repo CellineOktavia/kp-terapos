@@ -218,7 +218,7 @@
         <div class="page-header">
             <div>
                 <h2 class="page-title">Data Produk</h2>
-                <p class="page-subtitle">Kelola seluruh produk Richie Motor</p>
+                <p class="page-subtitle">Kelola seluruh produk TERAPOS</p>
             </div>
 
             <a href="{{ route('produk.create') }}" class="btn-add-product">
@@ -244,6 +244,12 @@
                 {{ session('success') }}
             </div>
         @endif
+        @if (session('error'))
+            <div class="alert alert-danger border-0 shadow-sm">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ session('error') }}
+            </div>
+        @endif
 
         {{-- SEARCH --}}
         <div class="card search-card mb-4">
@@ -254,7 +260,7 @@
                             <div class="search-box">
                                 <i class="bi bi-search"></i>
                                 <input type="text" name="search" class="form-control search-input"
-                                    placeholder="Cari kode atau nama produk..." value="{{ request('search') }}">
+                                    placeholder="Cari kode, barcode, nama, merk, atau kategori..." value="{{ request('search') }}">
                             </div>
                         </div>
                         <div class="col-md-2">
@@ -275,11 +281,10 @@
                         <thead>
                             <tr>
                                 <th>Kode</th>
-                                <th>Nama Produk</th>
-                                <th>Merk</th>
+                                <th>Nama</th>
+                                <th>Kategori</th>
                                 <th>Stok</th>
                                 <th>Harga Jual</th>
-                                <th>Barcode</th>
                                 <th width="120">Aksi</th>
                             </tr>
                         </thead>
@@ -296,7 +301,7 @@
                                             {{ $product->nama_produk }}
                                         </span>
                                     </td>
-                                    <td>{{ $product->merk }}</td>
+                                    <td>{{ $product->category?->nama_kategori ?? '-' }}</td>
                                     <td>
                                         @if ($product->stok <= $product->stok_minimum)
                                             <span class="stock-critical">{{ $product->stok }}</span>
@@ -308,10 +313,6 @@
                                         <span class="price-text">
                                             Rp {{ number_format($product->harga_jual, 0, ',', '.') }}
                                         </span>
-                                    </td>
-                                    <td class="barcode-cell">
-                                        <svg class="barcode" data-value="{{ $product->kode_produk }}">
-                                        </svg>
                                     </td>
                                     <td>
                                         <div class="d-flex gap-2">
@@ -336,10 +337,10 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7">
+                                    <td colspan="6">
                                         <div class="empty-state text-center">
                                             <i class="bi bi-box-seam"></i>
-                                            Tidak ada data produk
+                                            Tidak ada produk yang sesuai dengan pencarian.
                                         </div>
                                     </td>
                                 </tr>
@@ -357,18 +358,4 @@
 
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.barcode').forEach(function(el) {
-                JsBarcode(el, el.getAttribute('data-value'), {
-                    format: 'CODE128',
-                    width: 1.5,
-                    height: 40,
-                    displayValue: true,
-                    margin: 4,
-                });
-            });
-        });
-    </script>
 @endsection

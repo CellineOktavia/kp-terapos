@@ -127,11 +127,6 @@
             color: #2563eb;
         }
 
-        .supplier-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
         .amount-badge {
             background: rgba(16, 185, 129, .12);
             color: #059669;
@@ -204,11 +199,11 @@
             <div>
 
                 <h2 class="page-title">
-                    Data Faktur Pembelian
+                    Riwayat Pembelian
                 </h2>
 
                 <p class="page-subtitle">
-                    Riwayat transaksi pembelian dari supplier
+                    Riwayat transaksi barang yang dibeli
                 </p>
 
             </div>
@@ -216,7 +211,7 @@
             <a href="{{ route('faktur.create') }}" class="btn-add-faktur">
 
                 <i class="bi bi-plus-circle-fill me-2"></i>
-                Tambah Faktur
+                Tambah Pembelian
 
             </a>
 
@@ -234,7 +229,7 @@
                     </h3>
 
                     <p>
-                        Total Faktur
+                        Total Pembelian
                     </p>
 
                 </div>
@@ -244,6 +239,19 @@
         </div>
 
         {{-- SEARCH --}}
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <div class="card search-card mb-4">
 
             <div class="card-body p-4">
@@ -252,26 +260,47 @@
 
                     <div class="row g-3">
 
-                        <div class="col-md-10">
+                        <div class="col-lg-4 col-md-6">
 
                             <div class="search-box">
 
                                 <i class="bi bi-search"></i>
 
                                 <input type="text" name="search" class="form-control search-input"
-                                    placeholder="Cari nomor faktur..." value="{{ request('search') }}">
+                                    placeholder="Nomor, produk, kode, atau user..."
+                                    value="{{ $filters['search'] ?? '' }}">
 
                             </div>
 
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="start_date" class="form-label">Tanggal Mulai</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control"
+                                value="{{ $filters['start_date'] ?? '' }}">
+                        </div>
 
-                            <button type="submit" class="btn btn-primary btn-search w-100">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="end_date" class="form-label">Tanggal Akhir</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control"
+                                value="{{ $filters['end_date'] ?? '' }}">
+                        </div>
 
-                                Cari
+                        <div class="col-lg-2 col-md-6">
+                            <label for="user_id" class="form-label">User</label>
+                            <select id="user_id" name="user_id" class="form-select">
+                                <option value="">Semua user</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        @selected(($filters['user_id'] ?? '') == $user->id)>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            </button>
+                        <div class="col-lg-2 col-md-6">
+                            <button type="submit" class="btn btn-primary btn-search w-100">Cari</button>
 
                         </div>
 
@@ -296,10 +325,12 @@
 
                             <tr>
 
-                                <th>No Faktur</th>
-                                <th>Supplier</th>
+                                <th>Nomor Pembelian</th>
                                 <th>Tanggal</th>
+                                <th>Jumlah Item</th>
+                                <th>Total Qty</th>
                                 <th>Total</th>
+                                <th>Dibuat Oleh</th>
                                 <th width="150">
                                     Aksi
                                 </th>
@@ -324,30 +355,19 @@
                                     </td>
 
                                     <td>
-
-                                        <span class="supplier-name">
-
-                                            {{ $faktur->supplier->nama_supplier ?? '-' }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
                                         {{ \Carbon\Carbon::parse($faktur->tanggal)->format('d M Y') }}
-
                                     </td>
+
+                                    <td>{{ $faktur->detail_fakturs_count }}</td>
+                                    <td>{{ number_format($faktur->detail_fakturs_sum_qty ?? 0, 0, ',', '.') }}</td>
 
                                     <td>
-
                                         <span class="amount-badge">
-
                                             Rp {{ number_format($faktur->total, 0, ',', '.') }}
-
                                         </span>
-
                                     </td>
+
+                                    <td>{{ $faktur->user->name ?? '-' }}</td>
 
                                     <td>
 
@@ -361,20 +381,14 @@
                                             </a>
 
                                             @if (Auth::user()->role === 'owner')
-                                                <a href="{{ route('faktur.edit', $faktur) }}" class="btn action-btn btn-edit"
-                                                    title="Edit">
-
-                                                    <i class="bi bi-pencil-fill"></i>
-
-                                                </a>
-
                                                 <form action="{{ route('faktur.destroy', $faktur) }}" method="POST">
 
                                                     @csrf
                                                     @method('DELETE')
 
-                                                    <button type="submit" class="btn action-btn btn-delete" title="Hapus"
-                                                        onclick="return confirm('Yakin ingin menghapus faktur ini?')">
+                                                    <button type="submit" class="btn action-btn btn-delete"
+                                                        title="Batalkan Pembelian"
+                                                        onclick="return confirm('Batalkan pembelian ini? Stok akan dikurangi dan pembatalan ditolak jika stok sudah digunakan.')">
 
                                                         <i class="bi bi-trash-fill"></i>
 
@@ -393,13 +407,13 @@
 
                                 <tr>
 
-                                    <td colspan="5">
+                                    <td colspan="7">
 
                                         <div class="empty-state text-center">
 
                                             <i class="bi bi-receipt"></i>
 
-                                            Tidak ada data faktur
+                                            Tidak ada transaksi yang sesuai dengan pencarian/filter.
 
                                         </div>
 

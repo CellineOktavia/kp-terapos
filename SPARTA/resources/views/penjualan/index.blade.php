@@ -127,11 +127,6 @@
             font-weight: 700;
         }
 
-        .customer-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
         .amount-badge {
             background: rgba(16, 185, 129, .12);
             color: #059669;
@@ -204,7 +199,7 @@
             <div>
 
                 <h2 class="page-title">
-                    Data Penjualan
+                    Riwayat Penjualan
                 </h2>
 
                 <p class="page-subtitle">
@@ -252,26 +247,47 @@
 
                     <div class="row g-3">
 
-                        <div class="col-md-10">
+                        <div class="col-lg-4 col-md-6">
 
                             <div class="search-box">
 
                                 <i class="bi bi-search"></i>
 
                                 <input type="text" name="search" class="form-control search-input"
-                                    placeholder="Cari nomor penjualan..." value="{{ $search ?? '' }}">
+                                    placeholder="Nomor, pelanggan, produk, kode, atau kasir..."
+                                    value="{{ $filters['search'] ?? '' }}">
 
                             </div>
 
                         </div>
 
-                        <div class="col-md-2">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="start_date" class="form-label">Tanggal Mulai</label>
+                            <input type="date" id="start_date" name="start_date" class="form-control"
+                                value="{{ $filters['start_date'] ?? '' }}">
+                        </div>
 
-                            <button type="submit" class="btn btn-primary btn-search w-100">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="end_date" class="form-label">Tanggal Akhir</label>
+                            <input type="date" id="end_date" name="end_date" class="form-control"
+                                value="{{ $filters['end_date'] ?? '' }}">
+                        </div>
 
-                                Cari
+                        <div class="col-lg-2 col-md-6">
+                            <label for="user_id" class="form-label">Kasir/User</label>
+                            <select id="user_id" name="user_id" class="form-select">
+                                <option value="">Semua user</option>
+                                @foreach ($users as $user)
+                                    <option value="{{ $user->id }}"
+                                        @selected(($filters['user_id'] ?? '') == $user->id)>
+                                        {{ $user->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                            </button>
+                        <div class="col-lg-2 col-md-6">
+                            <button type="submit" class="btn btn-primary btn-search w-100">Cari</button>
 
                         </div>
 
@@ -282,6 +298,19 @@
             </div>
 
         </div>
+
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
         {{-- TABLE --}}
         <div class="card data-card">
@@ -296,10 +325,13 @@
 
                             <tr>
 
-                                <th>No Penjualan</th>
-                                <th>Pelanggan</th>
+                                <th>Nomor</th>
                                 <th>Tanggal</th>
+                                <th>Pelanggan</th>
+                                <th>Jenis Item</th>
+                                <th>Total Qty</th>
                                 <th>Total</th>
+                                <th>Kasir</th>
                                 <th width="150">
                                     Aksi
                                 </th>
@@ -324,30 +356,20 @@
                                     </td>
 
                                     <td>
-
-                                        <span class="customer-name">
-
-                                            {{ $penjualan->customer->nama_customer }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
                                         {{ \Carbon\Carbon::parse($penjualan->tanggal)->format('d M Y') }}
-
                                     </td>
+
+                                    <td>{{ $penjualan->customer->nama_customer ?? 'Pelanggan Umum' }}</td>
+                                    <td>{{ $penjualan->detail_penjualans_count }}</td>
+                                    <td>{{ number_format($penjualan->detail_penjualans_sum_qty ?? 0, 0, ',', '.') }}</td>
 
                                     <td>
-
                                         <span class="amount-badge">
-
                                             Rp {{ number_format($penjualan->total, 0, ',', '.') }}
-
                                         </span>
-
                                     </td>
+
+                                    <td>{{ $penjualan->user->name ?? '-' }}</td>
 
                                     <td>
 
@@ -361,20 +383,14 @@
                                             </a>
 
                                             @if (Auth::user()->role === 'owner')
-                                                <a href="{{ route('penjualan.edit', $penjualan) }}"
-                                                    class="btn action-btn btn-edit" title="Edit">
-
-                                                    <i class="bi bi-pencil-fill"></i>
-
-                                                </a>
-
                                                 <form action="{{ route('penjualan.destroy', $penjualan) }}" method="POST">
 
                                                     @csrf
                                                     @method('DELETE')
 
-                                                    <button type="submit" class="btn action-btn btn-delete" title="Hapus"
-                                                        onclick="return confirm('Yakin ingin menghapus transaksi ini?')">
+                                                    <button type="submit" class="btn action-btn btn-delete"
+                                                        title="Batalkan Penjualan"
+                                                        onclick="return confirm('Batalkan penjualan ini dan kembalikan stok?')">
 
                                                         <i class="bi bi-trash-fill"></i>
 
@@ -393,13 +409,13 @@
 
                                 <tr>
 
-                                    <td colspan="5">
+                                    <td colspan="8">
 
                                         <div class="empty-state text-center">
 
                                             <i class="bi bi-receipt"></i>
 
-                                            Tidak ada data penjualan
+                                            Tidak ada transaksi yang sesuai dengan pencarian/filter.
 
                                         </div>
 

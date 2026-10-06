@@ -1,315 +1,115 @@
 @extends('app.master')
 
 @section('content')
-    <style>
-        /* ==========================
-           LAPORAN STOK
-        ========================== */
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-
-        .page-subtitle {
-            color: #64748b;
-            margin: 0;
-        }
-
-        .btn-download {
-            background: linear-gradient(135deg,
-                    #dc2626,
-                    #ef4444);
-            border: none;
-            color: white;
-            padding: 12px 22px;
-            border-radius: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: .3s;
-        }
-
-        .btn-download:hover {
-            color: white;
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 10px 25px rgba(220, 38, 38, .25);
-        }
-
-        .report-stat {
-            background: white;
-            border-radius: 18px;
-            padding: 22px;
-
-            box-shadow:
-                0 10px 30px rgba(15, 23, 42, .06);
-
-            border-top: 4px solid #2563eb;
-        }
-
-        .report-stat h3 {
-            margin: 0;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        .report-stat p {
-            margin: 6px 0 0;
-            color: #64748b;
-        }
-
-        .data-card {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-
-            box-shadow:
-                0 10px 30px rgba(15, 23, 42, .06);
-        }
-
-        .report-table thead th {
-            background: #f8fafc;
-            color: #475569;
-            border: none;
-            padding: 18px;
-            font-weight: 700;
-        }
-
-        .report-table tbody td {
-            padding: 18px;
-            vertical-align: middle;
-            border-color: #f1f5f9;
-        }
-
-        .report-table tbody tr:hover {
-            background: #f8fbff;
-        }
-
-        .product-code {
-            color: #2563eb;
-            font-weight: 700;
-        }
-
-        .product-name {
-            font-weight: 600;
-            color: #0f172a;
-        }
-
-        .brand-text {
-            color: #64748b;
-            font-weight: 500;
-        }
-
-        .stock-normal {
-            background: rgba(16, 185, 129, .12);
-            color: #059669;
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 700;
-        }
-
-        .stock-critical {
-            background: rgba(239, 68, 68, .12);
-            color: #dc2626;
-            padding: 8px 14px;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 700;
-        }
-
-        .minimum-stock {
-            font-weight: 600;
-            color: #64748b;
-        }
-
-        .empty-state {
-            padding: 60px 0;
-            color: #94a3b8;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-            display: block;
-            margin-bottom: 12px;
-        }
-    </style>
-
     <div class="container-fluid">
-
-        
-        {{-- HEADER --}}
-        <div class="page-header">
-
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
-
-                <h2 class="page-title">
-                    Laporan Stok Produk
-                </h2>
-
-                <p class="page-subtitle">
-                    Informasi stok dan batas minimum seluruh produk
-                </p>
-
+                <h2 class="fw-bold mb-1">Laporan Stok</h2>
+                <p class="text-muted mb-0">Kondisi persediaan produk saat ini.</p>
             </div>
-
-            <a href="{{ route('laporan.stok.pdf') }}" class="btn-download">
-
-                <i class="bi bi-file-earmark-pdf-fill me-2"></i>
-                Download PDF
-
+            <a href="{{ route('laporan.stok.pdf', request()->query()) }}" class="btn btn-danger">
+                <i class="bi bi-file-earmark-pdf me-1"></i> Cetak / Download PDF
             </a>
-
         </div>
 
-        {{-- STATISTIK --}}
-        <div class="row mb-4">
-
-            <div class="col-md-3">
-
-                <div class="report-stat">
-
-                    <h3>
-                        {{ $products->count() }}
-                    </h3>
-
-                    <p>
-                        Total Produk
-                    </p>
-
-                </div>
-
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100"><div class="card-body">
+                    <div class="text-muted">Total Produk</div>
+                    <div class="h4 fw-bold mb-0">{{ number_format($summary['products'], 0, ',', '.') }}</div>
+                </div></div>
             </div>
-
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100"><div class="card-body">
+                    <div class="text-muted">Stok Kritis</div>
+                    <div class="h4 fw-bold text-danger mb-0">{{ number_format($summary['critical'], 0, ',', '.') }}</div>
+                </div></div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100"><div class="card-body">
+                    <div class="text-muted">Nilai Persediaan (Harga Beli)</div>
+                    <div class="h4 fw-bold mb-0">Rp {{ number_format($summary['inventoryValue'], 0, ',', '.') }}</div>
+                    <small class="text-muted">Estimasi berdasarkan harga beli produk saat ini.</small>
+                </div></div>
+            </div>
         </div>
 
-        {{-- TABLE --}}
-        <div class="card data-card">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ route('laporan.stok') }}" class="row g-3 align-items-end">
+                    <div class="col-lg-5 col-md-6">
+                        <label for="stock-search" class="form-label">Cari produk</label>
+                        <input id="stock-search" type="search" name="search" class="form-control"
+                            value="{{ $filters['search'] ?? '' }}" placeholder="Kode, barcode, atau nama">
+                    </div>
+                    <div class="col-lg-3 col-md-6">
+                        <label for="category_id" class="form-label">Kategori</label>
+                        <select id="category_id" name="category_id" class="form-select">
+                            <option value="">Semua kategori</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}"
+                                    @selected(($filters['category_id'] ?? '') == $category->id)>
+                                    {{ $category->nama_kategori }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-select">
+                            @foreach (['all' => 'Semua', 'safe' => 'Aman', 'low' => 'Menipis', 'out' => 'Habis'] as $key => $label)
+                                <option value="{{ $key }}" @selected(($filters['status'] ?? 'all') === $key)>
+                                    {{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <button type="submit" class="btn btn-outline-primary w-100">Terapkan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
-            <div class="card-body p-0">
-
-                <div class="table-responsive">
-
-                    <table class="table report-table mb-0">
-
-                        <thead>
-
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead><tr>
+                        <th>Kode</th><th>Barcode</th><th>Nama Produk</th><th>Kategori</th>
+                        <th>Satuan</th><th>Stok</th><th>Minimum</th><th>Harga Beli</th>
+                        <th>Harga Jual</th><th>Status</th>
+                    </tr></thead>
+                    <tbody>
+                        @forelse ($products as $product)
                             <tr>
-
-                                <th>Kode</th>
-                                <th>Produk</th>
-                                <th>Merk</th>
-                                <th>Stok</th>
-                                <th>Minimum</th>
-
+                                <td>{{ $product->kode_produk }}</td>
+                                <td>{{ $product->barcode ?? '-' }}</td>
+                                <td>{{ $product->nama_produk }}</td>
+                                <td>{{ $product->category?->nama_kategori ?? '-' }}</td>
+                                <td>{{ $product->satuan }}</td>
+                                <td>{{ $product->stok }}</td>
+                                <td>{{ $product->stok_minimum }}</td>
+                                <td>Rp {{ number_format($product->harga_beli, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($product->harga_jual, 0, ',', '.') }}</td>
+                                <td>
+                                    @if ((int) $product->stok === 0)
+                                        <span class="badge text-bg-danger">HABIS</span>
+                                    @elseif ($product->stok <= $product->stok_minimum)
+                                        <span class="badge text-bg-warning">MENIPIS</span>
+                                    @else
+                                        <span class="badge text-bg-success">AMAN</span>
+                                    @endif
+                                </td>
                             </tr>
-
-                        </thead>
-
-                        <tbody>
-
-                            @forelse($products as $product)
-                                <tr>
-
-                                    <td>
-
-                                        <span class="product-code">
-
-                                            {{ $product->kode_produk }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="product-name">
-
-                                            {{ $product->nama_produk }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="brand-text">
-
-                                            {{ $product->merk }}
-
-                                        </span>
-
-                                    </td>
-
-                                    <td>
-
-                                        @if ($product->stok <= $product->stok_minimum)
-                                            <span class="stock-critical">
-
-                                                {{ $product->stok }}
-
-                                            </span>
-                                        @else
-                                            <span class="stock-normal">
-
-                                                {{ $product->stok }}
-
-                                            </span>
-                                        @endif
-
-                                    </td>
-
-                                    <td>
-
-                                        <span class="minimum-stock">
-
-                                            {{ $product->stok_minimum }}
-
-                                        </span>
-
-                                    </td>
-
-                                </tr>
-
-                            @empty
-
-                                <tr>
-
-                                    <td colspan="5">
-
-                                        <div class="empty-state text-center">
-
-                                            <i class="bi bi-box-seam"></i>
-
-                                            Tidak ada data stok produk
-
-                                        </div>
-
-                                    </td>
-
-                                </tr>
-                            @endforelse
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
+                        @empty
+                            <tr><td colspan="10" class="text-center text-muted py-4">
+                                Tidak ada produk untuk filter ini.
+                            </td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-
         </div>
-        
-
+        <div class="mt-4">{{ $products->links() }}</div>
     </div>
 @endsection
