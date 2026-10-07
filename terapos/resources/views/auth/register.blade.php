@@ -11,16 +11,16 @@
         rel="stylesheet">
     <style>
         :root {
-            --sparta-blue: #2563EB;
-            --sparta-blue-dark: #1d4ed8;
-            --sparta-blue-light: #EFF6FF;
-            --sparta-teal: #059669;
-            --sparta-teal-dark: #047857;
-            --sparta-teal-light: #ECFDF5;
-            --sparta-gray: #F8FAFC;
-            --sparta-border: #E2E8F0;
-            --sparta-text: #1E293B;
-            --sparta-muted: #64748B;
+            --terapos-blue: #2563EB;
+            --terapos-blue-dark: #1d4ed8;
+            --terapos-blue-light: #EFF6FF;
+            --terapos-teal: #059669;
+            --terapos-teal-dark: #047857;
+            --terapos-teal-light: #ECFDF5;
+            --terapos-gray: #F8FAFC;
+            --terapos-border: #E2E8F0;
+            --terapos-text: #1E293B;
+            --terapos-muted: #64748B;
         }
 
         * {
@@ -31,7 +31,7 @@
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--sparta-gray);
+            background: var(--terapos-gray);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -54,7 +54,7 @@
         .bg-blob-1 {
             width: 500px;
             height: 500px;
-            background: var(--sparta-teal);
+            background: var(--terapos-teal);
             top: -150px;
             right: -100px;
             animation-delay: 0s;
@@ -63,7 +63,7 @@
         .bg-blob-2 {
             width: 420px;
             height: 420px;
-            background: var(--sparta-blue);
+            background: var(--terapos-blue);
             bottom: -120px;
             left: -120px;
             animation-delay: 4.5s;
@@ -72,7 +72,7 @@
         .bg-blob-3 {
             width: 260px;
             height: 260px;
-            background: var(--sparta-teal);
+            background: var(--terapos-teal);
             top: 40%;
             left: 8%;
             animation-delay: 2s;
@@ -119,7 +119,7 @@
         .brand-icon {
             width: 38px;
             height: 38px;
-            background: linear-gradient(135deg, var(--sparta-teal) 0%, var(--sparta-blue) 100%);
+            background: linear-gradient(135deg, var(--terapos-teal) 0%, var(--terapos-blue) 100%);
             border-radius: 10px;
             display: flex;
             align-items: center;
@@ -131,14 +131,14 @@
         .brand-name {
             font-size: 1.35rem;
             font-weight: 800;
-            color: var(--sparta-text);
+            color: var(--terapos-text);
             letter-spacing: -0.5px;
         }
 
         .auth-card {
             background: #fff;
             border-radius: 20px;
-            border: 1px solid var(--sparta-border);
+            border: 1px solid var(--terapos-border);
             padding: 2.25rem;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, .05), 0 20px 50px -10px rgba(5, 150, 105, .08);
             animation: slideUp .55s cubic-bezier(.16, 1, .3, 1) .1s both;
@@ -171,14 +171,14 @@
         .auth-heading {
             font-size: 1.6rem;
             font-weight: 800;
-            color: var(--sparta-text);
+            color: var(--terapos-text);
             letter-spacing: -0.5px;
             margin-bottom: 0.35rem;
         }
 
         .auth-sub {
             font-size: 0.875rem;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             margin-bottom: 1.75rem;
         }
 
@@ -201,56 +201,56 @@
             width: 28px;
             height: 28px;
             border-radius: 50%;
-            border: 2px solid var(--sparta-border);
+            border: 2px solid var(--terapos-border);
             background: #fff;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.75rem;
             font-weight: 700;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             transition: all .3s;
             flex-shrink: 0;
         }
 
         .step-dot.active {
-            border-color: var(--sparta-teal);
-            background: var(--sparta-teal);
+            border-color: var(--terapos-teal);
+            background: var(--terapos-teal);
             color: #fff;
         }
 
         .step-dot.done {
-            border-color: var(--sparta-teal);
-            background: var(--sparta-teal-light);
-            color: var(--sparta-teal);
+            border-color: var(--terapos-teal);
+            background: var(--terapos-teal-light);
+            color: var(--terapos-teal);
         }
 
         .step-label {
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             transition: color .3s;
         }
 
         .step-label.active {
-            color: var(--sparta-teal);
+            color: var(--terapos-teal);
         }
 
         .step-line {
             flex: 1;
             height: 1.5px;
-            background: var(--sparta-border);
+            background: var(--terapos-border);
             margin: 0 8px;
             border-radius: 2px;
             transition: background .3s;
         }
 
         .step-line.done {
-            background: var(--sparta-teal);
+            background: var(--terapos-teal);
         }
 
         /* Alert */
-        .alert-sparta {
+        .alert-terapos {
             border-radius: 10px;
             font-size: 0.85rem;
             padding: 0.75rem 1rem;
@@ -258,21 +258,21 @@
             margin-bottom: 1.25rem;
         }
 
-        .alert-sparta-danger {
+        .alert-terapos-danger {
             background: #FEF2F2;
             color: #991B1B;
         }
 
-        .alert-sparta-success {
-            background: var(--sparta-teal-light);
-            color: var(--sparta-teal-dark);
+        .alert-terapos-success {
+            background: var(--terapos-teal-light);
+            color: var(--terapos-teal-dark);
         }
 
         /* Form */
-        .form-label-sparta {
+        .form-label-terapos {
             font-size: 0.82rem;
             font-weight: 600;
-            color: var(--sparta-text);
+            color: var(--terapos-text);
             margin-bottom: 0.45rem;
             display: block;
         }
@@ -287,32 +287,32 @@
             left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             font-size: 1rem;
             pointer-events: none;
             transition: color .2s;
         }
 
-        .form-control-sparta {
+        .form-control-terapos {
             width: 100%;
             height: 48px;
             padding: 0 14px 0 42px;
-            border: 1.5px solid var(--sparta-border);
+            border: 1.5px solid var(--terapos-border);
             border-radius: 10px;
             font-size: 0.9rem;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            color: var(--sparta-text);
+            color: var(--terapos-text);
             background: #fff;
             transition: border-color .2s, box-shadow .2s;
             outline: none;
         }
 
-        .form-control-sparta:focus {
-            border-color: var(--sparta-teal);
+        .form-control-terapos:focus {
+            border-color: var(--terapos-teal);
             box-shadow: 0 0 0 3px rgba(5, 150, 105, .12);
         }
 
-        .form-control-sparta.is-invalid {
+        .form-control-terapos.is-invalid {
             border-color: #EF4444;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, .1);
         }
@@ -332,7 +332,7 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             font-size: 1rem;
             padding: 4px;
             border-radius: 6px;
@@ -341,8 +341,8 @@
         }
 
         .pw-toggle:hover {
-            color: var(--sparta-teal);
-            background: var(--sparta-teal-light);
+            color: var(--terapos-teal);
+            background: var(--terapos-teal-light);
         }
 
         /* Row 2 col */
@@ -370,13 +370,13 @@
         .pw-segment {
             height: 4px;
             border-radius: 4px;
-            background: var(--sparta-border);
+            background: var(--terapos-border);
             transition: background .3s;
         }
 
         .pw-strength-label {
             font-size: 0.75rem;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
         }
 
         /* Terms checkbox */
@@ -386,33 +386,33 @@
             gap: 10px;
             margin-bottom: 1.5rem;
             padding: 14px;
-            background: var(--sparta-gray);
+            background: var(--terapos-gray);
             border-radius: 10px;
-            border: 1.5px solid var(--sparta-border);
+            border: 1.5px solid var(--terapos-border);
             transition: border-color .2s;
         }
 
         .terms-wrap:hover {
-            border-color: var(--sparta-teal);
+            border-color: var(--terapos-teal);
         }
 
         .terms-wrap input[type="checkbox"] {
             width: 16px;
             height: 16px;
             flex-shrink: 0;
-            accent-color: var(--sparta-teal);
+            accent-color: var(--terapos-teal);
             margin-top: 2px;
             cursor: pointer;
         }
 
         .terms-text {
             font-size: 0.82rem;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             line-height: 1.5;
         }
 
         .terms-text a {
-            color: var(--sparta-teal);
+            color: var(--terapos-teal);
             font-weight: 600;
             text-decoration: none;
         }
@@ -422,7 +422,7 @@
         }
 
         /* Submit button */
-        .btn-sparta {
+        .btn-terapos {
             width: 100%;
             height: 50px;
             border: none;
@@ -431,7 +431,7 @@
             font-weight: 700;
             font-family: 'Plus Jakarta Sans', sans-serif;
             color: #fff;
-            background: linear-gradient(135deg, var(--sparta-teal) 0%, #10B981 100%);
+            background: linear-gradient(135deg, var(--terapos-teal) 0%, #10B981 100%);
             cursor: pointer;
             transition: transform .18s, box-shadow .18s;
             display: flex;
@@ -444,23 +444,23 @@
             letter-spacing: 0.1px;
         }
 
-        .btn-sparta::after {
+        .btn-terapos::after {
             content: '';
             position: absolute;
             inset: 0;
             background: linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, .12));
         }
 
-        .btn-sparta:hover {
+        .btn-terapos:hover {
             transform: translateY(-1px);
             box-shadow: 0 6px 20px rgba(5, 150, 105, .4);
         }
 
-        .btn-sparta:active {
+        .btn-terapos:active {
             transform: translateY(0);
         }
 
-        .btn-sparta:disabled {
+        .btn-terapos:disabled {
             opacity: .7;
             cursor: not-allowed;
             transform: none;
@@ -471,7 +471,7 @@
             align-items: center;
             gap: 12px;
             margin: 1.4rem 0;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             font-size: 0.78rem;
         }
 
@@ -480,30 +480,30 @@
             content: '';
             flex: 1;
             height: 1px;
-            background: var(--sparta-border);
+            background: var(--terapos-border);
         }
 
         .login-cta {
             text-align: center;
             font-size: 0.85rem;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
         }
 
         .login-cta a {
-            color: var(--sparta-blue);
+            color: var(--terapos-blue);
             font-weight: 700;
             text-decoration: none;
         }
 
         .login-cta a:hover {
-            color: var(--sparta-blue-dark);
+            color: var(--terapos-blue-dark);
         }
 
         .auth-footer {
             text-align: center;
             margin-top: 1.5rem;
             font-size: 0.78rem;
-            color: var(--sparta-muted);
+            color: var(--terapos-muted);
             animation: slideDown .6s cubic-bezier(.16, 1, .3, 1) .25s both;
         }
 
@@ -536,8 +536,8 @@
             align-items: center;
             gap: 5px;
             padding: 4px 10px;
-            background: var(--sparta-teal-light);
-            color: var(--sparta-teal-dark);
+            background: var(--terapos-teal-light);
+            color: var(--terapos-teal-dark);
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 600;
@@ -583,7 +583,7 @@
 
             {{-- Validation errors --}}
             @if ($errors->any())
-                <div class="alert-sparta alert-sparta-danger">
+                <div class="alert-terapos alert-terapos-danger">
                     <i class="bi bi-exclamation-triangle-fill me-1"></i>
                     {{ $errors->first() }}
                 </div>
@@ -595,10 +595,10 @@
                 <!-- Name row -->
                 <div class="form-row-2">
                     <div>
-                        <label class="form-label-sparta" for="name">Nama Lengkap</label>
+                        <label class="form-label-terapos" for="name">Nama Lengkap</label>
                         <div class="input-wrap" style="margin-bottom: 0;">
                             <input id="name" type="text" name="name"
-                                class="form-control-sparta {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                class="form-control-terapos {{ $errors->has('name') ? 'is-invalid' : '' }}"
                                 value="{{ old('name') }}" placeholder="Nama Anda" required autocomplete="name"
                                 autofocus>
                             <i class="bi bi-person input-icon"></i>
@@ -608,10 +608,10 @@
                         @enderror
                     </div>
                     <div>
-                        <label class="form-label-sparta" for="username">Username</label>
+                        <label class="form-label-terapos" for="username">Username</label>
                         <div class="input-wrap" style="margin-bottom: 0;">
                             <input id="username" type="text" name="username"
-                                class="form-control-sparta {{ $errors->has('username') ? 'is-invalid' : '' }}"
+                                class="form-control-terapos {{ $errors->has('username') ? 'is-invalid' : '' }}"
                                 value="{{ old('username') }}" placeholder="username_anda" autocomplete="username">
                             <i class="bi bi-at input-icon"></i>
                         </div>
@@ -624,10 +624,10 @@
                 <div style="margin-bottom: 1.1rem;"></div>
 
                 {{-- Email --}}
-                <label class="form-label-sparta" for="email">Alamat Email</label>
+                <label class="form-label-terapos" for="email">Alamat Email</label>
                 <div class="input-wrap">
                     <input id="email" type="email" name="email"
-                        class="form-control-sparta {{ $errors->has('gmail') ? 'is-invalid' : '' }}"
+                        class="form-control-terapos {{ $errors->has('gmail') ? 'is-invalid' : '' }}"
                         value="{{ old('email') }}" placeholder="nama@gmail.com" required autocomplete="email">
                     <i class="bi bi-envelope input-icon"></i>
                     @error('email')
@@ -636,10 +636,10 @@
                 </div>
 
                 {{-- Password --}}
-                <label class="form-label-sparta" for="password">Kata Sandi</label>
+                <label class="form-label-terapos" for="password">Kata Sandi</label>
                 <div class="input-wrap" style="margin-bottom: 4px;">
                     <input id="password" type="password" name="password"
-                        class="form-control-sparta {{ $errors->has('password') ? 'is-invalid' : '' }}"
+                        class="form-control-terapos {{ $errors->has('password') ? 'is-invalid' : '' }}"
                         placeholder="Min. 8 karakter" required autocomplete="new-password" style="padding-right: 44px;">
                     <i class="bi bi-lock input-icon"></i>
                     <button type="button" class="pw-toggle" id="pwToggle1" aria-label="Tampilkan kata sandi">
@@ -660,10 +660,10 @@
                 <div style="margin-bottom: 1rem;"></div>
 
                 {{-- Confirm Password --}}
-                <label class="form-label-sparta" for="password_confirmation">Konfirmasi Kata Sandi</label>
+                <label class="form-label-terapos" for="password_confirmation">Konfirmasi Kata Sandi</label>
                 <div class="input-wrap">
                     <input id="password_confirmation" type="password" name="password_confirmation"
-                        class="form-control-sparta" placeholder="Ulangi kata sandi" required
+                        class="form-control-terapos" placeholder="Ulangi kata sandi" required
                         autocomplete="new-password" style="padding-right: 44px;">
                     <i class="bi bi-lock-fill input-icon"></i>
                     <button type="button" class="pw-toggle" id="pwToggle2" aria-label="Tampilkan konfirmasi">
@@ -688,7 +688,7 @@
                 </div>
 
                 {{-- Submit --}}
-                <button type="submit" class="btn-sparta" id="regBtn">
+                <button type="submit" class="btn-terapos" id="regBtn">
                     <span class="spinner" id="regSpinner"></span>
                     <i class="bi bi-person-plus-fill" id="regIcon"></i>
                     <span id="regText">Buat Akun</span>
@@ -723,10 +723,10 @@
         makePwToggle('pwToggle2', 'pwIcon2', 'password_confirmation');
 
         // Focus icon accent
-        document.querySelectorAll('.form-control-sparta').forEach(input => {
+        document.querySelectorAll('.form-control-terapos').forEach(input => {
             const icon = input.parentElement.querySelector('.input-icon');
             if (!icon) return;
-            input.addEventListener('focus', () => icon.style.color = 'var(--sparta-teal)');
+            input.addEventListener('focus', () => icon.style.color = 'var(--terapos-teal)');
             input.addEventListener('blur', () => icon.style.color = '');
         });
 
@@ -752,11 +752,11 @@
             const pw = pwInput.value;
             const score = pw.length ? calcStrength(pw) : 0;
             segs.forEach((s, i) => {
-                s.style.background = i < score ? colors[Math.min(score - 1, 3)] : 'var(--sparta-border)';
+                s.style.background = i < score ? colors[Math.min(score - 1, 3)] : 'var(--terapos-border)';
             });
             lbl.textContent = pw.length ? labels[Math.min(score - 1, 3)] :
                 'Ketik kata sandi untuk melihat kekuatannya';
-            lbl.style.color = pw.length ? colors[Math.min(score - 1, 3)] : 'var(--sparta-muted)';
+            lbl.style.color = pw.length ? colors[Math.min(score - 1, 3)] : 'var(--terapos-muted)';
         });
 
         // Password match check
