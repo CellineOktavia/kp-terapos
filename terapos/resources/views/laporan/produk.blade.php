@@ -149,18 +149,12 @@
 
                                     <td>
 
-                                        @if ($product->stok <= $product->stok_minimum)
-                                            <span class="badge bg-danger">
-
-                                                Stok Kritis
-
-                                            </span>
+                                        @if ((int) $product->stok === 0)
+                                            <span class="badge bg-danger">Habis</span>
+                                        @elseif ($product->stok <= $product->stok_minimum)
+                                            <span class="badge bg-warning">Stok Menipis</span>
                                         @else
-                                            <span class="badge bg-success">
-
-                                                Normal
-
-                                            </span>
+                                            <span class="badge bg-success">Aman</span>
                                         @endif
 
                                     </td>

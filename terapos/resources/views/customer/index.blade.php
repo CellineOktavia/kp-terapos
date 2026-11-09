@@ -218,7 +218,7 @@
                 </h2>
 
                 <p class="page-subtitle">
-                    Kelola seluruh pelanggan Richie Motor
+                    Kelola data pelanggan Toko Terang Abadi
                 </p>
 
             </div>

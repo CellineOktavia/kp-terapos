@@ -9,11 +9,7 @@
 
         </h2>
 
-        <small>
-
-            Sistem Penjualan dan Persediaan Barang
-
-        </small>
+        <small>Toko Terang Abadi</small>
 
     </div>
 
@@ -23,7 +19,7 @@
 
             <div>
 
-                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
 
             </div>
 
@@ -31,13 +27,13 @@
 
                 <div class="name">
 
-                    {{ Auth::user()->name }}
+                    {{ auth()->user()->name }}
 
                 </div>
 
                 <div class="role">
 
-                    {{ Auth::user()->isOwner() ? 'Owner' : 'Co-Owner' }}
+                    {{ auth()->user()->display_role }}
 
                 </div>
 

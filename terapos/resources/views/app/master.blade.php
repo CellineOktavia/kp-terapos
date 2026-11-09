@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', config('app.name'))</title>
+    <title>@yield('title', 'TERAPOS — Toko Terang Abadi')</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
@@ -223,7 +223,6 @@
         .header-brand small {
             color: #dbeafe;
             font-size: 12px;
-
         }
 
         .user-panel {
@@ -503,19 +502,19 @@
 
             <div class="header-brand">
                 <h2>TERAPOS</h2>
-                <small>Sistem Penjualan dan Persediaan Barang</small>
+                <small>Toko Terang Abadi</small>
             </div>
 
             <div class="user-panel">
 
                 <div class="user-avatar">
-                    {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
 
                 <div class="user-detail text-end">
-                    <div class="name">{{ Auth::user()->name }}</div>
-                        <div class="role">
-                        {{ Auth::user()->isOwner() ? 'Owner' : 'Co-Owner' }}
+                    <div class="name">{{ auth()->user()->name }}</div>
+                    <div class="role">
+                        {{ auth()->user()->display_role }}
                     </div>
                 </div>
 

@@ -5,8 +5,6 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\FakturController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\CustomerController;
@@ -72,95 +70,11 @@ Route::middleware('auth')->group(function () {
         [ProductController::class, 'show']
     )->name('produk.show');
 
-    // Supplier Routes
-    Route::get(
-        '/supplier',
-        [SupplierController::class, 'index']
-    )
-        ->name('supplier.index');
-
-    Route::get(
-        '/supplier/create',
-        [SupplierController::class, 'create']
-    )
-        ->name('supplier.create');
-
-    Route::post(
-        '/supplier',
-        [SupplierController::class, 'store']
-    )
-        ->name('supplier.store');
-
-    Route::get(
-        '/supplier/{supplier}/edit',
-        [SupplierController::class, 'edit']
-    )
-        ->name('supplier.edit');
-
-    Route::put(
-        '/supplier/{supplier}',
-        [SupplierController::class, 'update']
-    )
-        ->name('supplier.update');
-
-    Route::delete(
-        '/supplier/{supplier}',
-        [SupplierController::class, 'destroy']
-    )
-        ->name('supplier.destroy');
-
-    Route::get(
-        '/supplier/{supplier}',
-        [SupplierController::class, 'show']
-    )->name('supplier.show');
-
-    // Faktur Routes
-    Route::get('/faktur', [FakturController::class, 'index'])
-        ->name('faktur.index');
-
-    Route::get(
-        '/faktur/create',
-        [FakturController::class, 'create']
-    )
-        ->name('faktur.create');
-
-    Route::post(
-        '/faktur',
-        [FakturController::class, 'store']
-    )
-        ->name('faktur.store');
-
-    Route::get('/faktur/{faktur}', [FakturController::class, 'show'])
-        ->name('faktur.show');
-
-    Route::delete('/faktur/{faktur}', [FakturController::class, 'destroy'])
-        ->name('faktur.destroy');
-
     // Laporan Routes
     Route::get(
         '/laporan',
         [LaporanController::class, 'index']
     )->name('laporan.index');
-
-    Route::get(
-        '/laporan/produk',
-        [LaporanController::class, 'produk']
-    )->name('laporan.produk');
-
-    Route::get(
-        '/laporan/supplier',
-        [LaporanController::class, 'supplier']
-    )->name('laporan.supplier');
-
-    Route::get(
-        '/laporan/customer',
-        [LaporanController::class, 'customer']
-    )->name('laporan.customer');
-
-    Route::get(
-        '/laporan/pembelian',
-        [LaporanController::class, 'pembelian']
-    )->name('laporan.pembelian');
 
     Route::get(
         '/laporan/penjualan',
@@ -173,26 +87,6 @@ Route::middleware('auth')->group(function () {
     )->name('laporan.stok');
 
     // Laporan Export Routes
-    Route::get(
-        '/laporan/produk/pdf',
-        [LaporanController::class, 'produkPdf']
-    )->name('laporan.produk.pdf');
-
-    Route::get(
-        '/laporan/supplier/pdf',
-        [LaporanController::class, 'supplierPdf']
-    )->name('laporan.supplier.pdf');
-
-    Route::get(
-        '/laporan/customer/pdf',
-        [LaporanController::class, 'customerPdf']
-    )->name('laporan.customer.pdf');
-
-    Route::get(
-        '/laporan/pembelian/pdf',
-        [LaporanController::class, 'pembelianPdf']
-    )->name('laporan.pembelian.pdf');
-
     Route::get(
         '/laporan/penjualan/pdf',
         [LaporanController::class, 'penjualanPdf']

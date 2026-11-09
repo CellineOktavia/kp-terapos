@@ -10,11 +10,13 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Lampu',
-            'Elektronik',
-            'Kabel & Kelistrikan',
-            'Aksesoris Listrik',
+            'Lampu & Penerangan',
+            'Kelistrikan',
+            'Kabel & Aksesoris Listrik',
+            'Elektronik Rumah Tangga',
+            'Peralatan Kebersihan',
             'Peralatan Rumah Tangga',
+            'Pecah Belah',
             'Lain-lain',
         ];
 

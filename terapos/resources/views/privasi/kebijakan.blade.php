@@ -220,7 +220,7 @@
             <h1>Privacy Policy</h1>
 
             <p>
-                Kebijakan privasi TERAPOS menjelaskan bagaimana Richie Motor
+                Kebijakan privasi TERAPOS menjelaskan bagaimana Toko Terang Abadi
                 mengumpulkan, menggunakan, menyimpan, dan melindungi data pengguna.
             </p>
 
@@ -340,7 +340,7 @@
                             </h2>
 
                             <p>
-                                Richie Motor implements physical,
+                                Toko Terang Abadi implements physical,
                                 electronic, and procedural safeguards
                                 to protect your information.
                             </p>
@@ -351,7 +351,7 @@
                             </h2>
 
                             <p>
-                                Richie Motor<br>
+                                Toko Terang Abadi<br>
                                 Phone: 06987234690<br>
                                 Address: Jl. Soekarno-Hatta, Palembang
                             </p>
@@ -370,7 +370,7 @@
     </section>
 
     <footer class="footer">
-        © {{ date('Y') }} TERAPOS - Richie Motor. All Rights Reserved.
+        © {{ date('Y') }} TERAPOS - Toko Terang Abadi. All Rights Reserved.
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

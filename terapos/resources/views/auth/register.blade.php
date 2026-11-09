@@ -572,12 +572,12 @@
 
         <div class="auth-card">
             <h1 class="auth-heading">Buat Akun Baru</h1>
-            <p class="auth-sub">Bergabunglah dan kelola barang &amp; supplier dengan mudah</p>
+            <p class="auth-sub">Bergabunglah dan kelola produk serta stok dengan mudah</p>
 
             <!-- Benefits -->
             <div class="benefits">
                 <span class="benefit-pill"><i class="bi bi-box-seam"></i> 245+ Barang</span>
-                <span class="benefit-pill"><i class="bi bi-people"></i> 32+ Supplier</span>
+                <span class="benefit-pill"><i class="bi bi-boxes"></i> Pengelolaan Stok</span>
                 <span class="benefit-pill"><i class="bi bi-graph-up"></i> Laporan Real-time</span>
             </div>
 

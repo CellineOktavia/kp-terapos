@@ -2,9 +2,15 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="mb-4">
-            <h2 class="fw-bold">Kategori Produk</h2>
-            <p class="text-muted">Kelola kategori produk TERAPOS.</p>
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h2 class="fw-bold mb-1">Kategori</h2>
+                <p class="text-muted mb-0">Kelola kategori produk TERAPOS.</p>
+            </div>
+            <a href="#form-kategori" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i>
+                Tambah Kategori
+            </a>
         </div>
 
         @if (session('success'))
@@ -20,18 +26,18 @@
             </div>
         @endif
 
-        <div class="card shadow-sm mb-4">
+        <div class="card shadow-sm mb-4" id="form-kategori">
             <div class="card-body">
-                <h5 class="card-title">Tambah Kategori</h5>
+                <h5 class="card-title">Kategori Baru</h5>
                 <form action="{{ route('kategori.store') }}" method="POST" class="row g-2">
                     @csrf
-                    <div class="col-md-9">
+                    <div class="col-md-10">
                         <label for="nama_kategori" class="form-label">Nama Kategori</label>
                         <input id="nama_kategori" type="text" name="nama_kategori" class="form-control"
                             value="{{ old('nama_kategori') }}" maxlength="100" required>
                     </div>
-                    <div class="col-md-3 d-flex align-items-end">
-                        <button type="submit" class="btn btn-primary w-100">Tambah Kategori</button>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Tambah</button>
                     </div>
                 </form>
             </div>

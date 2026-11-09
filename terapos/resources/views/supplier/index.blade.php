@@ -194,7 +194,7 @@
                 </h2>
 
                 <p class="page-subtitle">
-                    Kelola seluruh supplier Richie Motor
+                    Kelola seluruh supplier Toko Terang Abadi
                 </p>
 
             </div>
@@ -396,7 +396,7 @@
 
                                         <div class="empty-state text-center">
 
-                                            <i class="bi bi-truck"></i>
+                                            <i class="bi bi-box-seam"></i>
 
                                             Tidak ada data supplier
 

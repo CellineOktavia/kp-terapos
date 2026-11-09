@@ -13,7 +13,7 @@
                 </h2>
 
                 <p class="text-muted mb-0">
-                    Perbarui informasi supplier Richie Motor
+                    Perbarui informasi supplier Toko Terang Abadi
                 </p>
 
             </div>

@@ -382,7 +382,7 @@
 
                                             </a>
 
-                                            @if (Auth::user()->role === 'owner')
+                                            @if (auth()->user()->role === 'owner')
                                                 <form action="{{ route('penjualan.destroy', $penjualan) }}" method="POST">
 
                                                     @csrf

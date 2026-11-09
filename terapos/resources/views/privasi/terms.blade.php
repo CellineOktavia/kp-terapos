@@ -233,7 +233,7 @@
             <h1>Terms & Conditions</h1>
 
             <p>
-                Ketentuan penggunaan aplikasi TERAPOS yang dikelola oleh Richie Motor.
+                Ketentuan penggunaan aplikasi TERAPOS yang dikelola oleh Toko Terang Abadi.
                 Harap membaca seluruh syarat dan ketentuan sebelum menggunakan layanan.
             </p>
 
@@ -301,7 +301,7 @@
                             <p>
                                 All intellectual property rights including code,
                                 designs, trademarks, logos and branding remain
-                                the property of Richie Motor.
+                                the property of Toko Terang Abadi.
                             </p>
 
                             <h2 id="termination">
@@ -354,7 +354,7 @@
                             </h2>
 
                             <p>
-                                Richie Motor<br>
+                                Toko Terang Abadi<br>
                                 Phone: 06987234690<br>
                                 Address: Jl. Soekarno-Hatta, Palembang
                             </p>
@@ -376,7 +376,7 @@
     <!-- Footer -->
 
     <footer class="footer">
-        © {{ date('Y') }} TERAPOS - Richie Motor. All Rights Reserved.
+        © {{ date('Y') }} TERAPOS - Toko Terang Abadi. All Rights Reserved.
     </footer>
 
     <!-- Bootstrap -->

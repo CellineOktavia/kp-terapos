@@ -237,13 +237,17 @@
 
                     <td class="text-center">
 
-                        @if ($product->stok <= $product->stok_minimum)
+                        @if ((int) $product->stok === 0)
                             <span class="status-kritis">
-                                KRITIS
+                                HABIS
+                            </span>
+                        @elseif ($product->stok <= $product->stok_minimum)
+                            <span class="status-kritis">
+                                STOK MENIPIS
                             </span>
                         @else
                             <span class="status-normal">
-                                NORMAL
+                                AMAN
                             </span>
                         @endif
 
@@ -287,7 +291,7 @@
 
         <br>
 
-        © {{ date('Y') }} Richie Motor
+        © {{ date('Y') }} Toko Terang Abadi
 
     </div>
 

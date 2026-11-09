@@ -95,11 +95,11 @@
         {{-- HEADER DASHBOARD --}}
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
-                <h1 class="h3 fw-bold text-dark mb-1">Dashboard TERAPOS</h1>
-                <p class="text-muted mb-0">Selamat datang kembali, <strong>{{ Auth::user()->name }}</strong> 👋</p>
+                <h1 class="h3 fw-bold text-dark mb-1">Dashboard</h1>
+                <p class="text-muted mb-0">Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>.</p>
             </div>
             <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-semibold fs-6">
-                {{ Auth::user()->isOwner() ? 'Owner' : 'Co-Owner' }}
+                {{ auth()->user()->display_role }}
             </span>
         </div>
 
@@ -110,7 +110,7 @@
                 <div class="card dashboard-card shadow-sm h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="text-muted small fw-medium mb-1">Omzet Penjualan</div>
+                            <div class="text-muted small fw-medium mb-1">Omzet Hari Ini</div>
                             <div class="h4 fw-bold text-dark mb-0">Rp {{ number_format($todaySales ?? 0, 0, ',', '.') }}
                             </div>
                         </div>
@@ -124,7 +124,7 @@
                 <div class="card dashboard-card shadow-sm h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="text-muted small fw-medium mb-1">Transaksi Penjualan</div>
+                            <div class="text-muted small fw-medium mb-1">Jumlah Transaksi Hari Ini</div>
                             <div class="h4 fw-bold text-dark mb-0">{{ number_format($todaySalesCount ?? 0, 0, ',', '.') }}
                             </div>
                         </div>
@@ -172,62 +172,31 @@
         {{-- RINGKASAN BULAN INI --}}
         <h2 class="h6 fw-bold text-uppercase text-muted tracking-wide mb-3">Bulan Ini</h2>
         <div class="row g-3 mb-4">
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <div class="card dashboard-card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small fw-medium mb-1">Omzet Penjualan</div>
+                        <div class="text-muted small fw-medium mb-1">Omzet Bulan Ini</div>
                         <div class="h3 fw-bold text-dark mb-0">Rp {{ number_format($monthSales ?? 0, 0, ',', '.') }}</div>
                     </div>
                 </div>
             </div>
-            <div class="col-12 col-md-4">
+            <div class="col-12 col-md-6">
                 <div class="card dashboard-card shadow-sm h-100">
                     <div class="card-body">
-                        <div class="text-muted small fw-medium mb-1">Total Transaksi</div>
+                        <div class="text-muted small fw-medium mb-1">Transaksi Bulan Ini</div>
                         <div class="h3 fw-bold text-dark mb-0">{{ number_format($monthSalesCount ?? 0, 0, ',', '.') }}</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div class="card dashboard-card shadow-sm h-100">
-                    <div class="card-body">
-                        <div class="text-muted small fw-medium mb-1">Total Produk Terjual</div>
-                        <div class="h3 fw-bold text-dark mb-0">{{ number_format($monthItemsSold ?? 0, 0, ',', '.') }} <span
-                                class="fs-6 text-muted fw-normal">item</span></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        {{-- GRAFIK OMZET PENJUALAN + FILTER --}}
+        {{-- GRAFIK PENJUALAN TUJUH HARI --}}
         <div class="card dashboard-card shadow-sm mb-4">
             <div class="card-body p-4">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
                     <div>
-                        <h2 class="h5 fw-bold text-dark mb-1">Grafik Omzet Penjualan</h2>
-                        <p class="text-muted small mb-0">Tren pendapatan berdasarkan data riil tersimpan</p>
-                    </div>
-
-                    {{-- Filter Pills Segmented --}}
-                    <div class="filter-pills-group" id="chartFilterPills">
-                        <button type="button"
-                            class="filter-pill-btn {{ request('chart_range') == 'today' ? 'active' : '' }}"
-                            data-value="today">
-                            <i class="bi bi-clock-history"></i> Hari Ini
-                        </button>
-                        <button type="button"
-                            class="filter-pill-btn {{ request('chart_range', '7') == '7' ? 'active' : '' }}"
-                            data-value="7">
-                            <i class="bi bi-calendar-event"></i> 7 Hari
-                        </button>
-                        <button type="button" class="filter-pill-btn {{ request('chart_range') == '30' ? 'active' : '' }}"
-                            data-value="30">
-                            <i class="bi bi-calendar-month"></i> 30 Hari
-                        </button>
-                        <button type="button"
-                            class="filter-pill-btn {{ request('chart_range') == '365' ? 'active' : '' }}" data-value="365">
-                            <i class="bi bi-calendar3"></i> 1 Tahun
-                        </button>
+                        <h2 class="h5 fw-bold text-dark mb-1">Grafik Penjualan 7 Hari</h2>
+                        <p class="text-muted small mb-0">Omzet harian selama tujuh hari terakhir</p>
                     </div>
                 </div>
 
@@ -403,11 +372,6 @@
                 */
 
                 const canvas = document.getElementById('salesChart');
-
-                const filterButtons = document.querySelectorAll(
-                    '#chartFilterPills .filter-pill-btn'
-                );
-
 
                 if (!canvas) {
                     console.error('Canvas salesChart tidak ditemukan.');
@@ -612,274 +576,6 @@
                     }
                 });
 
-
-                /*
-                |--------------------------------------------------------------------------
-                | LOAD DATA GRAFIK
-                |--------------------------------------------------------------------------
-                */
-
-                async function loadSalesChart(range) {
-
-                    const url = new URL(
-                        window.location.href
-                    );
-
-                    url.searchParams.set(
-                        'chart_range',
-                        range
-                    );
-
-                    // Hindari cache browser
-                    url.searchParams.set(
-                        '_',
-                        Date.now()
-                    );
-
-
-                    const response = await fetch(
-                        url.toString(), {
-                            method: 'GET',
-
-                            cache: 'no-store',
-
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest',
-
-                                'Accept': 'application/json'
-                            }
-                        }
-                    );
-
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            `HTTP Error ${response.status}`
-                        );
-                    }
-
-
-                    const data = await response.json();
-
-
-                    console.log(
-                        'Data grafik:',
-                        data
-                    );
-
-
-                    if (
-                        data.success !== true ||
-                        !Array.isArray(data.labels) ||
-                        !Array.isArray(data.values)
-                    ) {
-
-                        throw new Error(
-                            'Format response grafik tidak valid.'
-                        );
-                    }
-
-
-                    /*
-                    |--------------------------------------------------------------------------
-                    | UPDATE CHART
-                    |--------------------------------------------------------------------------
-                    */
-
-                    salesChart.data.labels = data.labels;
-
-                    salesChart.data.datasets[0].data =
-                        data.values;
-
-
-                    salesChart.update();
-
-
-                    return data;
-                }
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | FILTER BUTTON
-                |--------------------------------------------------------------------------
-                */
-
-                filterButtons.forEach(function(button) {
-
-                    button.addEventListener(
-                        'click',
-                        async function() {
-
-                            const selectedRange =
-                                this.dataset.value;
-
-
-                            const previousButton =
-                                document.querySelector(
-                                    '#chartFilterPills .filter-pill-btn.active'
-                                );
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | ACTIVE BUTTON
-                            |--------------------------------------------------------------------------
-                            */
-
-                            filterButtons.forEach(
-                                function(btn) {
-
-                                    btn.classList.remove(
-                                        'active'
-                                    );
-
-                                }
-                            );
-
-
-                            this.classList.add(
-                                'active'
-                            );
-
-
-                            /*
-                            |--------------------------------------------------------------------------
-                            | DISABLE BUTTON
-                            |--------------------------------------------------------------------------
-                            */
-
-                            filterButtons.forEach(
-                                function(btn) {
-
-                                    btn.disabled = true;
-
-                                }
-                            );
-
-
-                            try {
-
-                                await loadSalesChart(
-                                    selectedRange
-                                );
-
-
-                                /*
-                                |--------------------------------------------------------------------------
-                                | UPDATE URL
-                                |--------------------------------------------------------------------------
-                                */
-
-                                const url = new URL(
-                                    window.location.href
-                                );
-
-                                url.searchParams.set(
-                                    'chart_range',
-                                    selectedRange
-                                );
-
-
-                                window.history.replaceState({},
-                                    '',
-                                    url.toString()
-                                );
-
-
-                            } catch (error) {
-
-                                console.error(
-                                    'Gagal memperbarui grafik:',
-                                    error
-                                );
-
-
-                                /*
-                                |--------------------------------------------------------------------------
-                                | KEMBALIKAN BUTTON SEBELUMNYA
-                                |--------------------------------------------------------------------------
-                                */
-
-                                filterButtons.forEach(
-                                    function(btn) {
-
-                                        btn.classList.remove(
-                                            'active'
-                                        );
-
-                                    }
-                                );
-
-
-                                if (previousButton) {
-
-                                    previousButton.classList.add(
-                                        'active'
-                                    );
-                                }
-
-
-                            } finally {
-
-                                filterButtons.forEach(
-                                    function(btn) {
-
-                                        btn.disabled = false;
-
-                                    }
-                                );
-                            }
-                        }
-                    );
-                });
-
-
-                /*
-                |--------------------------------------------------------------------------
-                | AUTO REFRESH
-                |--------------------------------------------------------------------------
-                |
-                | Update grafik setiap 10 detik.
-                |
-                */
-
-                setInterval(
-                    async function() {
-
-                            const activeButton =
-                                document.querySelector(
-                                    '#chartFilterPills .filter-pill-btn.active'
-                                );
-
-
-                            const currentRange =
-                                activeButton?.dataset.value || '7';
-
-
-                            try {
-
-                                await loadSalesChart(
-                                    currentRange
-                                );
-
-                                console.log(
-                                    'Grafik otomatis diperbarui:',
-                                    currentRange
-                                );
-
-                            } catch (error) {
-
-                                console.error(
-                                    'Auto refresh grafik gagal:',
-                                    error
-                                );
-                            }
-
-                        },
-                        10000
-                );
 
             });
         </script>

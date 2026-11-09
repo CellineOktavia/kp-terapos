@@ -33,6 +33,20 @@ class User extends Authenticatable
         return $this->role === 'co_owner';
     }
 
+    public function getDisplayRoleAttribute(): string
+    {
+        return match ($this->role) {
+            'owner' => 'Owner',
+            'co_owner' => 'Co-Owner',
+            default => ucfirst(str_replace('_', ' ', $this->role)),
+        };
+    }
+
+    public function penjualans()
+    {
+        return $this->hasMany(Penjualan::class);
+    }
+
     protected function casts(): array
     {
         return [

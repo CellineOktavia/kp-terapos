@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             [
                 'name' => 'Co-Owner',
                 'role' => 'co_owner',
-                'password' => Hash::make('admin123')
+                'password' => Hash::make('admin123'),
             ]
         );
     }

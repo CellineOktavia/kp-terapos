@@ -1,12 +1,5 @@
 @extends('app.master')
 
-@push('styles')
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
-    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
-        rel="stylesheet" />
-@endpush
-
 @section('content')
     <div class="container-fluid">
 
@@ -77,16 +70,6 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-semibold">Supplier</label>
-                            <select name="supplier_id" class="form-select select2">
-                                <option value="">Tanpa supplier</option>
-                                @foreach ($suppliers as $supplier)
-                                    <option value="{{ $supplier->id }}" @selected(old('supplier_id') == $supplier->id)>
-                                        {{ $supplier->nama_supplier }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
                             <label class="form-label fw-semibold">Merk</label>
                             <input type="text" name="merk" class="form-control" value="{{ old('merk') }}">
                         </div>
@@ -101,12 +84,14 @@
                         <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Harga Beli</label>
                             <input type="number" name="harga_beli" class="form-control" value="{{ old('harga_beli') }}"
-                                required>
+                                min="0" step="0.01" required>
+                            <small class="form-text text-muted">Harga modal produk.</small>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Harga Jual</label>
                             <input type="number" name="harga_jual" class="form-control" value="{{ old('harga_jual') }}"
-                                required>
+                                min="0" step="0.01" required>
+                            <small class="form-text text-muted">Harga jual harus lebih besar dari harga beli.</small>
                         </div>
                         <div class="col-md-3 mb-3">
                             <label class="form-label fw-semibold">Stok Minimum</label>
@@ -145,27 +130,3 @@
 
     </div>
 @endsection
-
-@push('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
-
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $(document).ready(function() {
-
-            $('.select2').select2({
-
-                theme: 'bootstrap-5',
-
-                placeholder: 'Cari supplier...',
-
-                allowClear: true,
-
-                width: '100%'
-
-            });
-
-        });
-    </script>
-@endpush

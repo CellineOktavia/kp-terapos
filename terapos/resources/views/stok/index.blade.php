@@ -7,7 +7,7 @@
                 <h2 class="fw-bold">Manajemen Stok</h2>
                 <p class="text-muted mb-0">Pantau jumlah dan status stok seluruh produk.</p>
             </div>
-            @if (Auth::user()->role === 'owner')
+            @if (auth()->user()->role === 'owner')
                 <a href="{{ route('stok.adjustment.create') }}" class="btn btn-primary">Penyesuaian Stok</a>
             @endif
         </div>

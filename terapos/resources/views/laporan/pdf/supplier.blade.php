@@ -264,7 +264,7 @@
 
         <br>
 
-        © {{ date('Y') }} Richie Motor
+        © {{ date('Y') }} Toko Terang Abadi
 
     </div>
     

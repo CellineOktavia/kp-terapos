@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Models\Faktur;
 use App\Models\Penjualan;
 use App\Models\Product;
 use Carbon\Carbon;
@@ -25,14 +24,6 @@ class DashboardDataService
             ->sum('total');
 
         $monthlySales = Penjualan::query()
-            ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
-            ->sum('total');
-
-        $dailyPurchases = Faktur::query()
-            ->whereDate('tanggal', $today)
-            ->sum('total');
-
-        $monthlyPurchases = Faktur::query()
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
             ->sum('total');
 
@@ -80,19 +71,9 @@ class DashboardDataService
                 ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
                 ->whereDate('penjualans.tanggal', $today)
                 ->sum('detail_penjualans.qty'),
-            'todayPurchases' => (float) $dailyPurchases,
-            'todayPurchasesCount' => Faktur::query()->whereDate('tanggal', $today)->count(),
             'criticalStockCount' => Product::query()->whereColumn('stok', '<=', 'stok_minimum')->count(),
             'monthSales' => (float) $monthlySales,
             'monthSalesCount' => Penjualan::query()
-                ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
-                ->count(),
-            'monthItemsSold' => (int) DB::table('detail_penjualans')
-                ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
-                ->whereBetween('penjualans.tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
-                ->sum('detail_penjualans.qty'),
-            'monthPurchases' => (float) $monthlyPurchases,
-            'monthPurchasesCount' => Faktur::query()
                 ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
                 ->count(),
             'salesChartLabels' => $salesChartLabels,
@@ -100,12 +81,6 @@ class DashboardDataService
             'topProducts' => $topProducts,
             'criticalProducts' => $criticalProducts,
             'latestSales' => Penjualan::query()
-                ->with('user')
-                ->orderByDesc('created_at')
-                ->orderByDesc('id')
-                ->limit(5)
-                ->get(),
-            'latestPurchases' => Faktur::query()
                 ->with('user')
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')

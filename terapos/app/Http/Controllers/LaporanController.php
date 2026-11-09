@@ -3,11 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Customer;
-use App\Models\Faktur;
 use App\Models\Penjualan;
 use App\Models\Product;
-use App\Models\Supplier;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,50 +17,6 @@ class LaporanController extends Controller
     public function index()
     {
         return view('laporan.index');
-    }
-
-    public function produk()
-    {
-        $products = Product::latest()->get();
-
-        return view('laporan.produk', compact('products'));
-    }
-
-    public function supplier()
-    {
-        $suppliers = Supplier::latest()->get();
-
-        return view('laporan.supplier', compact('suppliers'));
-    }
-
-    public function customer()
-    {
-        $customers = Customer::latest()->get();
-
-        return view('laporan.customer', compact('customers'));
-    }
-
-    public function pembelian(Request $request)
-    {
-        $period = $this->resolvePeriod($request);
-        $query = $this->purchaseQuery($period['start'], $period['end']);
-
-        $fakturs = (clone $query)
-            ->with(['user', 'detailFakturs'])
-            ->withCount('detailFakturs')
-            ->withSum('detailFakturs', 'qty')
-            ->orderByDesc('tanggal')
-            ->orderByDesc('id')
-            ->paginate(25)
-            ->withQueryString();
-
-        $summary = $this->purchaseSummary($period['start'], $period['end']);
-
-        return view('laporan.pembelian', [
-            'fakturs' => $fakturs,
-            'summary' => $summary,
-            'period' => $period,
-        ]);
     }
 
     public function penjualan(Request $request)
@@ -113,44 +66,6 @@ class LaporanController extends Controller
         $categories = Category::orderBy('nama_kategori')->get(['id', 'nama_kategori']);
 
         return view('laporan.stok', compact('products', 'summary', 'categories', 'filters'));
-    }
-
-    public function produkPdf()
-    {
-        $products = Product::latest()->get();
-        $pdf = Pdf::loadView('laporan.pdf.produk', compact('products'));
-
-        return $pdf->download('laporan-produk.pdf');
-    }
-
-    public function supplierPdf()
-    {
-        $suppliers = Supplier::latest()->get();
-        $pdf = Pdf::loadView('laporan.pdf.supplier', compact('suppliers'));
-
-        return $pdf->download('laporan-supplier.pdf');
-    }
-
-    public function customerPdf()
-    {
-        $customers = Customer::latest()->get();
-        $pdf = Pdf::loadView('laporan.pdf.customer', compact('customers'));
-
-        return $pdf->download('laporan-customer.pdf');
-    }
-
-    public function pembelianPdf(Request $request)
-    {
-        $period = $this->resolvePeriod($request);
-        $fakturs = $this->purchaseQuery($period['start'], $period['end'])
-            ->with(['user', 'detailFakturs.product'])
-            ->orderByDesc('tanggal')
-            ->orderByDesc('id')
-            ->get();
-        $summary = $this->purchaseSummary($period['start'], $period['end']);
-
-        return Pdf::loadView('laporan.pdf.pembelian', compact('fakturs', 'summary', 'period'))
-            ->download('laporan-pembelian.pdf');
     }
 
     public function penjualanPdf(Request $request)
@@ -223,12 +138,6 @@ class LaporanController extends Controller
             ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()]);
     }
 
-    private function purchaseQuery(Carbon $start, Carbon $end): Builder
-    {
-        return Faktur::query()
-            ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()]);
-    }
-
     private function saleSummary(Carbon $start, Carbon $end): array
     {
         $query = $this->saleQuery($start, $end);
@@ -240,20 +149,6 @@ class LaporanController extends Controller
                 ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
                 ->whereBetween('penjualans.tanggal', [$start->toDateString(), $end->toDateString()])
                 ->sum('detail_penjualans.qty'),
-        ];
-    }
-
-    private function purchaseSummary(Carbon $start, Carbon $end): array
-    {
-        $query = $this->purchaseQuery($start, $end);
-
-        return [
-            'total' => (float) (clone $query)->sum('total'),
-            'transactions' => (clone $query)->count(),
-            'qty' => (int) DB::table('detail_fakturs')
-                ->join('fakturs', 'detail_fakturs.faktur_id', '=', 'fakturs.id')
-                ->whereBetween('fakturs.tanggal', [$start->toDateString(), $end->toDateString()])
-                ->sum('detail_fakturs.qty'),
         ];
     }
 

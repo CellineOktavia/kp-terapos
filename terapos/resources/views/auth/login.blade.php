@@ -659,7 +659,7 @@
         </div>
 
         <p class="auth-footer">
-            © {{ date('Y') }} TERAPOS • Richie Motor
+            © {{ date('Y') }} TERAPOS • Toko Terang Abadi
         </p>
     </div>
 

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Supplier;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Database\QueryException;
@@ -47,11 +46,9 @@ class ProductController extends Controller
 
     public function create()
     {
-        $suppliers = Supplier::all();
         $categories = Category::orderBy('nama_kategori')->get();
 
         return view('produk.create', [
-            'suppliers' => $suppliers,
             'categories' => $categories,
             'generatedCode' => $this->generateNextProductCode(),
             'generatedBarcode' => $this->generateNextBarcode(),
@@ -64,13 +61,12 @@ class ProductController extends Controller
             'kode_produk' => ['required', 'string', Rule::unique('products', 'kode_produk')],
             'barcode' => ['required', 'string', Rule::unique('products', 'barcode')],
             'category_id' => 'nullable|exists:categories,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
             'nama_produk' => 'required|string',
             'merk' => 'nullable|string',
             'satuan' => 'required|string',
             'stok_minimum' => 'required|integer|min:0',
             'harga_beli' => 'required|numeric|min:0',
-            'harga_jual' => 'required|numeric|min:0',
+            'harga_jual' => ['required', 'numeric', 'gt:harga_beli'],
             'deskripsi' => 'nullable|string',
         ];
 
@@ -85,7 +81,9 @@ class ProductController extends Controller
                         $request->except(['kode_produk', 'barcode']),
                         $identity
                     );
-                    $validated = Validator::make($input, $rules)->validate();
+                    $validated = Validator::make($input, $rules, [
+                        'harga_jual.gt' => 'Harga jual harus lebih besar dari harga beli.',
+                    ])->validate();
                     $validated['stok'] = 0;
 
                     Product::create($validated);
@@ -113,24 +111,24 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $suppliers = Supplier::all();
         $categories = Category::orderBy('nama_kategori')->get();
 
-        return view('produk.edit', compact('product', 'suppliers', 'categories'));
+        return view('produk.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate([
             'category_id' => 'nullable|exists:categories,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
             'nama_produk' => 'required|string|max:255',
             'merk' => 'nullable|string|max:255',
             'satuan' => 'required|string|max:50',
             'stok_minimum' => 'required|integer|min:0',
             'harga_beli' => 'required|numeric|min:0',
-            'harga_jual' => 'required|numeric|min:0',
+            'harga_jual' => ['required', 'numeric', 'gt:harga_beli'],
             'deskripsi' => 'nullable|string',
+        ], [
+            'harga_jual.gt' => 'Harga jual harus lebih besar dari harga beli.',
         ]);
 
         $product->update($validated);
@@ -143,7 +141,7 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $hasHistory = $product->detailPenjualans()->exists()
-            || $product->detailFakturs()->exists()
+            || DB::table('detail_fakturs')->where('product_id', $product->id)->exists()
             || $product->stockMovements()->exists();
 
         if ($hasHistory) {

@@ -12,6 +12,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class PenjualanController extends Controller
@@ -27,7 +28,13 @@ class PenjualanController extends Controller
             'search' => ['nullable', 'string', 'max:100'],
             'start_date' => ['nullable', 'date'],
             'end_date' => $endDateRules,
-            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'user_id' => [
+                'nullable',
+                'integer',
+                Rule::exists('users', 'id')->where(function ($query) {
+                    $query->whereIn('role', ['owner', 'co_owner']);
+                }),
+            ],
         ]);
 
         $penjualans = Penjualan::query()
@@ -56,7 +63,11 @@ class PenjualanController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        $users = User::query()->orderBy('name')->get(['id', 'name']);
+        $users = User::query()
+            ->whereIn('role', ['owner', 'co_owner'])
+            ->orderBy('role')
+            ->orderBy('name')
+            ->get();
 
         return view('penjualan.index', compact('penjualans', 'users', 'filters'));
     }
@@ -127,7 +138,7 @@ class PenjualanController extends Controller
                     $penjualan = Penjualan::create([
                         'nomor_penjualan' => $saleNumber,
                         'customer_id' => $validated['customer_id'] ?? null,
-                        'user_id' => Auth::id(),
+                        'user_id' => auth()->id(),
                         'tanggal' => $validated['tanggal'],
                         'total' => 0,
                         'bayar' => 0,

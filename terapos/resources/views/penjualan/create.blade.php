@@ -69,18 +69,18 @@
             <div class="card pos-card mb-4">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label for="sale-number" class="form-label">Nomor Transaksi</label>
                             <input id="sale-number" type="text" class="form-control"
                                 value="{{ $generatedNumber }}" readonly>
                             <small class="text-muted">Dibuat otomatis oleh sistem.</small>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label for="tanggal" class="form-label">Tanggal</label>
                             <input id="tanggal" type="date" name="tanggal" class="form-control"
                                 value="{{ old('tanggal', now()->toDateString()) }}" required>
                         </div>
-                        <div class="col-md-4 mb-3">
+                        <div class="col-md-3 mb-3">
                             <label for="customer_id" class="form-label">Pelanggan (Opsional)</label>
                             <select id="customer_id" name="customer_id" class="form-select">
                                 <option value="">Pelanggan Umum</option>
@@ -90,6 +90,11 @@
                                     </option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="form-label">Kasir</label>
+                            <input type="text" class="form-control" value="{{ auth()->user()->name }}" readonly>
+                            <small class="form-text text-muted">{{ auth()->user()->display_role }}</small>
                         </div>
                     </div>
 

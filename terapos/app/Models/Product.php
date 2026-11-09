@@ -13,7 +13,6 @@ class Product extends Model
         'kode_produk',
         'barcode',
         'category_id',
-        'supplier_id',
         'nama_produk',
         'merk',
         'satuan',
@@ -27,18 +26,6 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
-    }
-
-    public function supplier()
-    {
-        return $this->belongsTo(
-            Supplier::class
-        );
-    }
-
-    public function detailFakturs()
-    {
-        return $this->hasMany(DetailFaktur::class);
     }
 
     public function stockMovements()

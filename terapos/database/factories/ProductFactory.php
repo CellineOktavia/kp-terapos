@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use App\Models\Supplier;
 
 /**
  * @extends Factory<Product>
@@ -18,32 +18,46 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
+        $buyPrice = fake()->numberBetween(5000, 300000);
+
         return [
-
-            'kode_produk' => fake()->unique()->numerify('PRD###'),
-
-            'supplier_id' => Supplier::inRandomOrder()->value('id'),
-
+            'kode_produk' => fake()->unique()->numerify('TERA#####'),
+            'category_id' => Category::query()
+                ->whereIn('nama_kategori', [
+                    'Lampu & Penerangan',
+                    'Kelistrikan',
+                    'Kabel & Aksesoris Listrik',
+                    'Elektronik Rumah Tangga',
+                    'Peralatan Rumah Tangga',
+                    'Peralatan Kebersihan',
+                    'Pecah Belah',
+                    'Lain-lain',
+                ])
+                ->inRandomOrder()
+                ->value('id'),
             'nama_produk' => fake()->randomElement([
-                'Lampu LED',
-                'Kabel NYM',
+                'Lampu Hannochs Sonic 9W',
+                'Lampu Hannochs Sonic 12W',
+                'Stop Kontak 4 Lubang',
                 'Saklar Tunggal',
-                'Stop Kontak',
-                'Fitting Lampu'
+                'Fitting Lampu Putih',
+                'Kabel Roll 5 Meter',
+                'Terminal Listrik 4 Lubang',
+                'Steker Listrik',
+                'Sapu Lantai',
+                'Pel Lantai',
+                'Ember Plastik',
+                'Gelas Kaca Set',
+                'Piring Kaca Set',
+                'Stop Kontak 2 Lubang',
+                'Kabel NYM 2x1.5',
             ]),
-
-            'merk' => fake()->optional()->company(),
-
-            'satuan' => fake()->randomElement(['pcs', 'pack', 'box', 'botol']),
-
+            'merk' => fake()->optional()->randomElement(['Hannochs', 'Philips', 'Panasonic', 'Cosmos', 'Maspion']),
+            'satuan' => fake()->randomElement(['pcs', 'set', 'meter']),
             'stok' => fake()->numberBetween(0, 100),
-
-            'stok_minimum' => 10,
-
-            'harga_beli' => fake()->numberBetween(50000, 300000),
-
-            'harga_jual' => fake()->numberBetween(80000, 400000),
-
+            'stok_minimum' => fake()->randomElement([2, 3, 4, 5, 8, 10]),
+            'harga_beli' => $buyPrice,
+            'harga_jual' => $buyPrice + fake()->numberBetween(1000, 50000),
         ];
     }
 }

@@ -1,7 +1,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="TERAPOS - Sistem Penjualan dan Persediaan Barang Richie Motor">
+    <meta name="description" content="TERAPOS - Sistem Penjualan dan Persediaan Barang Toko Terang Abadi">
 
     <title>TERAPOS</title>
 
@@ -737,12 +737,9 @@
                         Lebih Mudah
                     </h1>
                     <p class="hero-text">
-
-                        Sistem informasi untuk membantu
-                        Richie Motor mengelola barang,
-                        supplier, pelanggan dan statistik
-                        penjualan secara cepat dan
-                        terorganisir.
+                        TERAPOS adalah sistem penjualan dan persediaan Toko Terang Abadi
+                        untuk mengelola produk, stok, dan transaksi berbagai perlengkapan listrik,
+                        elektronik, peralatan rumah tangga, kebersihan, dan pecah belah.
                     </p>
 
                     <div class="mt-4">
@@ -773,7 +770,7 @@
                                         0
                                     </div>
                                     <div class="counter-label">
-                                        Supplier
+                                        Kategori
                                     </div>
                                 </div>
                             </div>
@@ -805,7 +802,7 @@
                             0
                         </div>
                         <div class="counter-label">
-                            Supplier
+                            Kategori
                         </div>
                     </div>
                 </div>
@@ -847,27 +844,23 @@
                 </div>
 
                 <div class="col-lg-6">
-                    <span class="section-badge">
-                        Tentang Kami
-                    </span>
+                    <span class="section-badge">Tentang TERAPOS</span>
 
                     <h2 class="section-title">
-                        Richie Motor &
                         <span>TERAPOS</span>
                     </h2>
                     <p class="section-text">
-                        Richie Motor merupakan usaha
-                        yang bergerak di bidang
-                        penjualan produk listrik dan kebutuhan rumah tangga.
+                        Toko Terang Abadi menggunakan TERAPOS untuk membantu pengelolaan
+                        penjualan, stok, dan data produk kebutuhan rumah tangga.
                     </p>
                     <p class="section-text">
-                        TERAPOS membantu
-                        pengelolaan produk,
-                        supplier, pelanggan, dan
-                        statistik penjualan secara
-                        real-time sehingga proses bisnis
-                        menjadi lebih cepat, akurat,
-                        dan terorganisir.
+                        Produk yang dikelola meliputi perlengkapan listrik, lampu dan penerangan,
+                        elektronik rumah tangga, peralatan kebersihan, peralatan rumah tangga,
+                        pecah belah, serta berbagai kebutuhan rumah tangga lainnya.
+                    </p>
+                    <p class="section-text">
+                        TERAPOS membantu pencatatan stok dan transaksi penjualan agar lebih cepat,
+                        terorganisir, dan mudah dipantau oleh Owner maupun Co-Owner.
                     </p>
                 </div>
             </div>
@@ -903,11 +896,11 @@
                 <div class="col-md-4">
                     <div class="feature-box">
                         <div class="icon-box">
-                            <i class="bi bi-truck"></i>
+                            <i class="bi bi-sliders"></i>
                         </div>
-                        <h4>Supplier</h4>
+                        <h4>Penyesuaian Stok</h4>
                         <p>
-                            Kelola supplier dengan mudah.
+                            Catat stok masuk dan keluar melalui penyesuaian.
                         </p>
                     </div>
                 </div>
@@ -973,7 +966,7 @@
                             Hubungi Kami
                         </span>
                         <h2 class="section-title text-white">
-                            Richie Motor
+                            Toko Terang Abadi
                         </h2>
                         <p class="contact-info">
                             <i class="bi bi-telephone-fill"></i>
@@ -1007,7 +1000,7 @@
                 </h2>
 
                 <p class="section-text">
-                    Kelola produk dan supplier
+                    Kelola produk, stok, dan penjualan
                     dengan lebih cepat dan efisien.
                 </p>
 
@@ -1049,8 +1042,8 @@
                 <p class="footer-desc">
 
                     Sistem penjualan dan persediaan barang yang membantu
-                    Richie Motor mengelola produk, supplier,
-                    pelanggan, dan statistik penjualan secara
+                    Toko Terang Abadi mengelola produk, stok,
+                    pelanggan, dan penjualan secara
                     lebih cepat dan terorganisir.
 
                 </p>
@@ -1084,7 +1077,7 @@
             <div class="col-lg-4 text-lg-end">
 
                 <h6 class="footer-title">
-                    Richie Motor
+                    Toko Terang Abadi
                 </h6>
 
                 <p class="footer-contact">
@@ -1109,7 +1102,7 @@
 
         <div class="footer-bottom">
 
-            © {{ date('Y') }} TERAPOS - Richie Motor.
+            © {{ date('Y') }} TERAPOS - Toko Terang Abadi.
             All Rights Reserved.
 
         </div>

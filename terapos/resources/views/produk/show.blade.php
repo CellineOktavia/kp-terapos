@@ -338,32 +338,6 @@
             </div>
         </div>
 
-        {{-- SUPPLIER --}}
-        @if ($product->supplier)
-            <div class="card detail-card">
-                <div class="card-header" style="background: linear-gradient(135deg, #0891b2, #38bdf8); color: white;">
-                    <i class="bi bi-truck me-2"></i>
-                    Informasi Supplier
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4 info-group">
-                            <p class="info-label">Kode Supplier</p>
-                            <p class="info-value">{{ $product->supplier->kode_supplier }}</p>
-                        </div>
-                        <div class="col-md-4 info-group">
-                            <p class="info-label">Nama Supplier</p>
-                            <p class="info-value">{{ $product->supplier->nama_supplier }}</p>
-                        </div>
-                        <div class="col-md-4 info-group">
-                            <p class="info-label">Telepon</p>
-                            <p class="info-value">{{ $product->supplier->telepon }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-
     </div>
 @endsection
 
