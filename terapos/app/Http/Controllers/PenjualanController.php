@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
 use App\Models\DetailPenjualan;
 use App\Models\Penjualan;
 use App\Models\Product;
@@ -31,22 +30,17 @@ class PenjualanController extends Controller
             'user_id' => [
                 'nullable',
                 'integer',
-                Rule::exists('users', 'id')->where(function ($query) {
-                    $query->whereIn('role', ['owner', 'co_owner']);
-                }),
+                Rule::exists('users', 'id'),
             ],
         ]);
 
         $penjualans = Penjualan::query()
-            ->with(['customer', 'user'])
+            ->with(['user'])
             ->withCount('detailPenjualans')
             ->withSum('detailPenjualans', 'qty')
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($saleQuery) use ($search) {
                     $saleQuery->where('nomor_penjualan', 'like', "%{$search}%")
-                        ->orWhereHas('customer', function ($customerQuery) use ($search) {
-                            $customerQuery->where('nama_customer', 'like', "%{$search}%");
-                        })
                         ->orWhereHas('user', function ($userQuery) use ($search) {
                             $userQuery->where('name', 'like', "%{$search}%");
                         })
@@ -56,16 +50,15 @@ class PenjualanController extends Controller
                         });
                 });
             })
-            ->when($filters['start_date'] ?? null, fn ($query, $date) => $query->whereDate('tanggal', '>=', $date))
-            ->when($filters['end_date'] ?? null, fn ($query, $date) => $query->whereDate('tanggal', '<=', $date))
-            ->when($filters['user_id'] ?? null, fn ($query, $userId) => $query->where('user_id', $userId))
+            ->when($filters['start_date'] ?? null, fn($query, $date) => $query->whereDate('tanggal', '>=', $date))
+            ->when($filters['end_date'] ?? null, fn($query, $date) => $query->whereDate('tanggal', '<=', $date))
+            ->when($filters['user_id'] ?? null, fn($query, $userId) => $query->where('user_id', $userId))
             ->latest()
             ->paginate(25)
             ->withQueryString();
 
         $users = User::query()
-            ->whereIn('role', ['owner', 'co_owner'])
-            ->orderBy('role')
+            ->whereIn('role', ['owner', 'co_owner', 'kasir'])
             ->orderBy('name')
             ->get();
 
@@ -74,18 +67,16 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        $customers = Customer::where('aktif', true)->orderBy('nama_customer')->get();
         $products = Product::orderBy('nama_produk')->get();
         $generatedNumber = $this->generateNextSaleNumber();
 
-        return view('penjualan.create', compact('customers', 'products', 'generatedNumber'));
+        return view('penjualan.create', compact('products', 'generatedNumber'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
-            'customer_id' => ['nullable', 'exists:customers,id'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
                 'required',
@@ -100,13 +91,13 @@ class PenjualanController extends Controller
             'bayar' => ['required', 'numeric', 'min:0'],
         ]);
 
-        for ($attempt = 1; ; $attempt++) {
+        for ($attempt = 1;; $attempt++) {
             try {
                 DB::transaction(function () use ($validated) {
                     $saleNumber = $this->generateNextSaleNumber();
                     $items = collect($validated['items']);
                     $productIds = $items->pluck('product_id')
-                        ->map(fn ($id) => (int) $id)
+                        ->map(fn($id) => (int) $id)
                         ->unique()
                         ->sort()
                         ->values();
@@ -137,8 +128,7 @@ class PenjualanController extends Controller
 
                     $penjualan = Penjualan::create([
                         'nomor_penjualan' => $saleNumber,
-                        'customer_id' => $validated['customer_id'] ?? null,
-                        'user_id' => auth()->id(),
+                        'user_id' => Auth::id(),
                         'tanggal' => $validated['tanggal'],
                         'total' => 0,
                         'bayar' => 0,
@@ -149,7 +139,7 @@ class PenjualanController extends Controller
                     foreach ($items as $item) {
                         $product = $products->get((int) $item['product_id']);
                         $qty = (int) $item['qty'];
-                        $harga = (float) $product->harga_jual;
+                        $harga = $product->harga_jual;
                         $subtotal = round($qty * $harga, 2);
                         $total += $subtotal;
 
@@ -204,7 +194,6 @@ class PenjualanController extends Controller
     public function show(Penjualan $penjualan)
     {
         $penjualan->load([
-            'customer',
             'user',
             'detailPenjualans.product',
         ]);
@@ -215,7 +204,7 @@ class PenjualanController extends Controller
     public function destroy(Penjualan $penjualan)
     {
         if (Auth::user()->role !== 'owner') {
-            abort(403);
+            abort(403, 'Hanya Owner yang dapat membatalkan transaksi.');
         }
 
         DB::transaction(function () use ($penjualan) {
@@ -227,7 +216,9 @@ class PenjualanController extends Controller
             $details = $lockedSale->detailPenjualans()
                 ->orderBy('product_id')
                 ->get();
+
             $productIds = $details->pluck('product_id')->unique()->sort()->values();
+
             $products = Product::query()
                 ->whereIn('id', $productIds)
                 ->orderBy('id')
@@ -264,18 +255,13 @@ class PenjualanController extends Controller
 
     private function generateNextSaleNumber(): string
     {
-        $largestNumber = Penjualan::query()
+        $maxSequence = DB::table('penjualans')
             ->where('nomor_penjualan', 'like', 'TRX%')
-            ->pluck('nomor_penjualan')
-            ->reduce(function (int $largest, string $number): int {
-                if (preg_match('/^TRX(\d+)$/', $number, $matches)) {
-                    return max($largest, (int) $matches[1]);
-                }
+            ->selectRaw("MAX(CAST(SUBSTRING(nomor_penjualan, 4) AS UNSIGNED)) as max_seq")
+            ->value('max_seq') ?? 0;
 
-                return $largest;
-            }, 0);
+        $sequence = (int) $maxSequence + 1;
 
-        $sequence = $largestNumber + 1;
         do {
             $number = 'TRX' . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
             $sequence++;

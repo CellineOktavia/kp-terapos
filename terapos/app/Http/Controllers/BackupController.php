@@ -2,205 +2,97 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Illuminate\View\View;
-use RuntimeException;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Throwable;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class BackupController extends Controller
 {
-    private const BACKUP_PATTERN = '/\Aterapos-backup-\d{8}-\d{6}(?:-\d+)?\.sqlite\z/';
-
-    public function index(): View
+    /**
+     * Path direktori tempat menyimpan file backup.
+     */
+    private function getBackupPath()
     {
-        $backups = $this->listBackups();
-
-        return view('backup.index', [
-            'backups' => $backups,
-            'latestBackup' => $backups[0] ?? null,
-        ]);
-    }
-
-    public function store(): RedirectResponse
-    {
-        $connection = DB::connection();
-
-        if ($connection->getDriverName() !== 'sqlite') {
-            return back()->with('error', 'Backup database hanya tersedia untuk koneksi SQLite.');
+        $path = storage_path('app/backups');
+        if (!File::exists($path)) {
+            File::makeDirectory($path, 0755, true);
         }
-
-        $configuredPath = $connection->getConfig('database');
-        if (
-            !is_string($configuredPath)
-            || $configuredPath === ''
-            || $configuredPath === ':memory:'
-            || str_starts_with($configuredPath, 'file:')
-        ) {
-            return back()->with('error', 'File database SQLite tidak ditemukan.');
-        }
-
-        $sourcePath = realpath($configuredPath) ?: realpath(base_path($configuredPath));
-        if ($sourcePath === false || !is_file($sourcePath) || !is_readable($sourcePath)) {
-            return back()->with('error', 'File database SQLite tidak ditemukan.');
-        }
-
-        $backupDirectory = storage_path('app/private/backups');
-        $backupPath = null;
-        $sqliteSource = null;
-        $sqliteBackup = null;
-
-        try {
-            File::ensureDirectoryExists($backupDirectory, 0700, true);
-            $backupPath = $this->nextBackupPath($backupDirectory);
-
-            if (class_exists(\SQLite3::class)) {
-                $sqliteSource = new \SQLite3($sourcePath, SQLITE3_OPEN_READONLY);
-                $sqliteSource->busyTimeout(5000);
-                $sqliteBackup = new \SQLite3(
-                    $backupPath,
-                    SQLITE3_OPEN_READWRITE | SQLITE3_OPEN_CREATE
-                );
-                $sqliteBackup->busyTimeout(5000);
-
-                if (!$sqliteSource->backup($sqliteBackup)) {
-                    throw new RuntimeException('SQLite online backup did not complete.');
-                }
-            } else {
-                $pdo = $connection->getPdo();
-                $pdo->exec('VACUUM INTO ' . $pdo->quote($backupPath));
-            }
-
-            if (!is_file($backupPath) || filesize($backupPath) <= 0) {
-                throw new RuntimeException('The generated SQLite backup is empty.');
-            }
-
-            if ($sqliteBackup !== null) {
-                $sqliteBackup->close();
-                $sqliteBackup = null;
-            }
-            if ($sqliteSource !== null) {
-                $sqliteSource->close();
-                $sqliteSource = null;
-            }
-
-            $this->validateBackup($backupPath);
-
-            return redirect()
-                ->route('backup.index')
-                ->with('success', 'Backup database berhasil dibuat.');
-        } catch (Throwable $exception) {
-            if ($sqliteBackup instanceof \SQLite3) {
-                $sqliteBackup->close();
-            }
-            if ($sqliteSource instanceof \SQLite3) {
-                $sqliteSource->close();
-            }
-            if ($backupPath !== null && is_file($backupPath)) {
-                File::delete($backupPath);
-            }
-
-            report($exception);
-
-            return back()->with('error', 'Backup database gagal dibuat.');
-        }
-    }
-
-    public function download(string $filename): BinaryFileResponse
-    {
-        abort_unless(
-            basename($filename) === $filename
-                && preg_match(self::BACKUP_PATTERN, $filename) === 1,
-            404
-        );
-
-        $backupDirectory = storage_path('app/private/backups');
-        $directoryPath = realpath($backupDirectory);
-        $filePath = realpath($backupDirectory . DIRECTORY_SEPARATOR . $filename);
-
-        abort_unless(
-            $directoryPath !== false
-                && $filePath !== false
-                && str_starts_with($filePath, $directoryPath . DIRECTORY_SEPARATOR)
-                && is_file($filePath)
-                && is_readable($filePath),
-            404
-        );
-
-        return response()->download($filePath, $filename);
-    }
-
-    private function listBackups(): array
-    {
-        $backupDirectory = storage_path('app/private/backups');
-        if (!File::isDirectory($backupDirectory)) {
-            return [];
-        }
-
-        $backups = [];
-        foreach (File::files($backupDirectory) as $file) {
-            $filename = $file->getFilename();
-            if (preg_match(self::BACKUP_PATTERN, $filename) !== 1) {
-                continue;
-            }
-
-            $backups[] = [
-                'filename' => $filename,
-                'size' => $file->getSize(),
-                'modified_at' => Carbon::createFromTimestamp($file->getMTime()),
-            ];
-        }
-
-        usort(
-            $backups,
-            fn (array $left, array $right) => $right['modified_at']->getTimestamp()
-                <=> $left['modified_at']->getTimestamp()
-        );
-
-        return $backups;
-    }
-
-    private function nextBackupPath(string $backupDirectory): string
-    {
-        $baseName = 'terapos-backup-' . now()->format('Ymd-His');
-        $suffix = 0;
-
-        do {
-            $filename = $baseName . ($suffix === 0 ? '' : '-' . $suffix) . '.sqlite';
-            $path = $backupDirectory . DIRECTORY_SEPARATOR . $filename;
-            $suffix++;
-        } while (file_exists($path));
-
         return $path;
     }
 
-    private function validateBackup(string $backupPath): void
+    /**
+     * Menampilkan daftar backup.
+     */
+    public function index()
     {
-        if (class_exists(\SQLite3::class)) {
-            $database = new \SQLite3($backupPath, SQLITE3_OPEN_READONLY);
-            try {
-                $result = $database->querySingle('PRAGMA quick_check');
-                if ($result !== 'ok') {
-                    throw new RuntimeException('SQLite quick_check failed for the generated backup.');
-                }
-            } finally {
-                $database->close();
+        $backupDir = $this->getBackupPath();
+        $files = File::files($backupDir);
+        $backups = [];
+
+        foreach ($files as $file) {
+            // Hanya ambil file dengan ekstensi .sqlite atau .db
+            if (in_array($file->getExtension(), ['sqlite', 'db'])) {
+                $backups[] = [
+                    'filename'    => $file->getFilename(),
+                    'size'        => $file->getSize(),
+                    'modified_at' => Carbon::createFromTimestamp($file->getMTime()),
+                ];
+            }
+        }
+
+        // Urutkan backup terbaru di paling atas
+        usort($backups, function ($a, $b) {
+            return $b['modified_at']->timestamp <=> $a['modified_at']->timestamp;
+        });
+
+        $latestBackup = count($backups) > 0 ? $backups[0] : null;
+
+        return view('backup.index', compact('backups', 'latestBackup'));
+    }
+
+    /**
+     * Proses pembuatan backup file SQLite.
+     */
+    public function store(Request $request)
+    {
+        try {
+            $databasePath = database_path('database.sqlite');
+
+            // Cek apakah file database utama SQLite ada
+            if (!File::exists($databasePath)) {
+                return redirect()->back()->with('error', 'File database.sqlite tidak ditemukan di folder database.');
             }
 
-            return;
+            $backupDir = $this->getBackupPath();
+            $timestamp = Carbon::now()->format('Y-m-d_H-i-s');
+            $backupFileName = "backup_terapos_{$timestamp}.sqlite";
+            $destinationPath = $backupDir . '/' . $backupFileName;
+
+            // Lakukan pengopian file database secara murni
+            if (File::copy($databasePath, $destinationPath)) {
+                return redirect()->back()->with('success', "Backup database berhasil dibuat: {$backupFileName}");
+            }
+
+            return redirect()->back()->with('error', 'Gagal membuat backup database.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download file backup.
+     */
+    public function download($filename)
+    {
+        // Sanitasi nama file untuk mencegah path traversal vulnerability
+        $cleanFilename = basename($filename);
+        $filePath = $this->getBackupPath() . '/' . $cleanFilename;
+
+        if (File::exists($filePath)) {
+            return response()->download($filePath);
         }
 
-        $database = new \PDO(
-            'sqlite:' . $backupPath,
-            null,
-            null,
-            [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION]
-        );
-        if ($database->query('PRAGMA quick_check')->fetchColumn() !== 'ok') {
-            throw new RuntimeException('SQLite quick_check failed for the generated backup.');
-        }
+        return redirect()->back()->with('error', 'File backup tidak ditemukan.');
     }
 }

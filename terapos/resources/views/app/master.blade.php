@@ -10,14 +10,11 @@
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
-    {{-- ✅ Tambah ini --}}
     @stack('styles')
 
     <style>
         .dashboard-hero {
-            background: linear-gradient(135deg,
-                    #2563eb,
-                    #1e3a8a);
+            background: linear-gradient(135deg, #2563eb, #1e3a8a);
             color: white;
             padding: 40px;
             border-radius: 24px;
@@ -46,10 +43,12 @@
             border-radius: 20px;
             color: white;
             transition: .3s;
+            cursor: pointer;
         }
 
         .stats-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-6px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, .12);
         }
 
         .stats-card i {
@@ -152,20 +151,10 @@
             color: inherit;
         }
 
-        .stats-card {
-            cursor: pointer;
-        }
-
-        .stats-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, .12);
-        }
-
         .list-group-item {
             border: none;
             padding: 12px 18px;
-            transition: background-color .25s ease,
-                color .25s ease;
+            transition: background-color .25s ease, color .25s ease;
         }
 
         .list-group-item:hover {
@@ -178,38 +167,12 @@
             font-weight: 600;
         }
 
-        .logout-btn {
-            color: #dc3545 !important;
-            font-weight: 600;
-        }
-
-        .logout-btn:hover {
-            background-color: #dc3545 !important;
-            color: white !important;
-        }
-
         .top-navbar {
             background: linear-gradient(135deg, #1e293b, #334155);
             min-height: 78px;
             display: flex;
             align-items: center;
             padding: 0 18px;
-        }
-
-        .brand-title {
-            color: #2563eb;
-            font-weight: 700;
-            font-size: 32px;
-        }
-
-        .brand-subtitle {
-            color: #9ca3af;
-            font-size: 12px;
-        }
-
-        .user-info {
-            color: white;
-            text-align: right;
         }
 
         .header-brand h2 {
@@ -260,6 +223,7 @@
         .logout-btn-top {
             border-radius: 10px;
             padding: 8px 18px;
+            font-weight: 600;
         }
 
         .sidebar-custom {
@@ -316,16 +280,11 @@
             font-size: 15px;
         }
 
-        /* =====================================
-   TERAPOS GLOBAL ANIMATION
-===================================== */
-
-        /* Smooth Scroll */
+        /* Smooth Scroll & Animations */
         html {
             scroll-behavior: smooth;
         }
 
-        /* Fade Page */
         .page-content {
             animation: fadePage .5s ease;
         }
@@ -342,13 +301,13 @@
             }
         }
 
-        /* Card Animation */
         .card,
         .dashboard-card,
         .stats-card,
         .summary-card,
         .custom-card {
             animation: slideUp .5s ease;
+            transition: all .3s ease;
         }
 
         @keyframes slideUp {
@@ -363,138 +322,66 @@
             }
         }
 
-        /* Hover Card */
-        .card,
-        .dashboard-card,
-        .summary-card,
-        .custom-card {
-            transition: all .3s ease;
-        }
-
         .card:hover,
         .dashboard-card:hover,
         .summary-card:hover,
         .custom-card:hover {
-
             transform: translateY(-6px);
-
-            box-shadow:
-                0 12px 30px rgba(37, 99, 235, .12);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, .12);
         }
 
-        /* Table Row Hover */
         .table tbody tr {
             transition: .25s ease;
         }
 
         .table tbody tr:hover {
-
             background: #eff6ff;
-
             transform: scale(1.002);
         }
 
-        /* Button Animation */
         .btn {
-
             transition: all .3s ease !important;
         }
 
         .btn:hover {
-
             transform: translateY(-2px);
-
-            box-shadow:
-                0 8px 20px rgba(0, 0, 0, .15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, .15);
         }
 
-        /* Input Focus */
         .form-control:focus,
         .form-select:focus {
-
             border-color: #2563eb;
-
-            box-shadow:
-                0 0 0 .15rem rgba(37, 99, 235, .15);
+            box-shadow: 0 0 0 .15rem rgba(37, 99, 235, .15);
         }
 
-        /* Sidebar Hover */
-        .sidebar-menu a,
-        .list-group-item {
-
-            transition: all .25s ease;
-        }
-
-        .sidebar-menu a:hover,
-        .list-group-item:hover {
-
-            padding-left: 24px;
-
-            background: #eff6ff;
-
-            color: #2563eb;
-        }
-
-        /* Badge Hover */
-        .badge {
-
-            transition: .3s;
-        }
-
-        .badge:hover {
-
-            transform: scale(1.08);
-        }
-
-        /* Chart Animation */
-        .chart-card {
-
-            animation:
-                fadePage .8s ease;
-        }
-
-        /* Alert Animation */
         .alert {
-
-            animation:
-                fadePage .4s ease;
+            animation: fadePage .4s ease;
         }
 
-        /* Pagination */
-        .pagination .page-link {
-
-            transition: .25s;
+        /* ==========================================
+           MODAL KONFIRMASI TERAPOS MODERN DESIGN
+           ========================================== */
+        .modal-terapos .modal-content {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
         }
 
-        .pagination .page-link:hover {
-
-            background: #2563eb;
-
-            color: white;
-        }
-
-        /* Navbar */
-        .navbar {
-
-            animation:
-                slideDown .5s ease;
-        }
-
-        @keyframes slideDown {
-
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .icon-box-logout {
+            width: 65px;
+            height: 65px;
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.85rem;
+            margin: 0 auto 16px;
         }
     </style>
 </head>
-
 
 <body>
     <nav class="top-navbar shadow-sm">
@@ -506,7 +393,6 @@
             </div>
 
             <div class="user-panel">
-
                 <div class="user-avatar">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
@@ -518,19 +404,16 @@
                     </div>
                 </div>
 
-                <form action="{{ route('logout') }}" method="POST" onsubmit="return confirmLogout()"
-                    class="d-flex py-3">
-                    @csrf
-                    <button type="submit" class="btn btn-danger logout-btn-top d-flex align-items-center">
-                        <i class="bi bi-box-arrow-right me-1"></i>
-                        Logout
-                    </button>
-                </form>
-
+                <!-- Tombol Memicu Modal Logout -->
+                <button type="button" class="btn btn-danger logout-btn-top d-flex align-items-center"
+                    data-bs-toggle="modal" data-bs-target="#logoutConfirmModal">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                </button>
             </div>
 
         </div>
     </nav>
+
     <div class="container-fluid">
         <div class="row">
             <aside class="col-md-3 col-lg-2 sidebar-custom min-vh-100 p-3">
@@ -544,47 +427,64 @@
             </main>
         </div>
     </div>
+
+    <!-- MODAL KONFIRMASI LOGOUT (TERAPOS MODERN DESIGN) -->
+    <div class="modal fade modal-terapos" id="logoutConfirmModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body text-center p-4">
+                    <div class="icon-box-logout">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-2">Konfirmasi Logout</h4>
+                    <p class="text-muted small mb-3">
+                        Apakah Anda yakin ingin keluar dari sistem <strong class="text-dark">TERAPOS</strong>?
+                    </p>
+                    <div class="alert alert-info border-0 rounded-3 text-start small p-3 mb-4"
+                        style="background-color: #e0f2fe; color: #0369a1;">
+                        <i class="bi bi-info-circle-fill me-1"></i> Sesi Anda saat ini akan diakhiri. Anda perlu login
+                        kembali untuk mengakses aplikasi.
+                    </div>
+
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST">
+                        @csrf
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-light px-4 py-2 rounded-3 fw-semibold border"
+                                data-bs-dismiss="modal">
+                                Batal
+                            </button>
+                            <button type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold">
+                                Ya, Keluar Sekarang
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
     <script>
-        function confirmLogout() {
-            return confirm(
-                'Apakah Anda yakin ingin logout?'
-            );
-        }
-
         document.addEventListener("DOMContentLoaded", () => {
-
             document.body.classList.add("loaded");
 
             document.querySelectorAll("a").forEach(link => {
-
                 if (
                     link.hostname === window.location.hostname &&
                     !link.target &&
                     !link.href.includes('#')
                 ) {
-
                     link.addEventListener("click", function(e) {
-
                         e.preventDefault();
-
                         document.body.classList.add("page-exit");
-
                         setTimeout(() => {
-
-                            window.location =
-                                this.href;
-
+                            window.location = this.href;
                         }, 250);
-
                     });
-
                 }
-
             });
-
         });
     </script>
     @stack('scripts')

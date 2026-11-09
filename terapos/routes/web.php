@@ -7,7 +7,6 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockMovementController;
-use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\OwnerDashboardController;
@@ -117,51 +116,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/stok/adjustment', [StockController::class, 'storeAdjustment'])
             ->name('stok.adjustment.store');
 
-        Route::get('/backup', [BackupController::class, 'index'])
-            ->name('backup.index');
-        Route::post('/backup', [BackupController::class, 'store'])
-            ->name('backup.store');
-        Route::get('/backup/{filename}/download', [BackupController::class, 'download'])
-            ->where('filename', 'terapos-backup-[0-9]{8}-[0-9]{6}(-[0-9]+)?\\.sqlite')
-            ->name('backup.download');
+        Route::middleware(['auth'])->group(function () {
+            Route::get('/backup', [BackupController::class, 'index'])->name('backup.index');
+            Route::post('/backup', [BackupController::class, 'store'])->name('backup.store');
+            Route::get('/backup/download/{filename}', [BackupController::class, 'download'])->name('backup.download');
+        });
     });
-
-
-    // Customer Routes
-    Route::get(
-        '/customer',
-        [CustomerController::class, 'index']
-    )->name('customer.index');
-
-    Route::get(
-        '/customer/create',
-        [CustomerController::class, 'create']
-    )->name('customer.create');
-
-    Route::post(
-        '/customer',
-        [CustomerController::class, 'store']
-    )->name('customer.store');
-
-    Route::get(
-        '/customer/{customer}/edit',
-        [CustomerController::class, 'edit']
-    )->name('customer.edit');
-
-    Route::put(
-        '/customer/{customer}',
-        [CustomerController::class, 'update']
-    )->name('customer.update');
-
-    Route::delete(
-        '/customer/{customer}',
-        [CustomerController::class, 'destroy']
-    )->name('customer.destroy');
-
-    Route::get(
-        '/customer/{customer}',
-        [CustomerController::class, 'show']
-    )->name('customer.show');
 
     // Penjualan Routes
     Route::get(
