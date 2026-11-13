@@ -14,8 +14,10 @@ class CategorySeeder extends Seeder
             'Kelistrikan',
             'Kabel & Aksesoris Listrik',
             'Elektronik Rumah Tangga',
-            'Peralatan Kebersihan',
             'Peralatan Rumah Tangga',
+            'Peralatan Kebersihan',
+            'Kebutuhan Kebersihan',
+            'Peralatan Dapur',
             'Pecah Belah',
             'Lain-lain',
         ];

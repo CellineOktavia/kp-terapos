@@ -74,7 +74,7 @@
             box-shadow: 0 6px 18px rgba(111, 66, 193, 0.3);
         }
 
-        /* Badge Kode Produk */
+        /* Badge Kode Barang */
         .badge-code {
             background-color: #f3e8ff;
             color: #6f42c1;
@@ -174,7 +174,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Manajemen Stok</h3>
-                <p class="text-muted small mb-0">Pantau jumlah dan status stok seluruh produk TERAPOS.</p>
+                <p class="text-muted small mb-0">Pantau jumlah dan status stok seluruh barang TERAPOS.</p>
             </div>
             @if (auth()->user()->role === 'owner')
                 <a href="{{ route('stok.adjustment.create') }}" class="btn-adjustment">
@@ -212,7 +212,7 @@
                 <form method="GET" action="{{ route('stok.index') }}">
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-7 col-md-6">
-                            <label for="stock-search" class="label-title">Cari Produk</label>
+                            <label for="stock-search" class="label-title">Cari Barang</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0"
                                     style="border-radius: 10px 0 0 10px;">
@@ -220,7 +220,7 @@
                                 </span>
                                 <input id="stock-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0" value="{{ request('search') }}"
-                                    placeholder="Kode, barcode, atau nama produk...">
+                                    placeholder="Kode barang, barcode, atau nama barang...">
                             </div>
                         </div>
 
@@ -252,11 +252,11 @@
             <div class="card-header-purple d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-box-seam-fill"></i>
-                    Daftar Stok Produk
+                    Daftar Stok Barang
                 </div>
                 <span class="badge bg-white text-purple rounded-pill px-3 py-1 font-monospace fw-bold"
                     style="color: #6f42c1; font-size: 12px;">
-                    Total: {{ $products->total() }} Produk
+                    Total: {{ $products->total() }} Barang
                 </span>
             </div>
             <div class="card-body p-0">
@@ -264,8 +264,8 @@
                     <table class="table table-borderless table-terapos mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Kode Produk</th>
-                                <th>Nama Produk</th>
+                                <th class="ps-4">Kode Barang</th>
+                                <th>Nama Barang</th>
                                 <th>Kategori</th>
                                 <th class="text-center">Satuan</th>
                                 <th class="text-center">Stok Saat Ini</th>
@@ -315,7 +315,7 @@
                                     </td>
                                     <td class="text-center pe-4">
                                         <a href="{{ route('produk.show', $product) }}" class="action-btn btn-view-purple"
-                                            title="Lihat Detail Produk">
+                                            title="Lihat Detail Barang">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                     </td>
@@ -324,8 +324,8 @@
                                 <tr>
                                     <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="bi bi-archive fs-1 d-block mb-3 text-secondary opacity-50"></i>
-                                        <div class="fw-bold fs-6">Belum ada data stok produk</div>
-                                        <p class="small text-muted mb-0">Tidak ada produk yang cocok dengan pencarian Anda.
+                                        <div class="fw-bold fs-6">Belum ada data stok barang</div>
+                                        <p class="small text-muted mb-0">Tidak ada barang yang cocok dengan pencarian Anda.
                                         </p>
                                     </td>
                                 </tr>

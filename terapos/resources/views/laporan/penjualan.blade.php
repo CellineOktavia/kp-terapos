@@ -229,14 +229,16 @@
                     <table class="table table-borderless table-terapos mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">No. Transaksi</th>
+                                <th class="ps-4">No. Penjualan</th>
                                 <th>Tanggal</th>
                                 <th class="text-center">Jenis Item</th>
                                 <th class="text-center">Qty Terjual</th>
-                                <th class="text-end">Total Omzet</th>
+                                <th class="text-end">Subtotal</th>
+                                <th class="text-end">Diskon</th>
+                                <th class="text-end">Total Penjualan</th>
                                 <th class="text-end">Bayar</th>
                                 <th class="text-end">Kembalian</th>
-                                <th>Kasir / User</th>
+                                <th>User / Operator</th>
                                 <th class="text-center pe-4" width="80">Aksi</th>
                             </tr>
                         </thead>
@@ -256,6 +258,15 @@
                                     </td>
                                     <td class="text-center text-muted fw-semibold">
                                         {{ number_format($penjualan->detail_penjualans_sum_qty ?? 0, 0, ',', '.') }} pcs
+                                    </td>
+                                    <td class="text-end">
+                                        Rp {{ number_format($penjualan->detailPenjualans->sum('subtotal'), 0, ',', '.') }}
+                                    </td>
+                                    <td class="text-end text-success">
+                                        @if ((float) $penjualan->diskon_persen > 0)
+                                            {{ rtrim(rtrim(number_format($penjualan->diskon_persen, 2, '.', ''), '0'), '.') }}%<br>
+                                        @endif
+                                        Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}
                                     </td>
                                     <td class="text-end">
                                         <span class="amount-badge">
@@ -280,7 +291,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-5 text-muted">
+                                    <td colspan="11" class="text-center py-5 text-muted">
                                         <i
                                             class="bi bi-file-earmark-bar-graph fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6">Tidak ada data transaksi</div>

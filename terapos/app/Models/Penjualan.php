@@ -11,6 +11,8 @@ class Penjualan extends Model
         'customer_id',
         'user_id',
         'total',
+        'diskon_persen',
+        'diskon_nominal',
         'tanggal',
         'bayar',
         'kembalian',
@@ -20,6 +22,8 @@ class Penjualan extends Model
     {
         return [
             'total' => 'decimal:2',
+            'diskon_persen' => 'decimal:2',
+            'diskon_nominal' => 'decimal:2',
             'bayar' => 'decimal:2',
             'kembalian' => 'decimal:2',
 

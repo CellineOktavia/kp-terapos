@@ -61,12 +61,17 @@
         <a href="{{ route('produk.index') }}"
             class="list-group-item list-group-item-action {{ request()->is('produk*') ? 'active' : '' }}">
             <i class="bi bi-box-seam"></i>
-            Produk
+            Barang
         </a>
         <a href="{{ route('kategori.index') }}"
             class="list-group-item list-group-item-action {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
             <i class="bi bi-tags"></i>
             Kategori
+        </a>
+        <a href="{{ route('penerimaan.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('penerimaan*') ? 'active' : '' }}">
+            <i class="bi bi-box-arrow-in-down"></i>
+            Penerimaan Barang
         </a>
 
         <div class="sidebar-title">Penjualan</div>
@@ -118,20 +123,20 @@
         </a>
     @else
         <div class="sidebar-title">Master Data</div>
-        <a href="{{ route('customer.index') }}"
-            class="list-group-item list-group-item-action {{ request()->routeIs('customer.*') ? 'active' : '' }}">
-            <i class="bi bi-people"></i>
-            Pelanggan
-        </a>
         <a href="{{ route('produk.index') }}"
             class="list-group-item list-group-item-action {{ request()->is('produk*') ? 'active' : '' }}">
             <i class="bi bi-box-seam"></i>
-            Produk
+            Barang
         </a>
         <a href="{{ route('kategori.index') }}"
             class="list-group-item list-group-item-action {{ request()->routeIs('kategori.*') ? 'active' : '' }}">
             <i class="bi bi-tags"></i>
             Kategori
+        </a>
+        <a href="{{ route('penerimaan.index') }}"
+            class="list-group-item list-group-item-action {{ request()->is('penerimaan*') ? 'active' : '' }}">
+            <i class="bi bi-box-arrow-in-down"></i>
+            Penerimaan Barang
         </a>
 
         <div class="sidebar-title">Penjualan</div>

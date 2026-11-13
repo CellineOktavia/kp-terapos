@@ -41,4 +41,9 @@ class Product extends Model
             DetailPenjualan::class
         );
     }
+
+    public function detailPenerimaanBarangs()
+    {
+        return $this->hasMany(DetailPenerimaanBarang::class);
+    }
 }

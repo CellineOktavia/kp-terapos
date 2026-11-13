@@ -51,7 +51,7 @@
             box-shadow: 0 0 0 3px rgba(111, 66, 193, 0.15);
         }
 
-        /* Badge Kode Produk Ungu Soft */
+        /* Badge Kode Barang Ungu Soft */
         .badge-code {
             background-color: #f3e8ff;
             color: #6f42c1;
@@ -131,7 +131,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Riwayat Stok</h3>
-                <p class="text-muted small mb-0">Riwayat seluruh pergerakan aktivitas stok masuk dan keluar produk.</p>
+                <p class="text-muted small mb-0">Riwayat seluruh pergerakan stok masuk dan keluar barang.</p>
             </div>
         </div>
 
@@ -172,7 +172,7 @@
                                 </span>
                                 <input id="movement-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0" value="{{ request('search') }}"
-                                    placeholder="Kode, nama produk, atau keterangan...">
+                                    placeholder="Kode barang, nama barang, atau keterangan...">
                             </div>
                         </div>
 
@@ -226,8 +226,8 @@
                         <thead>
                             <tr>
                                 <th class="ps-4">Tanggal & Waktu</th>
-                                <th class="text-center">Kode Produk</th>
-                                <th>Nama Produk</th>
+                                <th class="text-center">Kode Barang</th>
+                                <th>Nama Barang</th>
                                 <th class="text-center">Jenis</th>
                                 <th class="text-center">Qty</th>
                                 <th class="pe-4">Keterangan</th>
@@ -246,7 +246,7 @@
                                         </span>
                                     </td>
                                     <td class="fw-bold text-dark">
-                                        {{ $movement->product?->nama_produk ?? 'Produk tidak tersedia' }}
+                                        {{ $movement->product?->nama_produk ?? 'Barang tidak tersedia' }}
                                     </td>
                                     <td class="text-center">
                                         @if ($movement->jenis === 'masuk')

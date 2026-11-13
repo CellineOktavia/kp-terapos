@@ -25,7 +25,7 @@ class LaporanController extends Controller
         $query = $this->saleQuery($period['start'], $period['end']);
 
         $penjualans = (clone $query)
-            ->with(['customer', 'user', 'detailPenjualans'])
+            ->with(['user', 'detailPenjualans'])
             ->withCount('detailPenjualans')
             ->withSum('detailPenjualans', 'qty')
             ->orderByDesc('tanggal')
@@ -72,7 +72,7 @@ class LaporanController extends Controller
     {
         $period = $this->resolvePeriod($request);
         $penjualans = $this->saleQuery($period['start'], $period['end'])
-            ->with(['customer', 'user', 'detailPenjualans.product'])
+            ->with(['user', 'detailPenjualans.product'])
             ->orderByDesc('tanggal')
             ->orderByDesc('id')
             ->get();

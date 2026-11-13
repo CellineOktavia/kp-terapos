@@ -72,7 +72,7 @@
             box-shadow: 0 6px 18px rgba(220, 53, 69, 0.3);
         }
 
-        /* Badge Kode Produk Merah Soft */
+        /* Badge Kode Barang Merah Soft */
         .badge-code-danger {
             background-color: #fef2f2;
             color: #dc3545;
@@ -162,7 +162,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Stok Kritis</h3>
-                <p class="text-muted small mb-0">Daftar produk dengan jumlah stok sama dengan atau di bawah batas minimum.
+                <p class="text-muted small mb-0">Daftar barang dengan jumlah stok sama dengan atau di bawah batas minimum.
                 </p>
             </div>
             @if (auth()->user()->role === 'owner')
@@ -201,7 +201,7 @@
                 <form method="GET" action="{{ route('stok.kritis') }}">
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-10 col-md-9">
-                            <label for="critical-search" class="label-title">Cari Produk Kritis</label>
+                            <label for="critical-search" class="label-title">Cari Barang Kritis</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0"
                                     style="border-radius: 10px 0 0 10px;">
@@ -209,7 +209,7 @@
                                 </span>
                                 <input id="critical-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0" value="{{ request('search') }}"
-                                    placeholder="Kode, barcode, atau nama produk...">
+                                    placeholder="Kode barang, barcode, atau nama barang...">
                             </div>
                         </div>
 
@@ -229,11 +229,11 @@
             <div class="card-header-red d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-exclamation-triangle-fill"></i>
-                    Daftar Produk Stok Kritis
+                    Daftar Barang Stok Kritis
                 </div>
                 <span class="badge bg-white text-danger rounded-pill px-3 py-1 font-monospace fw-bold"
                     style="font-size: 12px;">
-                    Total: {{ $products->total() }} Produk Perlu Perhatian
+                    Total: {{ $products->total() }} Barang Perlu Perhatian
                 </span>
             </div>
             <div class="card-body p-0">
@@ -241,8 +241,8 @@
                     <table class="table table-borderless table-terapos mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Kode Produk</th>
-                                <th>Nama Produk</th>
+                                <th class="ps-4">Kode Barang</th>
+                                <th>Nama Barang</th>
                                 <th>Kategori</th>
                                 <th class="text-center">Satuan</th>
                                 <th class="text-center">Stok Saat Ini</th>
@@ -288,7 +288,7 @@
                                     </td>
                                     <td class="text-center pe-4">
                                         <a href="{{ route('produk.show', $product) }}" class="action-btn btn-view-red"
-                                            title="Lihat Detail Produk">
+                                            title="Lihat Detail Barang">
                                             <i class="bi bi-eye-fill"></i>
                                         </a>
                                     </td>
@@ -298,7 +298,7 @@
                                     <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="bi bi-shield-check fs-1 d-block mb-3 text-success opacity-75"></i>
                                         <div class="fw-bold fs-6 text-dark">Tidak ada stok kritis!</div>
-                                        <p class="small text-muted mb-0">Semua stok produk saat ini dalam kondisi aman di
+                                        <p class="small text-muted mb-0">Semua stok barang saat ini dalam kondisi aman di
                                             atas batas minimum.</p>
                                     </td>
                                 </tr>

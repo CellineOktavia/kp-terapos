@@ -58,7 +58,7 @@ class PenjualanController extends Controller
             ->withQueryString();
 
         $users = User::query()
-            ->whereIn('role', ['owner', 'co_owner', 'kasir'])
+            ->whereIn('role', ['owner', 'co_owner'])
             ->orderBy('name')
             ->get();
 
@@ -111,7 +111,7 @@ class PenjualanController extends Controller
 
                     if ($products->count() !== $productIds->count()) {
                         throw ValidationException::withMessages([
-                            'items' => 'Salah satu produk tidak lagi tersedia.',
+                            'items' => 'Salah satu barang tidak lagi tersedia.',
                         ]);
                     }
 
@@ -131,17 +131,19 @@ class PenjualanController extends Controller
                         'user_id' => Auth::id(),
                         'tanggal' => $validated['tanggal'],
                         'total' => 0,
+                        'diskon_persen' => 0,
+                        'diskon_nominal' => 0,
                         'bayar' => 0,
                         'kembalian' => 0,
                     ]);
 
-                    $total = 0;
+                    $subtotalPenjualan = 0;
                     foreach ($items as $item) {
                         $product = $products->get((int) $item['product_id']);
                         $qty = (int) $item['qty'];
                         $harga = $product->harga_jual;
                         $subtotal = round($qty * $harga, 2);
-                        $total += $subtotal;
+                        $subtotalPenjualan += $subtotal;
 
                         DetailPenjualan::create([
                             'penjualan_id' => $penjualan->id,
@@ -162,7 +164,10 @@ class PenjualanController extends Controller
                         ]);
                     }
 
-                    $total = round($total, 2);
+                    $subtotalPenjualan = round($subtotalPenjualan, 2);
+                    $diskonPersen = $subtotalPenjualan > 300000 ? 5 : 0;
+                    $diskonNominal = round($subtotalPenjualan * $diskonPersen / 100, 2);
+                    $total = round($subtotalPenjualan - $diskonNominal, 2);
                     $bayar = round((float) $validated['bayar'], 2);
 
                     if ($bayar < $total) {
@@ -172,6 +177,8 @@ class PenjualanController extends Controller
                     }
 
                     $penjualan->update([
+                        'diskon_persen' => $diskonPersen,
+                        'diskon_nominal' => $diskonNominal,
                         'total' => $total,
                         'bayar' => $bayar,
                         'kembalian' => round($bayar - $total, 2),
@@ -255,12 +262,20 @@ class PenjualanController extends Controller
 
     private function generateNextSaleNumber(): string
     {
-        $maxSequence = DB::table('penjualans')
-            ->where('nomor_penjualan', 'like', 'TRX%')
-            ->selectRaw("MAX(CAST(SUBSTRING(nomor_penjualan, 4) AS UNSIGNED)) as max_seq")
-            ->value('max_seq') ?? 0;
+        $maxSequence = Penjualan::query()
+            ->pluck('nomor_penjualan')
+            ->reduce(function (int $largest, string $number): int {
+                if (preg_match('/^TRX(\d{6})$/', $number, $matches)) {
+                    return max($largest, (int) $matches[1]);
+                }
 
-        $sequence = (int) $maxSequence + 1;
+                return $largest;
+            }, 0);
+
+        $sequence = $maxSequence + 1;
+        if ($sequence > 999999) {
+            throw new \RuntimeException('Nomor penjualan telah mencapai batas sequence enam digit.');
+        }
 
         do {
             $number = 'TRX' . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);

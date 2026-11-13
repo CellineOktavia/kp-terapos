@@ -5,7 +5,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
                 <h2 class="fw-bold mb-1">Kategori</h2>
-                <p class="text-muted mb-0">Kelola kategori produk TERAPOS.</p>
+                <p class="text-muted mb-0">Kelola kategori barang TERAPOS.</p>
             </div>
             <a href="#form-kategori" class="btn btn-primary">
                 <i class="bi bi-plus-lg me-1"></i>
@@ -49,7 +49,7 @@
                     <thead>
                         <tr>
                             <th>Kategori</th>
-                            <th>Jumlah Produk</th>
+                            <th>Jumlah Barang</th>
                             <th style="min-width: 320px">Aksi</th>
                         </tr>
                     </thead>
@@ -68,14 +68,12 @@
                                             aria-label="Nama kategori">
                                         <button type="submit" class="btn btn-outline-primary">Simpan</button>
                                     </form>
-                                    <form action="{{ route('kategori.destroy', $category) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-outline-danger btn-sm"
-                                            onclick="return confirm('Hapus kategori ini? Produk yang menggunakannya akan menjadi tanpa kategori.')">
+                                    <button type="button" class="btn btn-outline-danger btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#deleteCategoryModal"
+                                        data-delete-url="{{ route('kategori.destroy', $category) }}"
+                                        data-category-name="{{ $category->nama_kategori }}">
                                             Hapus
-                                        </button>
-                                    </form>
+                                    </button>
                                 </td>
                             </tr>
                         @empty
@@ -88,4 +86,37 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 rounded-4 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Hapus Kategori?</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-0">Kategori <strong id="delete-category-name"></strong> akan dihapus. Barang terkait
+                        akan menjadi tanpa kategori.</p>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+                    <form id="delete-category-form" method="POST" action="">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Ya, Hapus Kategori</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.getElementById('deleteCategoryModal').addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            document.getElementById('delete-category-form').action = button.dataset.deleteUrl;
+            document.getElementById('delete-category-name').textContent = button.dataset.categoryName;
+        });
+    </script>
+@endpush

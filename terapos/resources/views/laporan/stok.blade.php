@@ -76,7 +76,7 @@
             line-height: 1.2;
         }
 
-        /* Badge Kode Produk */
+        /* Badge Kode Barang */
         .badge-code {
             background-color: #f3e8ff;
             color: #6f42c1;
@@ -185,7 +185,7 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Laporan Persediaan Stok</h3>
-                <p class="text-muted small mb-0">Pantau kondisi dan estimasi nilai persediaan seluruh produk TERAPOS saat
+                <p class="text-muted small mb-0">Pantau kondisi dan estimasi nilai persediaan seluruh barang TERAPOS saat
                     ini.</p>
             </div>
             <a href="{{ route('laporan.stok.pdf', request()->query()) }}" class="btn-pdf-download">
@@ -197,7 +197,7 @@
         <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="stat-card-report border-start border-4" style="border-color: #6f42c1 !important;">
-                    <span class="label-title" style="color: #6f42c1;">Total Produk Register</span>
+                    <span class="label-title" style="color: #6f42c1;">Total Barang Terdaftar</span>
                     <div class="stat-value text-dark">
                         {{ number_format($summary['products'], 0, ',', '.') }} <span
                             class="fs-6 fw-normal text-muted">Item</span>
@@ -209,7 +209,7 @@
                     <span class="label-title text-danger">Stok Kritis / Perlu Attention</span>
                     <div class="stat-value text-danger">
                         {{ number_format($summary['critical'], 0, ',', '.') }} <span
-                            class="fs-6 fw-normal text-muted">Produk</span>
+                            class="fs-6 fw-normal text-muted">Barang</span>
                     </div>
                 </div>
             </div>
@@ -220,7 +220,7 @@
                         Rp {{ number_format($summary['inventoryValue'], 0, ',', '.') }}
                     </div>
                     <small class="text-muted" style="font-size: 11px;">*Kalkulasi berdasarkan total stok × harga beli
-                        produk.</small>
+                        barang.</small>
                 </div>
             </div>
         </div>
@@ -234,7 +234,7 @@
                 <form method="GET" action="{{ route('laporan.stok') }}">
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-5 col-md-6">
-                            <label for="stock-search" class="label-title">Cari Produk</label>
+                            <label for="stock-search" class="label-title">Cari Barang</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0"
                                     style="border-radius: 10px 0 0 10px;">
@@ -242,7 +242,7 @@
                                 </span>
                                 <input id="stock-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0"
-                                    value="{{ $filters['search'] ?? '' }}" placeholder="Kode, barcode, atau nama produk...">
+                                    value="{{ $filters['search'] ?? '' }}" placeholder="Kode barang, barcode, atau nama barang...">
                             </div>
                         </div>
 
@@ -285,11 +285,11 @@
             <div class="card-header-purple d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-boxes"></i>
-                    Rincian Persediaan Produk
+                    Rincian Persediaan Barang
                 </div>
                 <span class="badge bg-white rounded-pill px-3 py-1 font-monospace fw-bold"
                     style="color: #6f42c1; font-size: 12px;">
-                    Total: {{ $products->total() }} Produk
+                    Total: {{ $products->total() }} Barang
                 </span>
             </div>
             <div class="card-body p-0">
@@ -299,7 +299,7 @@
                             <tr>
                                 <th class="ps-4">Kode</th>
                                 <th>Barcode</th>
-                                <th>Nama Produk</th>
+                                <th>Nama Barang</th>
                                 <th>Kategori</th>
                                 <th class="text-center">Satuan</th>
                                 <th class="text-center">Stok</th>
@@ -363,7 +363,7 @@
                                     <td colspan="10" class="text-center py-5 text-muted">
                                         <i class="bi bi-archive fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6 text-dark">Tidak ada data persediaan</div>
-                                        <p class="small text-muted mb-0">Tidak terdapat produk yang sesuai dengan kriteria
+                                        <p class="small text-muted mb-0">Tidak terdapat barang yang sesuai dengan kriteria
                                             filter Anda.</p>
                                     </td>
                                 </tr>

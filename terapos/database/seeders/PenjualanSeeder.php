@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Penjualan;
 use App\Models\DetailPenjualan;
 use App\Models\Product;
-use App\Models\Customer;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -15,14 +14,8 @@ class PenjualanSeeder extends Seeder
 {
     public function run(): void
     {
-        $customers = Customer::all();
         $products = Product::where('stok', '>', 0)->get();
-        $user = User::first();
-
-        if ($customers->isEmpty()) {
-            $this->command->warn('Data customer masih kosong.');
-            return;
-        }
+        $user = User::query()->whereIn('role', ['owner', 'co_owner'])->first();
 
         if ($products->isEmpty()) {
             $this->command->warn('Data produk masih kosong atau stok habis.');
@@ -34,7 +27,17 @@ class PenjualanSeeder extends Seeder
             return;
         }
 
-        DB::transaction(function () use ($customers, $products, $user) {
+        DB::transaction(function () use ($products, $user) {
+            $sequence = Penjualan::query()
+                ->pluck('nomor_penjualan')
+                ->reduce(function (int $largest, string $number): int {
+                    if (preg_match('/^TRX(\d{6})$/', $number, $matches)) {
+                        return max($largest, (int) $matches[1]);
+                    }
+
+                    return $largest;
+                }, 0) + 1;
+
             for ($i = 1; $i <= 50; $i++) {
                 $product = $products->random();
 
@@ -42,17 +45,26 @@ class PenjualanSeeder extends Seeder
                     continue;
                 }
 
-                $customer = $customers->random();
                 $qty = fake()->numberBetween(1, min(5, $product->stok));
                 $harga = $product->harga_jual;
                 $subtotal = $qty * $harga;
+                $diskonPersen = $subtotal > 300000 ? 5 : 0;
+                $diskonNominal = round($subtotal * $diskonPersen / 100, 2);
+                $total = round($subtotal - $diskonNominal, 2);
+                do {
+                    $saleNumber = 'TRX' . str_pad((string) $sequence, 6, '0', STR_PAD_LEFT);
+                    $sequence++;
+                } while (Penjualan::where('nomor_penjualan', $saleNumber)->exists());
 
                 $penjualan = Penjualan::create([
-                    'nomor_penjualan' => 'PJ-' . now()->format('YmdHis') . '-' . $i,
+                    'nomor_penjualan' => $saleNumber,
                     'user_id' => $user->id,
-                    'customer_id' => $customer->id,
                     'tanggal' => fake()->dateTimeBetween('-3 months', 'now')->format('Y-m-d'),
-                    'total' => $subtotal,
+                    'total' => $total,
+                    'diskon_persen' => $diskonPersen,
+                    'diskon_nominal' => $diskonNominal,
+                    'bayar' => $total,
+                    'kembalian' => 0,
                 ]);
 
                 DetailPenjualan::create([

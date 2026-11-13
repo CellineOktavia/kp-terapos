@@ -7,6 +7,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\PenerimaanBarangController;
 use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\OwnerDashboardController;
@@ -68,6 +69,17 @@ Route::middleware('auth')->group(function () {
         '/produk/{product}',
         [ProductController::class, 'show']
     )->name('produk.show');
+
+    Route::get('/penerimaan', [PenerimaanBarangController::class, 'index'])
+        ->name('penerimaan.index');
+    Route::get('/penerimaan/create', [PenerimaanBarangController::class, 'create'])
+        ->middleware('role:owner')
+        ->name('penerimaan.create');
+    Route::post('/penerimaan', [PenerimaanBarangController::class, 'store'])
+        ->middleware('role:owner')
+        ->name('penerimaan.store');
+    Route::get('/penerimaan/{penerimaanBarang}', [PenerimaanBarangController::class, 'show'])
+        ->name('penerimaan.show');
 
     // Laporan Routes
     Route::get(

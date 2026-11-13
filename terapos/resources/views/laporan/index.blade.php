@@ -31,7 +31,7 @@
                                 <i class="bi bi-box-seam"></i>
                             </div>
                             <h2 class="h5 fw-bold text-dark">Laporan Stok</h2>
-                            <p class="text-muted mb-0">Kondisi stok dan nilai persediaan produk.</p>
+                            <p class="text-muted mb-0">Kondisi stok dan nilai persediaan barang.</p>
                         </div>
                     </div>
                 </a>

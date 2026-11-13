@@ -9,11 +9,11 @@
             <div>
 
                 <h2 class="page-title">
-                    Laporan Produk
+                    Laporan Barang
                 </h2>
 
                 <p class="page-subtitle">
-                    Laporan data produk dan persediaan barang pada sistem TERAPOS
+                    Laporan data barang dan persediaan pada sistem TERAPOS
                 </p>
 
             </div>
@@ -46,7 +46,7 @@
                         </h3>
 
                         <span>
-                            Total Produk
+                            Total Barang
                         </span>
 
                     </div>
@@ -90,7 +90,7 @@
 
                     <i class="bi bi-table me-2"></i>
 
-                    Data Produk
+                    Data Barang
 
                 </h5>
 
@@ -107,7 +107,7 @@
                             <tr>
 
                                 <th>Kode</th>
-                                <th>Nama Produk</th>
+                                <th>Nama Barang</th>
                                 <th>Merk</th>
                                 <th>Stok</th>
                                 <th>Status</th>
@@ -166,7 +166,7 @@
 
                                     <td colspan="5" class="text-center text-muted py-4">
 
-                                        Tidak ada data produk
+                                        Tidak ada data barang
 
                                     </td>
 

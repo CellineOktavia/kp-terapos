@@ -126,8 +126,8 @@
         {{-- HEADER --}}
         <div class="page-header">
             <div>
-                <h2 class="page-title">Edit Produk</h2>
-                <p class="page-subtitle">Perbarui informasi produk TERAPOS.</p>
+                <h2 class="page-title">Edit Barang</h2>
+                <p class="page-subtitle">Perbarui informasi barang TERAPOS.</p>
             </div>
             <div>
                 <a href="{{ route('produk.index') }}" class="btn-back">
@@ -154,27 +154,27 @@
             @csrf
             @method('PUT')
 
-            {{-- 1. INFORMASI UTAMA PRODUK --}}
+            {{-- 1. INFORMASI UTAMA BARANG --}}
             <div class="card detail-card">
                 <div class="card-header bg-primary text-white">
-                    <i class="bi bi-box-seam-fill me-2"></i> Informasi Produk
+                    <i class="bi bi-box-seam-fill me-2"></i> Informasi Barang
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="info-label">Kode Produk</label>
+                            <label class="info-label">Kode Barang</label>
                             <input type="text" name="kode_produk"
                                 class="form-control form-control-terapos form-control-readonly"
                                 value="{{ $product->kode_produk }}" required readonly>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Barcode Produk</label>
+                            <label class="info-label">Barcode Barang</label>
                             <input type="text" name="barcode"
                                 class="form-control form-control-terapos form-control-readonly"
                                 value="{{ $product->barcode }}" readonly>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Nama Produk</label>
+                            <label class="info-label">Nama Barang</label>
                             <input type="text" name="nama_produk" class="form-control form-control-terapos"
                                 value="{{ old('nama_produk', $product->nama_produk) }}" required>
                         </div>
@@ -232,7 +232,7 @@
                                     class="form-control form-control-terapos form-control-readonly fw-bold"
                                     value="{{ $product->stok }} {{ $product->satuan }}" readonly>
                                 <small class="text-muted d-block mt-1" style="font-size: .78rem;">
-                                    *Stok hanya dapat berubah melalui Penjualan atau Penyesuaian Stok.
+                                    *Stok hanya dapat berubah melalui Penerimaan Barang, Penjualan, atau Penyesuaian Stok.
                                 </small>
                             </div>
                             <div>
@@ -271,8 +271,9 @@
                                         value="{{ old('harga_jual', $product->harga_jual) }}" min="0"
                                         step="0.01" required>
                                 </div>
-                                <small class="text-muted d-block mt-1" style="font-size: .78rem;">Harga jual ke
-                                    konsumen.</small>
+                                <small class="text-muted d-block mt-1" style="font-size: .78rem;">
+                                    Harga jual ditentukan dengan mempertimbangkan harga beli dan kisaran harga retail.
+                                </small>
                             </div>
                         </div>
                     </div>

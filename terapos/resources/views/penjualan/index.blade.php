@@ -233,7 +233,7 @@
                                 </span>
                                 <input type="text" name="search"
                                     class="form-control form-control-terapos border-start-0"
-                                    placeholder="Nomor TRX, produk, kasir..." value="{{ $filters['search'] ?? '' }}">
+                                    placeholder="No. Penjualan, nama/kode barang, user..." value="{{ $filters['search'] ?? '' }}">
                             </div>
                         </div>
 
@@ -250,7 +250,7 @@
                         </div>
 
                         <div class="col-lg-2 col-md-6">
-                            <label for="user_id" class="label-title">Kasir / Operator</label>
+                            <label for="user_id" class="label-title">User / Operator</label>
                             <select id="user_id" name="user_id" class="form-select form-select-terapos">
                                 <option value="">Semua User</option>
                                 @foreach ($users as $user)
@@ -290,12 +290,12 @@
                     <table class="table table-borderless table-terapos mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Nomor Transaksi</th>
+                                <th class="ps-4">No. Penjualan</th>
                                 <th>Tanggal</th>
                                 <th class="text-center">Jenis Item</th>
                                 <th class="text-center">Total Qty</th>
-                                <th class="text-end">Total Nominal</th>
-                                <th>Kasir</th>
+                                <th class="text-end">Total Penjualan</th>
+                                <th>User</th>
                                 <th class="text-center pe-4" width="120">Aksi</th>
                             </tr>
                         </thead>

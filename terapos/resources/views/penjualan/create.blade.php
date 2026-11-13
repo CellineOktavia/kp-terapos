@@ -156,7 +156,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Tambah Penjualan</h3>
-                <p class="text-muted small mb-0">Scan barcode atau pilih produk untuk ditambahkan ke keranjang.</p>
+                <p class="text-muted small mb-0">Scan barcode atau pilih barang untuk ditambahkan ke keranjang.</p>
             </div>
             <div>
                 <a href="{{ route('penjualan.index') }}" class="btn-action-outline">
@@ -194,7 +194,7 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="mb-3">
-                                <label for="sale-number" class="label-title">Nomor Transaksi</label>
+                                <label for="sale-number" class="label-title">No. Penjualan</label>
                                 <input id="sale-number" type="text"
                                     class="form-control form-control-terapos form-control-readonly fw-bold text-success"
                                     value="{{ $generatedNumber }}" readonly>
@@ -210,7 +210,7 @@
                             </div>
 
                             <div class="mb-0">
-                                <label class="label-title">Kasir</label>
+                                <label class="label-title">User</label>
                                 <input type="text" class="form-control form-control-terapos form-control-readonly"
                                     value="{{ auth()->user()->name }}" readonly>
                                 <small class="text-muted d-block mt-1" style="font-size: 11px;">Role:
@@ -226,8 +226,17 @@
                         </div>
                         <div class="card-body p-4">
                             <div class="pb-3 mb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="text-muted small">Subtotal</span>
+                                    <span class="fw-semibold" id="sale-subtotal">Rp 0</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted small" id="sale-discount-label">Diskon</span>
+                                    <span class="fw-semibold text-success" id="sale-discount">Rp 0</span>
+                                </div>
                                 <span class="label-title">Total Tagihan</span>
                                 <div class="price-total-display" id="sale-total">Rp 0</div>
+                                <small class="text-muted d-block mt-2">Diskon 5% untuk pembelian di atas Rp300.000.</small>
                             </div>
 
                             <div class="mb-3">
@@ -266,7 +275,7 @@
                         <div class="card-body p-4">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-8">
-                                    <label for="barcode-input" class="label-title">Scan Barcode / Ketik Kode Produk</label>
+                                    <label for="barcode-input" class="label-title">Scan Barcode / Ketik Kode Barang</label>
                                     <input id="barcode-input" type="text" class="form-control form-control-terapos"
                                         placeholder="Scan barcode atau ketik kode, lalu tekan Enter" autocomplete="off">
                                 </div>
@@ -306,7 +315,7 @@
                                 <table class="table table-borderless table-terapos align-middle mb-0">
                                     <thead>
                                         <tr>
-                                            <th style="min-width: 230px" class="ps-4">Produk</th>
+                                            <th style="min-width: 230px" class="ps-4">Barang</th>
                                             <th class="text-center">Kode</th>
                                             <th class="text-center">Stok</th>
                                             <th style="width: 100px" class="text-center">Qty</th>
@@ -332,7 +341,7 @@
             <tr class="cart-row">
                 <td class="ps-4 py-3">
                     <select class="form-select form-select-terapos cart-product" required>
-                        <option value="">Pilih produk...</option>
+                        <option value="">Pilih barang...</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}"
                                 data-name="{{ $product->nama_produk }}" data-price="{{ $product->harga_jual }}"
@@ -399,7 +408,7 @@
             }
 
             function calculateTotals() {
-                let total = 0;
+                let subtotalPenjualan = 0;
                 cart.querySelectorAll('.cart-row').forEach(function(row) {
                     const select = row.querySelector('.cart-product');
                     const option = select.options[select.selectedIndex];
@@ -409,10 +418,19 @@
                     const stock = Number(option?.dataset.stock || 0);
                     qtyInput.max = stock || '';
                     const subtotal = price * qty;
-                    total += subtotal;
+                    subtotalPenjualan += subtotal;
                     row.querySelector('.cart-subtotal').textContent = currency(subtotal);
                 });
 
+                subtotalPenjualan = Math.round((subtotalPenjualan + Number.EPSILON) * 100) / 100;
+                const discountPercent = subtotalPenjualan > 300000 ? 5 : 0;
+                const discount = Math.round((subtotalPenjualan * discountPercent / 100 + Number.EPSILON) * 100) / 100;
+                const total = Math.round((subtotalPenjualan - discount + Number.EPSILON) * 100) / 100;
+
+                document.getElementById('sale-subtotal').textContent = currency(subtotalPenjualan);
+                document.getElementById('sale-discount-label').textContent = discountPercent ?
+                    'Diskon ' + discountPercent + '%' : 'Diskon';
+                document.getElementById('sale-discount').textContent = currency(discount);
                 document.getElementById('sale-total').textContent = currency(total);
                 const paid = Number(document.getElementById('bayar').value || 0);
                 document.getElementById('kembalian').value = currency(Math.max(0, paid - total));
@@ -435,13 +453,13 @@
                 const option = Array.from(rowTemplate.content.querySelectorAll('.cart-product option'))
                     .find(item => item.value === String(productId));
                 if (!option) {
-                    notify('Produk tidak ditemukan.', 'danger');
+                    notify('Barang tidak ditemukan.', 'danger');
                     return false;
                 }
 
                 const stock = Number(option.dataset.stock || 0);
                 if (stock < 1) {
-                    notify('Stok produk habis.', 'warning');
+                    notify('Stok barang habis.', 'warning');
                     return false;
                 }
 
@@ -490,7 +508,7 @@
                 if (duplicate) {
                     select.value = '';
                     if (reportDuplicate) {
-                        notify('Produk tersebut sudah ada di keranjang.', 'warning');
+                        notify('Barang tersebut sudah ada di keranjang.', 'warning');
                     }
                     setRowProduct(row, false);
                     return;
@@ -499,7 +517,7 @@
                 const stock = Number(option.dataset.stock || 0);
                 if (stock < 1) {
                     select.value = '';
-                    notify('Stok produk habis.', 'warning');
+                    notify('Stok barang habis.', 'warning');
                     setRowProduct(row, false);
                     return;
                 }
@@ -524,18 +542,18 @@
                     });
                     const data = await response.json();
                     if (!data.success) {
-                        notify('Produk tidak ditemukan.', 'danger');
+                        notify('Barang tidak ditemukan.', 'danger');
                         return;
                     }
                     if (Number(data.produk.stok) < 1) {
-                        notify('Stok produk habis.', 'warning');
+                        notify('Stok barang habis.', 'warning');
                         return;
                     }
                     if (addProduct(data.produk.id, true)) {
                         notify(data.produk.nama_produk + ' ditambahkan ke keranjang.', 'success');
                     }
                 } catch (error) {
-                    notify('Pencarian produk gagal. Silakan coba kembali.', 'danger');
+                    notify('Pencarian barang gagal. Silakan coba kembali.', 'danger');
                 } finally {
                     barcodeInput.value = '';
                     barcodeInput.focus();
@@ -596,7 +614,7 @@
                 if (!rows.length || Array.from(rows).some(row => !row.querySelector('.cart-product')
                     .value)) {
                     event.preventDefault();
-                    notify('Pilih minimal satu produk sebelum menyimpan.', 'danger');
+                    notify('Pilih minimal satu barang sebelum menyimpan.', 'danger');
                     return;
                 }
                 if (Number(document.getElementById('bayar').value || 0) < total) {

@@ -106,7 +106,7 @@ class ProductController extends Controller
 
         return redirect()
             ->route('produk.index')
-            ->with('success', 'Produk berhasil ditambahkan');
+            ->with('success', 'Barang berhasil ditambahkan');
     }
 
     public function edit(Product $product)
@@ -135,26 +135,27 @@ class ProductController extends Controller
 
         return redirect()
             ->route('produk.index')
-            ->with('success', 'Produk berhasil diperbarui');
+            ->with('success', 'Barang berhasil diperbarui');
     }
 
     public function destroy(Product $product)
     {
         $hasHistory = $product->detailPenjualans()->exists()
             || DB::table('detail_fakturs')->where('product_id', $product->id)->exists()
+            || $product->detailPenerimaanBarangs()->exists()
             || $product->stockMovements()->exists();
 
         if ($hasHistory) {
             return redirect()
                 ->route('produk.index')
-                ->with('error', 'Produk tidak dapat dihapus karena sudah memiliki riwayat transaksi atau pergerakan stok.');
+                ->with('error', 'Barang tidak dapat dihapus karena sudah memiliki riwayat transaksi atau pergerakan stok.');
         }
 
         $product->delete();
 
         return redirect()
             ->route('produk.index')
-            ->with('success', 'Produk berhasil dihapus');
+            ->with('success', 'Barang berhasil dihapus');
     }
 
     private function generateNextProductCode(): string
@@ -163,7 +164,7 @@ class ProductController extends Controller
             ->where('kode_produk', 'like', 'TERA%')
             ->pluck('kode_produk')
             ->reduce(function (int $largest, string $code): int {
-                if (preg_match('/^TERA(\d+)$/', $code, $matches)) {
+                if (preg_match('/^TERA(\d{4})$/', $code, $matches)) {
                     return max($largest, (int) $matches[1]);
                 }
 
@@ -171,6 +172,10 @@ class ProductController extends Controller
             }, 0);
 
         $number = $largestNumber + 1;
+        if ($number > 9999) {
+            throw new \RuntimeException('Kode barang telah mencapai batas sequence empat digit.');
+        }
+
         do {
             $code = 'TERA' . str_pad((string) $number, 4, '0', STR_PAD_LEFT);
             $number++;

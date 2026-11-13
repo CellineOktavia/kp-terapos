@@ -202,11 +202,11 @@
         <!-- Header Halaman & Tombol Tambah -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold text-dark mb-1">Data Produk</h3>
-                <p class="text-muted small mb-0">Kelola seluruh daftar barang dan katalog produk TERAPOS.</p>
+                <h3 class="fw-bold text-dark mb-1">Data Barang</h3>
+                <p class="text-muted small mb-0">Kelola seluruh daftar barang TERAPOS.</p>
             </div>
             <a href="{{ route('produk.create') }}" class="btn-add-product">
-                <i class="bi bi-plus-circle-fill"></i> Tambah Produk
+                <i class="bi bi-plus-circle-fill"></i> Tambah Barang
             </a>
         </div>
 
@@ -229,7 +229,7 @@
         <!-- Card Filter & Pencarian -->
         <div class="card card-terapos mb-4">
             <div class="card-header-blue">
-                <i class="bi bi-funnel-fill"></i> Filter & Pencarian Data Produk
+                <i class="bi bi-funnel-fill"></i> Filter & Pencarian Data Barang
             </div>
             <div class="card-body p-4">
                 <form method="GET" action="{{ route('produk.index') }}">
@@ -243,14 +243,14 @@
                                 </span>
                                 <input type="text" name="search"
                                     class="form-control form-control-terapos border-start-0"
-                                    placeholder="Cari kode, barcode, nama, merk, atau kategori..."
+                                    placeholder="Cari kode barang, barcode, nama barang, merk, atau kategori..."
                                     value="{{ request('search') }}">
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-3">
                             <button type="submit"
                                 class="btn btn-primary w-100 fw-semibold rounded-3 py-2 d-flex align-items-center justify-content-center gap-2">
-                                <i class="bi bi-filter"></i> Cari Produk
+                                <i class="bi bi-filter"></i> Cari Barang
                             </button>
                         </div>
                     </div>
@@ -263,11 +263,11 @@
             <div class="card-header-blue d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center gap-2">
                     <i class="bi bi-box-seam-fill"></i>
-                    Daftar Produk
+                    Daftar Barang
                 </div>
                 <span class="badge bg-white text-primary rounded-pill px-3 py-1 font-monospace fw-bold"
                     style="font-size: 12px;">
-                    Total: {{ $products->total() }} Produk
+                    Total: {{ $products->total() }} Barang
                 </span>
             </div>
             <div class="card-body p-0">
@@ -275,8 +275,8 @@
                     <table class="table table-borderless table-terapos mb-0">
                         <thead>
                             <tr>
-                                <th class="ps-4">Kode Produk</th>
-                                <th>Nama Produk</th>
+                                <th class="ps-4">Kode Barang</th>
+                                <th>Nama Barang</th>
                                 <th>Kategori</th>
                                 <th class="text-center">Stok</th>
                                 <th class="text-end">Harga Jual</th>
@@ -317,14 +317,14 @@
                                     <td class="text-center pe-4">
                                         <div class="d-flex justify-content-center gap-2">
                                             <a href="{{ route('produk.show', $product->id) }}" class="action-btn btn-view"
-                                                title="Lihat Detail Produk">
+                                                title="Lihat Detail Barang">
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
                                             <a href="{{ route('produk.edit', $product->id) }}" class="action-btn btn-edit"
-                                                title="Edit Produk">
+                                                title="Edit Barang">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
-                                            <button type="button" class="action-btn btn-delete" title="Hapus Produk"
+                                            <button type="button" class="action-btn btn-delete" title="Hapus Barang"
                                                 onclick="confirmDelete('{{ route('produk.destroy', $product->id) }}', '{{ $product->nama_produk }}')">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
@@ -335,9 +335,9 @@
                                 <tr>
                                     <td colspan="6" class="text-center py-5 text-muted">
                                         <i class="bi bi-box-seam fs-1 d-block mb-3 text-secondary opacity-50"></i>
-                                        <div class="fw-bold fs-6 text-dark">Tidak ada produk yang ditemukan</div>
+                                        <div class="fw-bold fs-6 text-dark">Tidak ada barang yang ditemukan</div>
                                         <p class="small text-muted mb-0">Coba ubah kata kunci pencarian Anda atau tambahkan
-                                            produk baru.</p>
+                                            barang baru.</p>
                                     </td>
                                 </tr>
                             @endforelse
@@ -354,7 +354,7 @@
 
     </div>
 
-    <!-- MODAL KONFIRMASI HAPUS PRODUK (TERAPOS MODERN DESIGN) -->
+    <!-- MODAL KONFIRMASI HAPUS BARANG (TERAPOS MODERN DESIGN) -->
     <div class="modal fade modal-terapos" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -362,15 +362,15 @@
                     <div class="icon-box-danger">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                     </div>
-                    <h4 class="fw-bold text-dark mb-2">Hapus Produk Ini?</h4>
+                    <h4 class="fw-bold text-dark mb-2">Hapus Barang Ini?</h4>
                     <p class="text-muted small mb-3">
-                        Apakah Anda yakin ingin menghapus produk <strong id="modal-product-name"
+                        Apakah Anda yakin ingin menghapus barang <strong id="modal-product-name"
                             class="text-danger"></strong> dari sistem?
                     </p>
                     <div class="alert alert-warning border-0 rounded-3 text-start small p-3 mb-4"
                         style="background-color: #fff3cd; color: #664d03;">
                         <i class="bi bi-info-circle-fill me-1"></i> <strong>Peringatan:</strong> Tindakan ini tidak dapat
-                        dibatalkan. Data produk akan terhapus secara permanen.
+                        dibatalkan. Data barang akan terhapus secara permanen.
                     </div>
 
                     <form id="delete-form-modal" method="POST" action="">
@@ -382,7 +382,7 @@
                                 Batal
                             </button>
                             <button type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold">
-                                Ya, Hapus Produk
+                                Ya, Hapus Barang
                             </button>
                         </div>
                     </form>

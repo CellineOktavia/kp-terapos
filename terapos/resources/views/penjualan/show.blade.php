@@ -118,7 +118,7 @@
                     </div>
                     <div class="card-body p-4">
                         <div class="mb-4">
-                            <span class="label-title">Nomor Transaksi</span>
+                            <span class="label-title">No. Penjualan</span>
                             <div class="badge-trx">
                                 {{ $penjualan->nomor_penjualan }}
                             </div>
@@ -131,17 +131,10 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <span class="label-title">Pelanggan</span>
-                            <div class="fw-semibold text-dark">
-                                {{ $penjualan->customer->nama_customer ?? 'Pelanggan Umum' }}
-                            </div>
-                        </div>
-
                         <div>
-                            <span class="label-title">Kasir</span>
+                            <span class="label-title">User</span>
                             <div class="fw-semibold text-dark">
-                                {{ $penjualan->user->name ?? 'Owner' }}
+                                {{ $penjualan->user?->name ?? '-' }}
                             </div>
                         </div>
                     </div>
@@ -164,7 +157,7 @@
                                     <thead>
                                         <tr>
                                             <th class="text-center">Kode</th>
-                                            <th>Nama Produk</th>
+                                            <th>Nama Barang</th>
                                             <th class="text-center">Qty</th>
                                             <th class="text-end">Harga</th>
                                             <th class="text-end">Subtotal</th>
@@ -177,7 +170,7 @@
                                                     {{ $detail->product->kode_produk ?? '-' }}
                                                 </td>
                                                 <td class="fw-bold text-dark">
-                                                    {{ $detail->product->nama_produk ?? 'Produk tidak tersedia' }}
+                                                    {{ $detail->product->nama_produk ?? 'Barang tidak tersedia' }}
                                                 </td>
                                                 <td class="text-center text-muted">
                                                     {{ $detail->qty }} {{ $detail->product->satuan ?? 'pcs' }}
@@ -203,14 +196,28 @@
                             Ringkasan Pembayaran
                         </div>
                         <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="text-muted small">Subtotal</span>
+                                <span class="fw-semibold">
+                                    Rp {{ number_format($penjualan->detailPenjualans->sum('subtotal'), 0, ',', '.') }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="text-muted small">
+                                    Diskon{{ (float) $penjualan->diskon_persen > 0 ? ' ' . rtrim(rtrim(number_format($penjualan->diskon_persen, 2, '.', ''), '0'), '.') . '%' : '' }}
+                                </span>
+                                <span class="fw-semibold text-success">
+                                    Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}
+                                </span>
+                            </div>
                             <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
-                                <span class="text-muted font-medium">Total Transaksi</span>
+                                <span class="text-muted font-medium">Total Bayar</span>
                                 <span class="total-amount-highlight">
                                     Rp {{ number_format($penjualan->total, 0, ',', '.') }}
                                 </span>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="text-muted small">Jumlah Bayar</span>
+                                <span class="text-muted small">Uang Bayar</span>
                                 <span class="fw-bold text-dark">
                                     Rp {{ number_format($penjualan->bayar, 0, ',', '.') }}
                                 </span>

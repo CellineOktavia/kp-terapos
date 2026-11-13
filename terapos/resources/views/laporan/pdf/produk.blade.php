@@ -8,7 +8,7 @@
     <meta charset="UTF-8">
 
     <title>
-        Laporan Produk
+        Laporan Barang
     </title>
 
     <style>
@@ -146,7 +146,7 @@
 
             <tr>
                 <td>
-                    Total Produk
+                    Total Barang
                 </td>
 
                 <td>
@@ -178,7 +178,7 @@
                 </th>
 
                 <th>
-                    Nama Produk
+                    Nama Barang
                 </th>
 
                 <th width="110">
@@ -261,7 +261,7 @@
 
                     <td colspan="7" class="text-center">
 
-                        Tidak ada data produk
+                        Tidak ada data barang
 
                     </td>
 

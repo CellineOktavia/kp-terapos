@@ -126,8 +126,8 @@
         {{-- HEADER --}}
         <div class="page-header">
             <div>
-                <h2 class="page-title">Tambah Produk</h2>
-                <p class="page-subtitle">Tambahkan produk baru ke TERAPOS.</p>
+                <h2 class="page-title">Tambah Barang</h2>
+                <p class="page-subtitle">Tambahkan barang baru ke TERAPOS.</p>
             </div>
             <div>
                 <a href="{{ route('produk.index') }}" class="btn-back">
@@ -153,15 +153,15 @@
         <form action="{{ route('produk.store') }}" method="POST">
             @csrf
 
-            {{-- 1. INFORMASI UTAMA PRODUK --}}
+            {{-- 1. INFORMASI UTAMA BARANG --}}
             <div class="card detail-card">
                 <div class="card-header bg-primary text-white">
-                    <i class="bi bi-box-seam-fill me-2"></i> Informasi Produk
+                    <i class="bi bi-box-seam-fill me-2"></i> Informasi Barang
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="info-label">Kode Produk</label>
+                            <label class="info-label">Kode Barang</label>
                             <input type="text" name="kode_produk"
                                 class="form-control form-control-terapos form-control-readonly" value="{{ $generatedCode }}"
                                 required readonly>
@@ -169,7 +169,7 @@
                                 sistem.</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Barcode Produk</label>
+                            <label class="info-label">Barcode Barang</label>
                             <input type="text" name="barcode"
                                 class="form-control form-control-terapos form-control-readonly"
                                 value="{{ $generatedBarcode }}" required readonly>
@@ -177,9 +177,9 @@
                                 sistem.</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Nama Produk</label>
+                            <label class="info-label">Nama Barang</label>
                             <input type="text" name="nama_produk" class="form-control form-control-terapos"
-                                value="{{ old('nama_produk') }}" placeholder="Masukkan nama produk" required>
+                                value="{{ old('nama_produk') }}" placeholder="Masukkan nama barang" required>
                         </div>
                         <div class="col-md-6">
                             <label class="info-label">Kategori</label>
@@ -195,7 +195,7 @@
                         <div class="col-md-6">
                             <label class="info-label">Merk</label>
                             <input type="text" name="merk" class="form-control form-control-terapos"
-                                value="{{ old('merk') }}" placeholder="Masukkan merk produk">
+                                value="{{ old('merk') }}" placeholder="Masukkan merk barang">
                         </div>
                         <div class="col-md-6">
                             <label class="info-label">Satuan</label>
@@ -209,7 +209,7 @@
                         <div class="col-12">
                             <label class="info-label">Deskripsi</label>
                             <textarea name="deskripsi" rows="3" class="form-control form-control-terapos"
-                                placeholder="Tambah deskripsi produk (opsional)...">{{ old('deskripsi') }}</textarea>
+                                placeholder="Tambah deskripsi barang (opsional)...">{{ old('deskripsi') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -226,7 +226,7 @@
                             <div>
                                 <label class="info-label">Stok Minimum</label>
                                 <input type="number" name="stok_minimum" class="form-control form-control-terapos"
-                                    value="{{ old('stok_minimum', 1) }}" min="0" required>
+                                    value="{{ old('stok_minimum', 5) }}" min="0" required>
                                 <small class="text-muted d-block mt-2" style="font-size: .8rem;">
                                     Batas minimum untuk peringatan stok menipis.
                                 </small>
@@ -274,7 +274,7 @@
             <div class="d-flex justify-content-end gap-2 mt-2">
                 <a href="{{ route('produk.index') }}" class="btn-back">Batal</a>
                 <button type="submit" class="btn-submit-terapos">
-                    <i class="bi bi-check-lg me-1"></i> Simpan Produk
+                    <i class="bi bi-check-lg me-1"></i> Simpan Barang
                 </button>
             </div>
 

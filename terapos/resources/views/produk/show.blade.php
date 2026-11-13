@@ -201,15 +201,15 @@
         {{-- HEADER --}}
         <div class="page-header">
             <div>
-                <h2 class="page-title">Detail Produk</h2>
-                <p class="page-subtitle">Informasi lengkap produk</p>
+                <h2 class="page-title">Detail Barang</h2>
+                <p class="page-subtitle">Informasi lengkap barang</p>
             </div>
             <div class="d-flex gap-2">
                 <a href="{{ route('produk.index') }}" class="btn-back">
                     <i class="bi bi-arrow-left me-1"></i> Kembali
                 </a>
                 <a href="{{ route('produk.edit', $product->id) }}" class="btn-edit-detail">
-                    <i class="bi bi-pencil-fill me-1"></i> Edit Produk
+                    <i class="bi bi-pencil-fill me-1"></i> Edit Barang
                 </a>
             </div>
         </div>
@@ -218,7 +218,7 @@
         <div class="card detail-card">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-box-seam-fill me-2"></i>
-                Informasi Produk
+                Informasi Barang
             </div>
             <div class="card-body">
                 <div class="row">
@@ -227,11 +227,11 @@
                     <div class="col-md-8">
                         <div class="row">
                             <div class="col-md-6 info-group">
-                                <p class="info-label">Kode Produk</p>
+                                <p class="info-label">Kode Barang</p>
                                 <span class="product-code-badge">{{ $product->kode_produk }}</span>
                             </div>
                             <div class="col-md-6 info-group">
-                                <p class="info-label">Nama Produk</p>
+                                <p class="info-label">Nama Barang</p>
                                 <p class="info-value">{{ $product->nama_produk }}</p>
                             </div>
                             <div class="col-md-6 info-group">
@@ -261,11 +261,11 @@
 
                     {{-- Barcode kanan --}}
                     <div class="col-md-4 d-flex flex-column justify-content-center">
-                        <p class="info-label text-center mb-2">Barcode Produk</p>
+                        <p class="info-label text-center mb-2">Barcode Barang</p>
                         <div class="barcode-box" id="printBarcode">
                             {{-- Canvas barcode digenerate JS di bawah --}}
                             <svg id="barcodesvg"></svg>
-                            <p id="barcode-error">Gagal membuat barcode.<br>Periksa kode produk.</p>
+                            <p id="barcode-error">Gagal membuat barcode.<br>Periksa kode barang.</p>
                             <div class="barcode-kode">{{ $product->barcode ?: $product->kode_produk }}</div>
                             <div class="barcode-nama">{{ $product->nama_produk }}</div>
                         </div>

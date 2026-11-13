@@ -148,11 +148,11 @@
                         <form action="{{ route('stok.adjustment.store') }}" method="POST">
                             @csrf
 
-                            <!-- Pilih Produk -->
+                            <!-- Pilih Barang -->
                             <div class="mb-4">
-                                <label for="product_id" class="label-title">Pilih Produk</label>
+                                <label for="product_id" class="label-title">Pilih Barang</label>
                                 <select id="product_id" name="product_id" class="form-select form-select-terapos" required>
-                                    <option value="">Pilih produk...</option>
+                                    <option value="">Pilih barang...</option>
                                     @foreach ($products as $product)
                                         <option value="{{ $product->id }}" data-stock="{{ $product->stok }}"
                                             data-unit="{{ $product->satuan }}" @selected(old('product_id') == $product->id)>
@@ -162,7 +162,7 @@
                                 </select>
                                 <div class="stock-info-box">
                                     <i class="bi bi-info-circle-fill text-primary"></i>
-                                    <span id="system-stock">Pilih produk untuk melihat stok sistem saat ini.</span>
+                                    <span id="system-stock">Pilih barang untuk melihat stok sistem saat ini.</span>
                                 </div>
                             </div>
 
@@ -219,7 +219,7 @@
             const option = this.selectedOptions[0];
             const text = option.value ?
                 'Stok sistem saat ini: <strong>' + option.dataset.stock + ' ' + option.dataset.unit + '</strong>' :
-                'Pilih produk untuk melihat stok sistem saat ini.';
+                'Pilih barang untuk melihat stok sistem saat ini.';
             document.getElementById('system-stock').innerHTML = text;
         });
         document.getElementById('product_id').dispatchEvent(new Event('change'));

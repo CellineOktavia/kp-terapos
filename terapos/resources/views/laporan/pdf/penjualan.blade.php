@@ -33,8 +33,8 @@
     </table>
     <table class="report">
         <thead><tr>
-            <th>Tanggal</th><th>No. Transaksi</th><th>Pelanggan / Kasir</th>
-            <th>Kode / Produk</th><th>Qty</th><th>Harga Saat Transaksi</th><th>Subtotal</th><th>Total / Bayar / Kembali</th>
+            <th>Tanggal</th><th>No. Penjualan</th><th>User / Operator</th>
+            <th>Kode / Barang</th><th>Qty</th><th>Harga Saat Transaksi</th><th>Subtotal Item</th><th>Ringkasan Penjualan</th>
         </tr></thead>
         <tbody>
             @forelse ($penjualans as $sale)
@@ -42,13 +42,16 @@
                     <tr>
                         <td>{{ $loop->first ? $sale->tanggal?->format('d/m/Y') : '' }}</td>
                         <td>{{ $loop->first ? $sale->nomor_penjualan : '' }}</td>
-                        <td>{{ $loop->first ? ($sale->customer?->nama_customer ?? 'Pelanggan Umum') . ' / ' . ($sale->user?->name ?? '-') : '' }}</td>
-                        <td>{{ $detail->product?->kode_produk ?? '-' }} / {{ $detail->product?->nama_produk ?? 'Produk tidak tersedia' }}</td>
+                        <td>{{ $loop->first ? ($sale->user?->name ?? '-') : '' }}</td>
+                        <td>{{ $detail->product?->kode_produk ?? '-' }} / {{ $detail->product?->nama_produk ?? 'Barang tidak tersedia' }}</td>
                         <td class="center">{{ $detail->qty }}</td>
                         <td class="right">Rp {{ number_format($detail->harga, 0, ',', '.') }}</td>
                         <td class="right">Rp {{ number_format($detail->subtotal, 0, ',', '.') }}</td>
                         <td class="right">
                             @if ($loop->first)
+                                Subtotal Rp {{ number_format($sale->detailPenjualans->sum('subtotal'), 0, ',', '.') }}<br>
+                                Diskon {{ rtrim(rtrim(number_format($sale->diskon_persen, 2, '.', ''), '0'), '.') }}%
+                                Rp {{ number_format($sale->diskon_nominal, 0, ',', '.') }}<br>
                                 Total Rp {{ number_format($sale->total, 0, ',', '.') }}<br>
                                 Bayar Rp {{ number_format($sale->bayar ?? 0, 0, ',', '.') }}<br>
                                 Kembali Rp {{ number_format($sale->kembalian ?? 0, 0, ',', '.') }}
@@ -59,9 +62,14 @@
                     <tr>
                         <td>{{ $sale->tanggal?->format('d/m/Y') }}</td>
                         <td>{{ $sale->nomor_penjualan }}</td>
-                        <td>{{ $sale->customer?->nama_customer ?? 'Pelanggan Umum' }} / {{ $sale->user?->name ?? '-' }}</td>
+                        <td>{{ $sale->user?->name ?? '-' }}</td>
                         <td colspan="4">Tidak ada detail item.</td>
-                        <td class="right">Rp {{ number_format($sale->total, 0, ',', '.') }}</td>
+                        <td class="right">
+                            Subtotal Rp {{ number_format($sale->detailPenjualans->sum('subtotal'), 0, ',', '.') }}<br>
+                            Diskon {{ rtrim(rtrim(number_format($sale->diskon_persen, 2, '.', ''), '0'), '.') }}%
+                            Rp {{ number_format($sale->diskon_nominal, 0, ',', '.') }}<br>
+                            Total Rp {{ number_format($sale->total, 0, ',', '.') }}
+                        </td>
                     </tr>
                 @endforelse
             @empty

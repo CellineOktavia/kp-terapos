@@ -733,12 +733,12 @@
                     <h1 class="hero-title">
                         <span id="typing"></span>
                         <br>
-                        Kelola Bisnis Produk
+                        Kelola Bisnis Barang
                         Lebih Mudah
                     </h1>
                     <p class="hero-text">
                         TERAPOS adalah sistem penjualan dan persediaan Toko Terang Abadi
-                        untuk mengelola produk, stok, dan transaksi berbagai perlengkapan listrik,
+                        untuk mengelola barang, stok, dan transaksi berbagai perlengkapan listrik,
                         elektronik, peralatan rumah tangga, kebersihan, dan pecah belah.
                     </p>
 
@@ -755,77 +755,19 @@
                         <div class="row g-3">
                             <div class="col-6">
                                 <div class="counter-card">
-                                    <div class="counter" data-target="245">
-                                        0
-                                    </div>
                                     <div class="counter-label">
-                                        Barang
+                                        Perlengkapan Listrik
                                     </div>
                                 </div>
                             </div>
 
                             <div class="col-6">
                                 <div class="counter-card">
-                                    <div class="counter" data-target="32">
-                                        0
-                                    </div>
                                     <div class="counter-label">
-                                        Kategori
+                                        Peralatan Rumah Tangga
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- COUNTER -->
-    <section class="counter-section reveal">
-        <div class="container">
-            <div class="row g-4">
-                <div class="col-md-3">
-                    <div class="counter-card">
-                        <div class="counter" data-target="245">
-                            0
-                        </div>
-                        <div class="counter-label">
-                            Total Barang
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="counter-card">
-                        <div class="counter" data-target="32">
-                            0
-                        </div>
-                        <div class="counter-label">
-                            Kategori
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="counter-card">
-                        <div class="counter" data-target="156">
-                            0
-                        </div>
-                        <div class="counter-label">
-                            Pelanggan
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-3">
-                    <div class="counter-card">
-                        <div class="counter" data-target="1320">
-                            0
-                        </div>
-
-                        <div class="counter-label">
-                            Penjualan
                         </div>
                     </div>
                 </div>
@@ -851,10 +793,10 @@
                     </h2>
                     <p class="section-text">
                         Toko Terang Abadi menggunakan TERAPOS untuk membantu pengelolaan
-                        penjualan, stok, dan data produk kebutuhan rumah tangga.
+                        penjualan, stok, dan data barang kebutuhan rumah tangga.
                     </p>
                     <p class="section-text">
-                        Produk yang dikelola meliputi perlengkapan listrik, lampu dan penerangan,
+                        Barang yang dikelola meliputi perlengkapan listrik, lampu dan penerangan,
                         elektronik rumah tangga, peralatan kebersihan, peralatan rumah tangga,
                         pecah belah, serta berbagai kebutuhan rumah tangga lainnya.
                     </p>
@@ -908,11 +850,11 @@
                 <div class="col-md-4">
                     <div class="feature-box">
                         <div class="icon-box">
-                            <i class="bi bi-people"></i>
+                            <i class="bi bi-box-arrow-in-down"></i>
                         </div>
-                        <h4>Pelanggan</h4>
+                        <h4>Penerimaan Barang</h4>
                         <p>
-                            Simpan data pelanggan.
+                            Catat barang fisik yang diterima dan perbarui stok.
                         </p>
                     </div>
                 </div>
@@ -1000,7 +942,7 @@
                 </h2>
 
                 <p class="section-text">
-                    Kelola produk, stok, dan penjualan
+                    Kelola barang, stok, dan penjualan
                     dengan lebih cepat dan efisien.
                 </p>
 
@@ -1042,8 +984,8 @@
                 <p class="footer-desc">
 
                     Sistem penjualan dan persediaan barang yang membantu
-                    Toko Terang Abadi mengelola produk, stok,
-                    pelanggan, dan penjualan secara
+                    Toko Terang Abadi mengelola barang, stok,
+                    penerimaan, dan penjualan secara
                     lebih cepat dan terorganisir.
 
                 </p>

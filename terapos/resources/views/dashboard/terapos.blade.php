@@ -96,7 +96,12 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
                 <h1 class="h3 fw-bold text-dark mb-1">Dashboard</h1>
-                <p class="text-muted mb-0">Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>.</p>
+                <p class="text-muted mb-1">Selamat datang kembali, <strong>{{ auth()->user()->name }}</strong>.</p>
+                <p class="text-muted small mb-0">
+                    TERAPOS — Sistem penjualan dan persediaan Toko Terang Abadi untuk membantu mengelola data barang,
+                    stok, dan transaksi penjualan berbagai perlengkapan listrik, elektronik, peralatan rumah tangga,
+                    kebersihan, dan pecah belah.
+                </p>
             </div>
             <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-semibold fs-6">
                 {{ auth()->user()->display_role }}
@@ -138,7 +143,7 @@
                 <div class="card dashboard-card shadow-sm h-100">
                     <div class="card-body d-flex align-items-center justify-content-between">
                         <div>
-                            <div class="text-muted small fw-medium mb-1">Produk Terjual</div>
+                            <div class="text-muted small fw-medium mb-1">Barang Terjual</div>
                             <div class="h4 fw-bold text-dark mb-0">{{ number_format($todayItemsSold ?? 0, 0, ',', '.') }}
                                 <span class="fs-6 text-muted fw-normal">item</span>
                             </div>
@@ -157,7 +162,7 @@
                                 <div class="text-muted small fw-medium mb-1">Stok Kritis</div>
                                 <div class="h4 fw-bold text-danger mb-0">
                                     {{ number_format($criticalStockCount ?? 0, 0, ',', '.') }} <span
-                                        class="fs-6 text-muted fw-normal">produk</span>
+                                        class="fs-6 text-muted fw-normal">barang</span>
                                 </div>
                             </div>
                             <div class="icon-shape bg-danger bg-opacity-10 text-danger">
@@ -206,21 +211,21 @@
             </div>
         </div>
 
-        {{-- TABEL PRODUK TERLARIS & STOK KRITIS --}}
+        {{-- TABEL BARANG TERLARIS & STOK KRITIS --}}
         <div class="row g-4 mb-4">
-            {{-- Produk Terlaris --}}
+            {{-- Barang Terlaris --}}
             <div class="col-12 col-lg-6">
                 <div class="card dashboard-card shadow-sm h-100">
                     <div
                         class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-4 px-4 pb-2">
-                        <h2 class="h6 fw-bold text-dark mb-0">Produk Terlaris</h2>
+                        <h2 class="h6 fw-bold text-dark mb-0">Barang Terlaris</h2>
                         <span class="small text-muted">Berdasarkan total unit terjual</span>
                     </div>
                     <div class="table-responsive">
                         <table class="table table-custom align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Produk</th>
+                                    <th>Barang</th>
                                     <th class="text-end">Terjual</th>
                                 </tr>
                             </thead>
@@ -258,7 +263,7 @@
                         <table class="table table-custom align-middle mb-0">
                             <thead>
                                 <tr>
-                                    <th>Produk</th>
+                                    <th>Barang</th>
                                     <th>Stok</th>
                                     <th>Min</th>
                                     <th>Status</th>
@@ -312,7 +317,7 @@
                             <th>Nomor Penjualan</th>
                             <th>Tanggal</th>
                             <th>Total</th>
-                            <th>Kasir / User</th>
+                            <th>User / Operator</th>
                         </tr>
                     </thead>
 

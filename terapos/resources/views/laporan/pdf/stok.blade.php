@@ -27,14 +27,14 @@
     <p>Dicetak: {{ now()->format('d/m/Y H:i') }}</p>
     <table class="summary">
         <tr>
-            <td><strong>Total Produk:</strong> {{ number_format($summary['products'], 0, ',', '.') }}</td>
+            <td><strong>Total Barang:</strong> {{ number_format($summary['products'], 0, ',', '.') }}</td>
             <td><strong>Stok Kritis:</strong> {{ number_format($summary['critical'], 0, ',', '.') }}</td>
             <td><strong>Nilai Persediaan (Harga Beli):</strong> Rp {{ number_format($summary['inventoryValue'], 0, ',', '.') }}</td>
         </tr>
     </table>
     <table class="report">
         <thead><tr>
-            <th>Kode</th><th>Barcode</th><th>Nama Produk</th><th>Kategori</th><th>Satuan</th>
+            <th>Kode Barang</th><th>Barcode</th><th>Nama Barang</th><th>Kategori</th><th>Satuan</th>
             <th>Stok</th><th>Minimum</th><th>Harga Beli</th><th>Harga Jual</th><th>Status</th>
         </tr></thead>
         <tbody>
@@ -60,7 +60,7 @@
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="10" class="empty">Tidak ada produk untuk filter ini.</td></tr>
+                <tr><td colspan="10" class="empty">Tidak ada barang untuk filter ini.</td></tr>
             @endforelse
         </tbody>
     </table>
