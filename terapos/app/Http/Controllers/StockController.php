@@ -45,27 +45,33 @@ class StockController extends Controller
 
     public function critical(Request $request)
     {
-        $validated = $request->validate([
-            'search' => ['nullable', 'string', 'max:100'],
-        ]);
+        // Jika view stok/kritis.blade.php tersedia, tampilkan halaman stok kritis operasional
+        if (view()->exists('stok.kritis')) {
+            $validated = $request->validate([
+                'search' => ['nullable', 'string', 'max:100'],
+            ]);
 
-        $products = Product::query()
-            ->with('category')
-            ->whereColumn('stok', '<=', 'stok_minimum')
-            ->when($validated['search'] ?? null, function ($query, $search) {
-                $query->where(function ($productQuery) use ($search) {
-                    $productQuery->where('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
-                        ->orWhere('nama_produk', 'like', "%{$search}%");
-                });
-            })
-            ->orderByRaw('CASE WHEN stok = 0 THEN 0 ELSE 1 END')
-            ->orderBy('stok')
-            ->orderBy('nama_produk')
-            ->paginate(15)
-            ->withQueryString();
+            $products = Product::query()
+                ->with('category')
+                ->whereColumn('stok', '<=', 'stok_minimum')
+                ->when($validated['search'] ?? null, function ($query, $search) {
+                    $query->where(function ($productQuery) use ($search) {
+                        $productQuery->where('kode_produk', 'like', "%{$search}%")
+                            ->orWhere('barcode', 'like', "%{$search}%")
+                            ->orWhere('nama_produk', 'like', "%{$search}%");
+                    });
+                })
+                ->orderByRaw('CASE WHEN stok = 0 THEN 0 ELSE 1 END')
+                ->orderBy('stok')
+                ->orderBy('nama_produk')
+                ->paginate(15)
+                ->withQueryString();
 
-        return view('stok.kritis', compact('products'));
+            return view('stok.kritis', compact('products'));
+        }
+
+        // Fallback ke halaman laporan stok kritis jika view stok.kritis tidak ada
+        return app(LaporanController::class)->stokKritis($request);
     }
 
     public function createAdjustment()

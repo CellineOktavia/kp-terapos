@@ -198,7 +198,7 @@
                 <i class="bi bi-funnel-fill"></i> Filter Pencarian Stok Kritis
             </div>
             <div class="card-body p-4">
-                <form method="GET" action="{{ route('stok.kritis') }}">
+                <form method="GET" action="{{ route('laporan.stok-kritis') }}">
                     <div class="row g-3 align-items-end">
                         <div class="col-lg-10 col-md-9">
                             <label for="critical-search" class="label-title">Cari Barang Kritis</label>
