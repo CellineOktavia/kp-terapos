@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Penjualan;
+use App\Models\PenerimaanBarang;
 use App\Models\Product;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
@@ -57,6 +58,7 @@ class DashboardDataService
             ->get();
 
         $criticalProducts = Product::query()
+            ->where('aktif', true)
             ->whereColumn('stok', '<=', 'stok_minimum')
             ->orderByRaw('CASE WHEN stok = 0 THEN 0 ELSE 1 END')
             ->orderBy('stok')
@@ -71,7 +73,8 @@ class DashboardDataService
                 ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
                 ->whereDate('penjualans.tanggal', $today)
                 ->sum('detail_penjualans.qty'),
-            'criticalStockCount' => Product::query()->whereColumn('stok', '<=', 'stok_minimum')->count(),
+            'criticalStockCount' => Product::query()->where('aktif', true)
+                ->whereColumn('stok', '<=', 'stok_minimum')->count(),
             'monthSales' => (float) $monthlySales,
             'monthSalesCount' => Penjualan::query()
                 ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
@@ -84,6 +87,12 @@ class DashboardDataService
                 ->with('user')
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')
+                ->limit(5)
+                ->get(),
+            'latestReceipts' => PenerimaanBarang::query()
+                ->with('user')
+                ->withCount('detailPenerimaanBarangs')
+                ->orderByDesc('created_at')
                 ->limit(5)
                 ->get(),
         ];

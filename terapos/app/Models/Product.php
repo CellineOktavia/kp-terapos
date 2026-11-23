@@ -9,9 +9,12 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $attributes = [
+        'aktif' => true,
+    ];
+
     protected $fillable = [
         'kode_produk',
-        'barcode',
         'category_id',
         'nama_produk',
         'merk',
@@ -21,7 +24,13 @@ class Product extends Model
         'harga_beli',
         'harga_jual',
         'deskripsi',
+        'aktif',
     ];
+
+    protected function casts(): array
+    {
+        return ['aktif' => 'boolean'];
+    }
 
     public function category()
     {
@@ -45,5 +54,10 @@ class Product extends Model
     public function detailPenerimaanBarangs()
     {
         return $this->hasMany(DetailPenerimaanBarang::class);
+    }
+
+    public function priceHistories()
+    {
+        return $this->hasMany(ProductPriceHistory::class);
     }
 }

@@ -234,20 +234,28 @@
             <div class="card-body p-4">
                 <form method="GET" action="{{ route('produk.index') }}">
                     <div class="row g-3 align-items-end">
-                        <div class="col-lg-10 col-md-9">
-                            <label class="label-title">Kata Kunci Search</label>
+                        <div class="col-lg-8 col-md-7">
+                            <label for="product-search" class="label-title">Kata Kunci Search</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0"
                                     style="border-radius: 10px 0 0 10px;">
                                     <i class="bi bi-search"></i>
                                 </span>
-                                <input type="text" name="search"
+                                <input id="product-search" type="text" name="search"
                                     class="form-control form-control-terapos border-start-0"
-                                    placeholder="Cari kode barang, barcode, nama barang, merk, atau kategori..."
+                                    placeholder="Cari kode, nama barang, merk, atau kategori..."
                                     value="{{ request('search') }}">
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-3">
+                            <label for="status" class="label-title">Status</label>
+                            <select id="status" name="status" class="form-select form-control-terapos">
+                                <option value="active" @selected(request('status', 'active') === 'active')>Aktif</option>
+                                <option value="inactive" @selected(request('status') === 'inactive')>Tidak Aktif</option>
+                                <option value="all" @selected(request('status') === 'all')>Semua</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-2">
                             <button type="submit"
                                 class="btn btn-primary w-100 fw-semibold rounded-3 py-2 d-flex align-items-center justify-content-center gap-2">
                                 <i class="bi bi-filter"></i> Cari Barang
@@ -278,6 +286,7 @@
                                 <th class="ps-4">Kode Barang</th>
                                 <th>Nama Barang</th>
                                 <th>Kategori</th>
+                                <th>Status</th>
                                 <th class="text-center">Stok</th>
                                 <th class="text-end">Harga Jual</th>
                                 <th class="text-center pe-4" width="130">Aksi</th>
@@ -298,6 +307,7 @@
                                         <span
                                             class="text-muted small">{{ $product->category?->nama_kategori ?? '-' }}</span>
                                     </td>
+                                    <td><span class="badge {{ $product->aktif ? 'bg-success' : 'bg-secondary' }}">{{ $product->aktif ? 'Aktif' : 'Tidak Aktif' }}</span></td>
                                     <td class="text-center">
                                         @if ($product->stok <= $product->stok_minimum)
                                             <span class="stock-critical">
@@ -324,16 +334,19 @@
                                                 title="Edit Barang">
                                                 <i class="bi bi-pencil-fill"></i>
                                             </a>
-                                            <button type="button" class="action-btn btn-delete" title="Hapus Barang"
-                                                onclick="confirmDelete('{{ route('produk.destroy', $product->id) }}', '{{ $product->nama_produk }}')">
-                                                <i class="bi bi-trash-fill"></i>
+                                            <button type="button" class="action-btn {{ $product->aktif ? 'btn-delete' : 'btn-edit' }}"
+                                                title="{{ $product->aktif ? 'Nonaktifkan Barang' : 'Aktifkan Barang' }}"
+                                                data-url="{{ route('produk.status', $product) }}"
+                                                data-name="{{ $product->nama_produk }}"
+                                                data-action="{{ $product->aktif ? 'Nonaktifkan' : 'Aktifkan' }}">
+                                                <i class="bi {{ $product->aktif ? 'bi-toggle-off' : 'bi-toggle-on' }}"></i>
                                             </button>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-5 text-muted">
+                                    <td colspan="7" class="text-center py-5 text-muted">
                                         <i class="bi bi-box-seam fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6 text-dark">Tidak ada barang yang ditemukan</div>
                                         <p class="small text-muted mb-0">Coba ubah kata kunci pencarian Anda atau tambahkan
@@ -354,35 +367,32 @@
 
     </div>
 
-    <!-- MODAL KONFIRMASI HAPUS BARANG (TERAPOS MODERN DESIGN) -->
-    <div class="modal fade modal-terapos" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal fade modal-terapos" id="productStatusModal" tabindex="-1" aria-labelledby="productStatusTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-body text-center p-4">
                     <div class="icon-box-danger">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <i class="bi bi-arrow-repeat"></i>
                     </div>
-                    <h4 class="fw-bold text-dark mb-2">Hapus Barang Ini?</h4>
+                    <h4 id="productStatusTitle" class="fw-bold text-dark mb-2">Ubah Status Barang?</h4>
                     <p class="text-muted small mb-3">
-                        Apakah Anda yakin ingin menghapus barang <strong id="modal-product-name"
-                            class="text-danger"></strong> dari sistem?
+                        <span id="product-status-action"></span> <strong id="modal-product-name"></strong>?
                     </p>
                     <div class="alert alert-warning border-0 rounded-3 text-start small p-3 mb-4"
                         style="background-color: #fff3cd; color: #664d03;">
-                        <i class="bi bi-info-circle-fill me-1"></i> <strong>Peringatan:</strong> Tindakan ini tidak dapat
-                        dibatalkan. Data barang akan terhapus secara permanen.
+                        <i class="bi bi-info-circle-fill me-1"></i> Barang tidak aktif tidak dapat dipakai pada Penjualan atau Penerimaan baru. Histori barang tetap disimpan.
                     </div>
 
-                    <form id="delete-form-modal" method="POST" action="">
+                    <form id="product-status-form" method="POST" action="">
                         @csrf
-                        @method('DELETE')
+                        @method('PATCH')
                         <div class="d-flex justify-content-center gap-2">
                             <button type="button" class="btn btn-light px-4 py-2 rounded-3 fw-semibold border"
                                 data-bs-dismiss="modal">
                                 Batal
                             </button>
-                            <button type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold">
-                                Ya, Hapus Barang
+                            <button id="product-status-confirm" type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold">
+                                Konfirmasi
                             </button>
                         </div>
                     </form>
@@ -393,13 +403,18 @@
 
     @push('scripts')
         <script>
-            function confirmDelete(deleteUrl, productName) {
-                document.getElementById('delete-form-modal').action = deleteUrl;
-                document.getElementById('modal-product-name').textContent = productName;
-
-                var modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-                modal.show();
-            }
+            document.querySelectorAll('[data-url][data-action]').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    document.getElementById('product-status-form').action = this.dataset.url;
+                    document.getElementById('modal-product-name').textContent = this.dataset.name;
+                    document.getElementById('product-status-action').textContent = this.dataset.action;
+                    const confirmButton = document.getElementById('product-status-confirm');
+                    confirmButton.textContent = this.dataset.action + ' Barang';
+                    confirmButton.classList.toggle('btn-danger', this.dataset.action === 'Nonaktifkan');
+                    confirmButton.classList.toggle('btn-success', this.dataset.action === 'Aktifkan');
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById('productStatusModal')).show();
+                });
+            });
         </script>
     @endpush
 @endsection

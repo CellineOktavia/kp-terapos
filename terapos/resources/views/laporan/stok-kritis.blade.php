@@ -250,7 +250,7 @@
                     <div class="col-lg-4 col-md-6">
                         <label for="search" class="label-title">Cari Barang</label>
                         <input type="text" id="search" name="search" class="form-control form-control-terapos"
-                            placeholder="Kode, barcode, atau nama barang..." value="{{ $filters['search'] ?? '' }}">
+                            placeholder="Kode atau nama barang..." value="{{ $filters['search'] ?? '' }}">
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <label for="category_id" class="label-title">Kategori</label>
@@ -385,9 +385,6 @@
                                     </td>
                                     <td>
                                         <div class="fw-bold text-dark">{{ $product->nama_produk }}</div>
-                                        @if ($product->barcode)
-                                            <div class="small text-muted font-monospace">{{ $product->barcode }}</div>
-                                        @endif
                                     </td>
                                     <td class="text-muted">{{ $product->category?->nama_kategori ?? '-' }}</td>
                                     <td

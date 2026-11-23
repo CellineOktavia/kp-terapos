@@ -156,7 +156,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Tambah Penjualan</h3>
-                <p class="text-muted small mb-0">Scan barcode atau pilih barang untuk ditambahkan ke keranjang.</p>
+                <p class="text-muted small mb-0">Cari berdasarkan kode atau nama barang, lalu tambahkan ke keranjang.</p>
             </div>
             <div>
                 <a href="{{ route('penjualan.index') }}" class="btn-action-outline">
@@ -227,14 +227,14 @@
                         <div class="card-body p-4">
                             <div class="pb-3 mb-3 border-bottom">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="text-muted small">Subtotal</span>
+                                    <span class="text-muted small">Subtotal Barang</span>
                                     <span class="fw-semibold" id="sale-subtotal">Rp 0</span>
                                 </div>
-                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div id="sale-discount-row" class="d-flex justify-content-between align-items-center mb-3">
                                     <span class="text-muted small" id="sale-discount-label">Diskon</span>
                                     <span class="fw-semibold text-success" id="sale-discount">Rp 0</span>
                                 </div>
-                                <span class="label-title">Total Tagihan</span>
+                                <span class="label-title">Total Bayar</span>
                                 <div class="price-total-display" id="sale-total">Rp 0</div>
                                 <small class="text-muted d-block mt-2">Diskon 5% untuk pembelian di atas Rp300.000.</small>
                             </div>
@@ -243,9 +243,9 @@
                                 <label for="bayar" class="label-title">Jumlah Bayar (Rp)</label>
                                 <div class="input-group input-group-terapos">
                                     <span class="input-group-text input-group-text-terapos">Rp</span>
-                                    <input id="bayar" type="number" name="bayar"
+                                    <input id="bayar" type="text" inputmode="numeric" name="bayar"
                                         class="form-control form-control-terapos fw-bold text-dark border-start-0"
-                                        value="{{ old('bayar') }}" min="0" step="0.01" required placeholder="0">
+                                        value="{{ old('bayar') ? number_format((int) old('bayar'), 0, ',', '.') : '' }}" required placeholder="0">
                                 </div>
                             </div>
 
@@ -267,33 +267,31 @@
                 <!-- KOLOM KANAN: SCANNER & KERANJANG -->
                 <div class="col-lg-8">
 
-                    <!-- Card Scanner Barcode -->
+                    <!-- Pencarian barang -->
                     <div class="card card-terapos">
                         <div class="card-header-green">
-                            <i class="bi bi-qr-code-scan"></i> Cari / Scan Barcode
+                            <i class="bi bi-search"></i> Cari Barang
                         </div>
                         <div class="card-body p-4">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-8">
-                                    <label for="barcode-input" class="label-title">Scan Barcode / Ketik Kode Barang</label>
-                                    <input id="barcode-input" type="text" class="form-control form-control-terapos"
-                                        placeholder="Scan barcode atau ketik kode, lalu tekan Enter" autocomplete="off">
+                                    <label for="product-search" class="label-title">Nama atau Kode Barang</label>
+                                    <input id="product-search" type="search" list="product-search-list"
+                                        class="form-control form-control-terapos"
+                                        placeholder="Cari nama atau kode barang..." autocomplete="off">
+                                    <datalist id="product-search-list">
+                                        @foreach ($products as $product)
+                                            @if ($product->stok > 0)
+                                                <option value="{{ $product->kode_produk }} - {{ $product->nama_produk }}"></option>
+                                            @endif
+                                        @endforeach
+                                    </datalist>
                                 </div>
                                 <div class="col-md-4">
-                                    <button type="button"
-                                        class="btn btn-outline-success border-2 rounded-3 w-100 py-2 fw-semibold"
-                                        id="btn-camera">
-                                        <i class="bi bi-camera-fill me-1"></i> Buka Kamera
-                                    </button>
-                                    <button type="button"
-                                        class="btn btn-outline-danger border-2 rounded-3 w-100 py-2 fw-semibold"
-                                        id="btn-stop-camera" hidden>
-                                        <i class="bi bi-camera-video-off-fill me-1"></i> Tutup Kamera
+                                    <button type="button" class="btn btn-success w-100 py-2 fw-semibold" id="add-search-product">
+                                        <i class="bi bi-plus-lg me-1"></i> Tambahkan Barang
                                     </button>
                                 </div>
-                            </div>
-                            <div id="camera-area" class="mt-3" hidden>
-                                <div id="reader"></div>
                             </div>
                             <div id="scan-result" class="mt-3" role="status" aria-live="polite"></div>
                         </div>
@@ -340,7 +338,7 @@
         <template id="cart-row-template">
             <tr class="cart-row">
                 <td class="ps-4 py-3">
-                    <select class="form-select form-select-terapos cart-product" required>
+                    <select class="form-select form-select-terapos cart-product" aria-label="Barang" required>
                         <option value="">Pilih barang...</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}"
@@ -357,7 +355,7 @@
                 <td class="cart-stock text-center fw-semibold text-dark">-</td>
                 <td>
                     <input type="number" class="form-control form-control-terapos text-center cart-qty" min="1"
-                        value="1" required>
+                        value="1" aria-label="Jumlah barang" required>
                 </td>
                 <td class="cart-price text-end text-muted">-</td>
                 <td class="cart-subtotal text-end fw-bold text-dark">Rp 0</td>
@@ -372,24 +370,24 @@
 @endsection
 
 @push('scripts')
-    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const form = document.getElementById('pos-form');
             const cart = document.getElementById('cart-items');
             const rowTemplate = document.getElementById('cart-row-template');
-            const barcodeInput = document.getElementById('barcode-input');
+            const productSearch = document.getElementById('product-search');
             const scanResult = document.getElementById('scan-result');
             const previousItems = @js(old('items', []));
-            let scanner = null;
-            let cameraRunning = false;
-            let scanLocked = false;
 
             function currency(value) {
                 return 'Rp ' + Number(value || 0).toLocaleString('id-ID', {
                     minimumFractionDigits: 0,
                     maximumFractionDigits: 2
                 });
+            }
+
+            function numericValue(value) {
+                return Number(String(value || '').replace(/\D/g, '') || 0);
             }
 
             function notify(message, type) {
@@ -431,8 +429,10 @@
                 document.getElementById('sale-discount-label').textContent = discountPercent ?
                     'Diskon ' + discountPercent + '%' : 'Diskon';
                 document.getElementById('sale-discount').textContent = currency(discount);
+                document.getElementById('sale-discount-row').style.display =
+                    discountPercent || subtotalPenjualan === 0 ? 'flex' : 'none';
                 document.getElementById('sale-total').textContent = currency(total);
-                const paid = Number(document.getElementById('bayar').value || 0);
+                const paid = numericValue(document.getElementById('bayar').value);
                 document.getElementById('kembalian').value = currency(Math.max(0, paid - total));
                 return total;
             }
@@ -449,7 +449,7 @@
                 return row;
             }
 
-            function addProduct(productId, fromScan) {
+            function addProduct(productId) {
                 const option = Array.from(rowTemplate.content.querySelectorAll('.cart-product option'))
                     .find(item => item.value === String(productId));
                 if (!option) {
@@ -467,17 +467,9 @@
                     row => row.querySelector('.cart-product').value === String(productId)
                 );
                 if (existingRow) {
-                    if (fromScan) {
-                        const qty = existingRow.querySelector('.cart-qty');
-                        if (Number(qty.value) + 1 > stock) {
-                            notify('Stok ' + option.dataset.name + ' tidak mencukupi. Stok tersedia: ' + stock +
-                                '.', 'warning');
-                            return false;
-                        }
-                        qty.value = Number(qty.value) + 1;
-                        calculateTotals();
-                    }
-                    return true;
+                    notify('Barang tersebut sudah ada di keranjang.', 'warning');
+                    existingRow.querySelector('.cart-qty').focus();
+                    return false;
                 }
 
                 const blankRow = Array.from(cart.querySelectorAll('.cart-row')).find(
@@ -530,33 +522,31 @@
                 calculateTotals();
             }
 
-            async function lookupBarcode(value) {
-                const code = value.trim();
-                if (!code) return;
-
-                try {
-                    const response = await fetch('/api/produk-by-barcode?kode=' + encodeURIComponent(code), {
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-                    const data = await response.json();
-                    if (!data.success) {
-                        notify('Barang tidak ditemukan.', 'danger');
-                        return;
-                    }
-                    if (Number(data.produk.stok) < 1) {
-                        notify('Stok barang habis.', 'warning');
-                        return;
-                    }
-                    if (addProduct(data.produk.id, true)) {
-                        notify(data.produk.nama_produk + ' ditambahkan ke keranjang.', 'success');
-                    }
-                } catch (error) {
-                    notify('Pencarian barang gagal. Silakan coba kembali.', 'danger');
-                } finally {
-                    barcodeInput.value = '';
-                    barcodeInput.focus();
+            function searchProduct() {
+                const search = productSearch.value.trim().toLocaleLowerCase('id-ID');
+                if (!search) {
+                    productSearch.focus();
+                    return;
+                }
+                const options = Array.from(rowTemplate.content.querySelectorAll('.cart-product option'))
+                    .filter(option => option.value && Number(option.dataset.stock) > 0);
+                const exact = options.find(option =>
+                    (option.dataset.code + ' - ' + option.dataset.name).toLocaleLowerCase('id-ID') === search
+                    || option.dataset.code.toLocaleLowerCase('id-ID') === search
+                    || option.dataset.name.toLocaleLowerCase('id-ID') === search
+                );
+                const matches = exact ? [exact] : options.filter(option =>
+                    option.dataset.code.toLocaleLowerCase('id-ID').includes(search)
+                    || option.dataset.name.toLocaleLowerCase('id-ID').includes(search)
+                );
+                if (matches.length !== 1) {
+                    notify(matches.length ? 'Pencarian cocok dengan beberapa barang. Pilih nama lengkap dari saran.' : 'Barang tidak ditemukan.', matches.length ? 'warning' : 'danger');
+                    return;
+                }
+                if (addProduct(matches[0].value)) {
+                    notify(matches[0].dataset.name + ' ditambahkan ke keranjang.', 'success');
+                    productSearch.value = '';
+                    productSearch.focus();
                 }
             }
 
@@ -598,14 +588,28 @@
                 addRow();
             });
 
-            document.getElementById('bayar').addEventListener('input', calculateTotals);
+            document.getElementById('bayar').addEventListener('input', function() {
+                const start = this.selectionStart;
+                const digitsBefore = this.value.slice(0, start).replace(/\D/g, '').length;
+                this.value = this.value.replace(/\D/g, '');
+                this.value = this.value ? Number(this.value).toLocaleString('id-ID') : '';
+                let position = 0;
+                let digits = 0;
+                while (position < this.value.length && digits < digitsBefore) {
+                    if (/\d/.test(this.value[position])) digits++;
+                    position++;
+                }
+                this.setSelectionRange(position, position);
+                calculateTotals();
+            });
 
-            barcodeInput.addEventListener('keydown', function(event) {
+            productSearch.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     event.preventDefault();
-                    lookupBarcode(this.value);
+                    searchProduct();
                 }
             });
+            document.getElementById('add-search-product').addEventListener('click', searchProduct);
 
             form.addEventListener('submit', function(event) {
                 reindexCart();
@@ -617,10 +621,13 @@
                     notify('Pilih minimal satu barang sebelum menyimpan.', 'danger');
                     return;
                 }
-                if (Number(document.getElementById('bayar').value || 0) < total) {
+                if (numericValue(document.getElementById('bayar').value) < total) {
                     event.preventDefault();
                     notify('Jumlah pembayaran kurang dari total penjualan.', 'danger');
+                    return;
                 }
+                document.getElementById('bayar').value = numericValue(document.getElementById('bayar').value);
+                document.getElementById('submit-sale').disabled = true;
             });
 
             if (Array.isArray(previousItems) && previousItems.length) {
@@ -637,53 +644,6 @@
             reindexCart();
             calculateTotals();
 
-            document.getElementById('btn-camera').addEventListener('click', function() {
-                if (typeof Html5Qrcode === 'undefined') {
-                    notify('Fitur kamera tidak tersedia.', 'danger');
-                    return;
-                }
-                document.getElementById('camera-area').hidden = false;
-                document.getElementById('btn-stop-camera').hidden = false;
-                this.hidden = true;
-                scanner = new Html5Qrcode('reader');
-                scanner.start({
-                        facingMode: 'environment'
-                    }, {
-                        fps: 10,
-                        qrbox: {
-                            width: 300,
-                            height: 150
-                        }
-                    },
-                    function(decodedText) {
-                        if (scanLocked) return;
-                        scanLocked = true;
-                        lookupBarcode(decodedText).finally(function() {
-                            setTimeout(function() {
-                                scanLocked = false;
-                            }, 1200);
-                        });
-                    }
-                ).then(function() {
-                    cameraRunning = true;
-                }).catch(function() {
-                    notify('Kamera gagal dibuka. Periksa izin kamera perangkat.', 'danger');
-                    document.getElementById('camera-area').hidden = true;
-                    document.getElementById('btn-camera').hidden = false;
-                    document.getElementById('btn-stop-camera').hidden = true;
-                });
-            });
-
-            document.getElementById('btn-stop-camera').addEventListener('click', function() {
-                if (cameraRunning && scanner) {
-                    scanner.stop().finally(function() {
-                        cameraRunning = false;
-                        document.getElementById('camera-area').hidden = true;
-                        document.getElementById('btn-camera').hidden = false;
-                        this.hidden = true;
-                    }.bind(this));
-                }
-            });
         });
     </script>
 @endpush

@@ -331,13 +331,6 @@
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
 
-                                            @if (auth()->user()->role === 'owner')
-                                                <button type="button" class="action-btn btn-delete"
-                                                    title="Batalkan Penjualan"
-                                                    onclick="confirmDelete('{{ route('penjualan.destroy', $penjualan) }}', '{{ $penjualan->nomor_penjualan }}')">
-                                                    <i class="bi bi-trash-fill"></i>
-                                                </button>
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
@@ -364,52 +357,4 @@
 
     </div>
 
-    <!-- MODAL KONFIRMASI PEMBATALAN/HAPUS -->
-    <div class="modal fade modal-terapos" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body text-center p-4">
-                    <div class="icon-box-danger">
-                        <i class="bi bi-exclamation-triangle-fill"></i>
-                    </div>
-                    <h4 class="fw-bold text-dark mb-2">Batalkan Transaksi Ini?</h4>
-                    <p class="text-muted small mb-3">
-                        Anda yakin ingin membatalkan transaksi <strong id="modal-trx-number"
-                            class="text-success"></strong>?
-                    </p>
-                    <div class="alert alert-warning border-0 rounded-3 text-start small p-3 mb-4"
-                        style="background-color: #fff3cd; color: #664d03;">
-                        <i class="bi bi-info-circle-fill me-1"></i> <strong>Catatan:</strong> Membatalkan transaksi ini
-                        akan mengembalikan jumlah stok barang yang telah terjual ke stok gudang.
-                    </div>
-
-                    <form id="delete-form-modal" method="POST" action="">
-                        @csrf
-                        @method('DELETE')
-                        <div class="d-flex justify-content-center gap-2">
-                            <button type="button" class="btn btn-light px-4 py-2 rounded-3 fw-semibold border"
-                                data-bs-dismiss="modal">
-                                Batal
-                            </button>
-                            <button type="submit" class="btn btn-danger px-4 py-2 rounded-3 fw-semibold">
-                                Ya, Batalkan Transaksi
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @push('scripts')
-        <script>
-            function confirmDelete(deleteUrl, trxNumber) {
-                document.getElementById('delete-form-modal').action = deleteUrl;
-                document.getElementById('modal-trx-number').textContent = trxNumber;
-
-                var modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-                modal.show();
-            }
-        </script>
-    @endpush
 @endsection

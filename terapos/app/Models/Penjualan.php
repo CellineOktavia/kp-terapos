@@ -8,7 +8,6 @@ class Penjualan extends Model
 {
     protected $fillable = [
         'nomor_penjualan',
-        'customer_id',
         'user_id',
         'total',
         'diskon_persen',
@@ -32,11 +31,6 @@ class Penjualan extends Model
 
             // created_at tetap otomatis menjadi Carbon
         ];
-    }
-
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
     }
 
     public function user()

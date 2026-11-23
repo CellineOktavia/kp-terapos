@@ -161,29 +161,21 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="info-label">Kode Barang</label>
-                            <input type="text" name="kode_produk"
+                            <label for="kode_produk" class="info-label">Kode Barang</label>
+                            <input id="kode_produk" type="text" name="kode_produk"
                                 class="form-control form-control-terapos form-control-readonly" value="{{ $generatedCode }}"
                                 required readonly>
                             <small class="text-muted d-block mt-1" style="font-size: .78rem;">*Dibuat otomatis oleh
                                 sistem.</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Barcode Barang</label>
-                            <input type="text" name="barcode"
-                                class="form-control form-control-terapos form-control-readonly"
-                                value="{{ $generatedBarcode }}" required readonly>
-                            <small class="text-muted d-block mt-1" style="font-size: .78rem;">*Dibuat otomatis oleh
-                                sistem.</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="info-label">Nama Barang</label>
-                            <input type="text" name="nama_produk" class="form-control form-control-terapos"
+                            <label for="nama_produk" class="info-label">Nama Barang</label>
+                            <input id="nama_produk" type="text" name="nama_produk" class="form-control form-control-terapos"
                                 value="{{ old('nama_produk') }}" placeholder="Masukkan nama barang" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Kategori</label>
-                            <select name="category_id" class="form-select form-select-terapos">
+                            <label for="category_id" class="info-label">Kategori</label>
+                            <select id="category_id" name="category_id" class="form-select form-select-terapos">
                                 <option value="">Tanpa kategori</option>
                                 @foreach ($categories as $category)
                                     <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
@@ -193,13 +185,13 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Merk</label>
-                            <input type="text" name="merk" class="form-control form-control-terapos"
+                            <label for="merk" class="info-label">Merk</label>
+                            <input id="merk" type="text" name="merk" class="form-control form-control-terapos"
                                 value="{{ old('merk') }}" placeholder="Masukkan merk barang">
                         </div>
                         <div class="col-md-6">
-                            <label class="info-label">Satuan</label>
-                            <select name="satuan" class="form-select form-select-terapos" required>
+                            <label for="satuan" class="info-label">Satuan</label>
+                            <select id="satuan" name="satuan" class="form-select form-select-terapos" required>
                                 @foreach (['pcs', 'pack', 'box', 'botol', 'kaleng', 'sachet', 'kg', 'gram', 'liter', 'ml', 'unit'] as $unit)
                                     <option value="{{ $unit }}" @selected(old('satuan', 'pcs') === $unit)>{{ $unit }}
                                     </option>
@@ -207,8 +199,8 @@
                             </select>
                         </div>
                         <div class="col-12">
-                            <label class="info-label">Deskripsi</label>
-                            <textarea name="deskripsi" rows="3" class="form-control form-control-terapos"
+                            <label for="deskripsi" class="info-label">Deskripsi</label>
+                            <textarea id="deskripsi" name="deskripsi" rows="3" class="form-control form-control-terapos"
                                 placeholder="Tambah deskripsi barang (opsional)...">{{ old('deskripsi') }}</textarea>
                         </div>
                     </div>
@@ -224,8 +216,8 @@
                         </div>
                         <div class="card-body">
                             <div>
-                                <label class="info-label">Stok Minimum</label>
-                                <input type="number" name="stok_minimum" class="form-control form-control-terapos"
+                                <label for="stok_minimum" class="info-label">Stok Minimum</label>
+                                <input id="stok_minimum" type="number" name="stok_minimum" class="form-control form-control-terapos"
                                     value="{{ old('stok_minimum', 5) }}" min="0" required>
                                 <small class="text-muted d-block mt-2" style="font-size: .8rem;">
                                     Batas minimum untuk peringatan stok menipis.
@@ -243,23 +235,22 @@
                         </div>
                         <div class="card-body">
                             <div class="mb-3">
-                                <label class="info-label">Harga Beli (Modal)</label>
+                                <label for="harga_beli" class="info-label">Harga Beli (Modal)</label>
                                 <div class="input-group input-group-terapos">
                                     <span class="input-group-text input-group-text-terapos">Rp</span>
-                                    <input type="number" name="harga_beli" class="form-control form-control-terapos"
-                                        value="{{ old('harga_beli') }}" min="0" step="0.01" required
-                                        placeholder="0">
+                                    <input id="harga_beli" type="text" inputmode="numeric" name="harga_beli" class="form-control form-control-terapos rupiah-input"
+                                        value="{{ old('harga_beli') }}" required placeholder="0">
                                 </div>
                                 <small class="text-muted d-block mt-1" style="font-size: .78rem;">Harga modal per
                                     unit.</small>
                             </div>
                             <div>
-                                <label class="info-label">Harga Jual</label>
+                                <label for="harga_jual" class="info-label">Harga Jual</label>
                                 <div class="input-group input-group-terapos">
                                     <span class="input-group-text input-group-text-terapos">Rp</span>
-                                    <input type="number" name="harga_jual"
+                                    <input id="harga_jual" type="text" inputmode="numeric" name="harga_jual"
                                         class="form-control form-control-terapos fw-bold text-primary"
-                                        value="{{ old('harga_jual') }}" min="0" step="0.01" required
+                                        value="{{ old('harga_jual') }}" required
                                         placeholder="0">
                                 </div>
                                 <small class="text-muted d-block mt-1" style="font-size: .78rem;">Harga jual ke
@@ -282,3 +273,34 @@
 
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const buy = document.querySelector('[name="harga_beli"]');
+            const sell = document.querySelector('[name="harga_jual"]');
+            const form = buy.closest('form');
+            const warning = document.createElement('div');
+            warning.className = 'alert alert-warning mt-3 mb-0';
+            warning.textContent = 'Peringatan: harga jual berada di bawah harga beli terakhir. Pastikan harga ini merupakan keputusan Owner/subsidi silang.';
+            warning.hidden = true;
+            sell.closest('.card-body').appendChild(warning);
+            function format(input) {
+                const digits = input.value.replace(/\D/g, '');
+                input.value = digits ? Number(digits).toLocaleString('id-ID') : '';
+            }
+            function check() {
+                warning.hidden = Number(sell.value.replace(/\D/g, '') || 0) >= Number(buy.value.replace(/\D/g, '') || 0);
+            }
+            [buy, sell].forEach(input => input.addEventListener('input', function() {
+                format(this);
+                check();
+            }));
+            form.addEventListener('submit', function() {
+                [buy, sell].forEach(input => input.value = input.value.replace(/\D/g, ''));
+                form.querySelector('button[type="submit"]').disabled = true;
+            });
+            check();
+        });
+    </script>
+@endpush

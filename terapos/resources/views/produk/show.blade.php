@@ -1,446 +1,96 @@
 @extends('app.master')
 
+@section('title', $product->nama_produk . ' — TERAPOS')
+
 @section('content')
-    <style>
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .page-title {
-            font-size: 2rem;
-            font-weight: 800;
-            color: #0f172a;
-            margin-bottom: 4px;
-        }
-
-        .page-subtitle {
-            color: #64748b;
-            margin: 0;
-        }
-
-        .detail-card {
-            border: none;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
-            margin-bottom: 24px;
-        }
-
-        .detail-card .card-header {
-            padding: 18px 24px;
-            font-weight: 700;
-            font-size: 1rem;
-            border: none;
-        }
-
-        .detail-card .card-body {
-            padding: 28px;
-        }
-
-        .info-label {
-            font-size: .8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-            color: #94a3b8;
-            margin-bottom: 4px;
-        }
-
-        .info-value {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #0f172a;
-            margin: 0;
-        }
-
-        .info-group {
-            margin-bottom: 24px;
-        }
-
-        .stock-good {
-            background: rgba(16, 185, 129, .12);
-            color: #059669;
-            padding: 7px 14px;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .stock-critical {
-            background: rgba(239, 68, 68, .12);
-            color: #dc2626;
-            padding: 7px 14px;
-            border-radius: 999px;
-            font-size: .85rem;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .price-highlight {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #2563eb;
-        }
-
-        .product-code-badge {
-            background: rgba(37, 99, 235, .1);
-            color: #2563eb;
-            padding: 6px 14px;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            display: inline-block;
-        }
-
-        .btn-back {
-            background: #f1f5f9;
-            border: none;
-            color: #475569;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: .25s;
-        }
-
-        .btn-back:hover {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
-
-        .btn-edit-detail {
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: .25s;
-        }
-
-        .btn-edit-detail:hover {
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(245, 158, 11, .3);
-        }
-
-        .divider {
-            border-color: #f1f5f9;
-            margin: 8px 0 24px;
-        }
-
-        /* ── Barcode ── */
-        .barcode-box {
-            background: #ffffff;
-            border-radius: 16px;
-            border: 1.5px solid #e2e8f0;
-            padding: 20px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        #barcodesvg {
-            max-width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        .barcode-kode {
-            font-family: 'Courier New', monospace;
-            font-size: 1rem;
-            font-weight: 700;
-            letter-spacing: 4px;
-            color: #1e293b;
-            text-align: center;
-        }
-
-        .barcode-nama {
-            font-size: .78rem;
-            color: #94a3b8;
-            font-weight: 500;
-            text-align: center;
-        }
-
-        .btn-print-barcode {
-            background: #fff;
-            border: 1.5px dashed #cbd5e1;
-            color: #475569;
-            padding: 7px 16px;
-            border-radius: 10px;
-            font-size: .82rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: .2s;
-            margin-top: 2px;
-        }
-
-        .btn-print-barcode:hover {
-            background: #f1f5f9;
-            border-color: #94a3b8;
-            color: #0f172a;
-        }
-
-        #barcode-error {
-            display: none;
-            font-size: .8rem;
-            color: #dc2626;
-            text-align: center;
-            margin-top: 6px;
-        }
-    </style>
-
-    <div class="container-fluid">
-
-        {{-- HEADER --}}
-        <div class="page-header">
-            <div>
-                <h2 class="page-title">Detail Barang</h2>
-                <p class="page-subtitle">Informasi lengkap barang</p>
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+            <div class="d-flex align-items-center gap-2">
+                <h1 class="h3 fw-bold mb-0">{{ $product->nama_produk }}</h1>
+                <span class="badge {{ $product->aktif ? 'text-bg-success' : 'text-bg-secondary' }}">
+                    {{ $product->aktif ? 'Aktif' : 'Tidak Aktif' }}
+                </span>
             </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('produk.index') }}" class="btn-back">
-                    <i class="bi bi-arrow-left me-1"></i> Kembali
-                </a>
-                <a href="{{ route('produk.edit', $product->id) }}" class="btn-edit-detail">
-                    <i class="bi bi-pencil-fill me-1"></i> Edit Barang
-                </a>
-            </div>
+            <p class="text-muted mb-0">Kode Barang: <span class="font-monospace">{{ $product->kode_produk }}</span></p>
         </div>
-
-        {{-- INFORMASI UTAMA + BARCODE --}}
-        <div class="card detail-card">
-            <div class="card-header bg-primary text-white">
-                <i class="bi bi-box-seam-fill me-2"></i>
-                Informasi Barang
-            </div>
-            <div class="card-body">
-                <div class="row">
-
-                    {{-- Info produk kiri --}}
-                    <div class="col-md-8">
-                        <div class="row">
-                            <div class="col-md-6 info-group">
-                                <p class="info-label">Kode Barang</p>
-                                <span class="product-code-badge">{{ $product->kode_produk }}</span>
-                            </div>
-                            <div class="col-md-6 info-group">
-                                <p class="info-label">Nama Barang</p>
-                                <p class="info-value">{{ $product->nama_produk }}</p>
-                            </div>
-                            <div class="col-md-6 info-group">
-                                <p class="info-label">Merk</p>
-                                <p class="info-value">{{ $product->merk }}</p>
-                            </div>
-                            <div class="col-md-6 info-group">
-                                <p class="info-label">Kategori</p>
-                                <p class="info-value">{{ $product->category?->nama_kategori ?? '-' }}</p>
-                            </div>
-                            <div class="col-md-6 info-group">
-                                <p class="info-label">Barcode</p>
-                                <p class="info-value">{{ $product->barcode ?? '-' }}</p>
-                            </div>
-                            <div class="col-md-6 info-group">
-                                <p class="info-label">Satuan</p>
-                                <p class="info-value">{{ $product->satuan }}</p>
-                            </div>
-                            <div class="col-md-12 info-group mb-0">
-                                <p class="info-label">Deskripsi</p>
-                                <p class="info-value" style="font-weight:400; color:#475569; line-height:1.6;">
-                                    {{ $product->deskripsi ?? 'Tidak ada deskripsi.' }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Barcode kanan --}}
-                    <div class="col-md-4 d-flex flex-column justify-content-center">
-                        <p class="info-label text-center mb-2">Barcode Barang</p>
-                        <div class="barcode-box" id="printBarcode">
-                            {{-- Canvas barcode digenerate JS di bawah --}}
-                            <svg id="barcodesvg"></svg>
-                            <p id="barcode-error">Gagal membuat barcode.<br>Periksa kode barang.</p>
-                            <div class="barcode-kode">{{ $product->barcode ?: $product->kode_produk }}</div>
-                            <div class="barcode-nama">{{ $product->nama_produk }}</div>
-                        </div>
-                        <div class="text-center mt-3">
-                            <button onclick="printBarcode()" class="btn-print-barcode">
-                                <i class="bi bi-printer me-1"></i> Print Barcode
-                            </button>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('produk.index') }}" class="btn btn-outline-secondary">Kembali</a>
+            <a href="{{ route('produk.edit', $product) }}" class="btn btn-primary"><i class="bi bi-pencil me-1"></i>Edit Barang</a>
         </div>
-
-        {{-- STOK & HARGA --}}
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card detail-card">
-                    <div class="card-header bg-success text-white">
-                        <i class="bi bi-archive-fill me-2"></i>
-                        Informasi Stok
-                    </div>
-                    <div class="card-body">
-                        <div class="info-group">
-                            <p class="info-label">Stok Saat Ini</p>
-                            @if ((int) $product->stok === 0)
-                                <span class="stock-critical">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    {{ $product->stok }} {{ $product->satuan }} — HABIS
-                                </span>
-                            @elseif ($product->stok <= $product->stok_minimum)
-                                <span class="stock-critical">
-                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                    {{ $product->stok }} {{ $product->satuan }} — STOK MENIPIS
-                                </span>
-                            @else
-                                <span class="stock-good">
-                                    <i class="bi bi-check-circle-fill me-1"></i>
-                                    {{ $product->stok }} {{ $product->satuan }} — AMAN
-                                </span>
-                            @endif
-                        </div>
-                        <hr class="divider">
-                        <div class="info-group mb-0">
-                            <p class="info-label">Stok Minimum</p>
-                            <p class="info-value">{{ $product->stok_minimum }} {{ $product->satuan }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card detail-card">
-                    <div class="card-header" style="background: linear-gradient(135deg, #7c3aed, #a78bfa); color: white;">
-                        <i class="bi bi-tag-fill me-2"></i>
-                        Informasi Harga
-                    </div>
-                    <div class="card-body">
-                        <div class="info-group">
-                            <p class="info-label">Harga Beli</p>
-                            <p class="info-value">Rp {{ number_format($product->harga_beli ?? 0, 0, ',', '.') }}</p>
-                        </div>
-                        <hr class="divider">
-                        <div class="info-group mb-0">
-                            <p class="info-label">Harga Jual</p>
-                            <p class="price-highlight">Rp {{ number_format($product->harga_jual, 0, ',', '.') }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
     </div>
+
+    @if (session('success')) <div class="alert alert-success" role="status">{{ session('success') }}</div> @endif
+    @if ($product->harga_jual < $product->harga_beli)
+        <div class="alert alert-warning" role="status">
+            Harga jual berada di bawah harga beli terakhir. Pastikan ini merupakan keputusan Owner/subsidi silang.
+        </div>
+    @endif
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-7">
+            <section class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-bold">Informasi Barang</div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Kode Barang</dt><dd class="col-sm-8 font-monospace">{{ $product->kode_produk }}</dd>
+                        <dt class="col-sm-4">Nama Barang</dt><dd class="col-sm-8">{{ $product->nama_produk }}</dd>
+                        <dt class="col-sm-4">Kategori</dt><dd class="col-sm-8">{{ $product->category?->nama_kategori ?? '-' }}</dd>
+                        <dt class="col-sm-4">Merk</dt><dd class="col-sm-8">{{ $product->merk ?: '-' }}</dd>
+                        <dt class="col-sm-4">Satuan</dt><dd class="col-sm-8">{{ $product->satuan }}</dd>
+                        <dt class="col-sm-4">Stok</dt><dd class="col-sm-8">{{ number_format($product->stok, 0, ',', '.') }} {{ $product->satuan }}</dd>
+                        <dt class="col-sm-4">Stok Minimum</dt><dd class="col-sm-8">{{ number_format($product->stok_minimum, 0, ',', '.') }} {{ $product->satuan }}</dd>
+                        <dt class="col-sm-4">Harga Beli Terakhir</dt><dd class="col-sm-8">Rp {{ number_format($product->harga_beli, 0, ',', '.') }}</dd>
+                        <dt class="col-sm-4">Harga Jual</dt><dd class="col-sm-8">Rp {{ number_format($product->harga_jual, 0, ',', '.') }}</dd>
+                        <dt class="col-sm-4">Deskripsi</dt><dd class="col-sm-8">{{ $product->deskripsi ?: '-' }}</dd>
+                    </dl>
+                </div>
+            </section>
+        </div>
+        <div class="col-lg-5">
+            <section class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white fw-bold">Riwayat Stok Terbaru</div>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead><tr><th>Tanggal</th><th>Jenis</th><th>Qty</th><th>Keterangan</th></tr></thead>
+                        <tbody>
+                            @forelse ($product->stockMovements as $movement)
+                                <tr>
+                                    <td>{{ $movement->created_at?->format('d-m-Y H:i') }}</td>
+                                    <td>{{ ucfirst($movement->jenis) }}</td>
+                                    <td>{{ number_format($movement->qty, 0, ',', '.') }}</td>
+                                    <td>{{ $movement->keterangan }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="4" class="text-center text-muted py-4">Belum ada riwayat stok.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    @foreach (['beli' => 'Riwayat Harga Beli', 'jual' => 'Riwayat Harga Jual'] as $type => $heading)
+        <section class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white fw-bold">{{ $heading }}</div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Tanggal</th><th>Harga Lama</th><th>Harga Baru</th><th>User</th><th>Keterangan</th></tr></thead>
+                    <tbody>
+                        @forelse ($product->priceHistories->where('jenis_harga', $type) as $history)
+                            <tr>
+                                <td>{{ $history->created_at?->format('d-m-Y H:i') }}</td>
+                                <td>Rp {{ number_format($history->harga_lama, 0, ',', '.') }}</td>
+                                <td>Rp {{ number_format($history->harga_baru, 0, ',', '.') }}</td>
+                                <td>{{ $history->user?->name ?? '-' }}</td>
+                                <td>{{ $history->keterangan ?? '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="text-center text-muted py-4">Belum ada riwayat harga.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    @endforeach
 @endsection
-
-@push('scripts')
-    <script>
-        // Muat JsBarcode secara dinamis, baru generate setelah loaded
-        (function() {
-            var script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js';
-            script.onload = function() {
-                generateBarcode();
-            };
-            script.onerror = function() {
-                document.getElementById('barcode-error').style.display = 'block';
-            };
-            document.body.appendChild(script);
-        })();
-
-        function generateBarcode() {
-            try {
-                // Ambil kode produk dari atribut data agar aman dari karakter khusus
-                var kode = document.getElementById('kode_produk_data').dataset.kode;
-
-                JsBarcode('#barcodesvg', kode, {
-                    format: 'CODE128',
-                    width: 2,
-                    height: 72,
-                    displayValue: false,
-                    margin: 8,
-                    lineColor: '#1e293b',
-                    background: '#ffffff',
-                });
-            } catch (e) {
-                document.getElementById('barcodesvg').style.display = 'none';
-                document.getElementById('barcode-error').style.display = 'block';
-                console.error('JsBarcode error:', e);
-            }
-        }
-
-        function printBarcode() {
-            // Ambil SVG barcode yang sudah di-generate
-            var svgEl = document.getElementById('barcodesvg');
-            var kode = document.getElementById('kode_produk_data').dataset.kode;
-            var nama = '{{ $product->nama_produk }}';
-            var svgHtml = svgEl.outerHTML;
-
-            // Buka jendela print baru yang bersih
-            var win = window.open('', '_blank', 'width=400,height=300');
-            win.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Barcode ${kode}</title>
-            <style>
-                * { margin: 0; padding: 0; box-sizing: border-box; }
-                body {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
-                    height: 100vh;
-                    font-family: 'Courier New', monospace;
-                    background: #fff;
-                }
-                svg {
-                    max-width: 280px;
-                    width: 100%;
-                    display: block;
-                }
-                .kode {
-                    font-size: 14px;
-                    font-weight: 700;
-                    letter-spacing: 4px;
-                    color: #1e293b;
-                    margin-top: 6px;
-                }
-                .nama {
-                    font-size: 11px;
-                    color: #64748b;
-                    margin-top: 3px;
-                }
-                @media print {
-                    @page { margin: 0; size: auto; }
-                }
-            </style>
-        </head>
-        <body>
-            ${svgHtml}
-            <div class="kode">${kode}</div>
-            <div class="nama">${nama}</div>
-        </body>
-        </html>
-    `);
-            win.document.close();
-            win.focus();
-            // Tunggu konten render lalu print
-            setTimeout(function() {
-                win.print();
-                win.close();
-            }, 500);
-        }
-    </script>
-
-    {{-- Simpan kode produk di data attribute — cara paling aman, bebas dari escaping/quoting issue --}}
-    <span id="kode_produk_data" data-kode="{{ $product->barcode ?: $product->kode_produk }}" style="display:none;" aria-hidden="true"></span>
-@endpush

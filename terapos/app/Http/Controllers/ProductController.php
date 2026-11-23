@@ -2,14 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Category;
-use Illuminate\Database\QueryException;
+use App\Models\Product;
+use App\Models\ProductPriceHistory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -17,125 +17,157 @@ class ProductController extends Controller
     {
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
+            'status' => ['nullable', Rule::in(['all', 'active', 'inactive'])],
         ]);
 
         $products = Product::query()
             ->with('category')
+            ->when(($filters['status'] ?? 'active') !== 'all', function ($query) use ($filters) {
+                $query->where('aktif', ($filters['status'] ?? 'active') === 'active');
+            })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($productQuery) use ($search) {
                     $productQuery->where('nama_produk', 'like', "%{$search}%")
                         ->orWhere('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhere('merk', 'like', "%{$search}%")
                         ->orWhereHas('category', function ($categoryQuery) use ($search) {
                             $categoryQuery->where('nama_kategori', 'like', "%{$search}%");
                         });
                 });
             })
-            ->latest()
+            ->orderBy('nama_produk')
             ->paginate(25)
             ->withQueryString();
 
-        return view('produk.index', ['products' => $products, 'search' => $filters['search'] ?? '']);
+        return view('produk.index', ['products' => $products, 'filters' => $filters]);
     }
 
     public function show(Product $product)
     {
+        $product->load([
+            'category',
+            'priceHistories' => fn ($query) => $query->with('user')->latest(),
+            'stockMovements' => fn ($query) => $query->latest()->limit(20),
+        ]);
+
         return view('produk.show', compact('product'));
     }
 
     public function create()
     {
-        $categories = Category::orderBy('nama_kategori')->get();
-
         return view('produk.create', [
-            'categories' => $categories,
+            'categories' => Category::orderBy('nama_kategori')->get(),
             'generatedCode' => $this->generateNextProductCode(),
-            'generatedBarcode' => $this->generateNextBarcode(),
         ]);
     }
 
     public function store(Request $request)
     {
-        $rules = [
-            'kode_produk' => ['required', 'string', Rule::unique('products', 'kode_produk')],
-            'barcode' => ['required', 'string', Rule::unique('products', 'barcode')],
-            'category_id' => 'nullable|exists:categories,id',
-            'nama_produk' => 'required|string',
-            'merk' => 'nullable|string',
-            'satuan' => 'required|string',
-            'stok_minimum' => 'required|integer|min:0',
-            'harga_beli' => 'required|numeric|min:0',
-            'harga_jual' => ['required', 'numeric', 'gt:harga_beli'],
-            'deskripsi' => 'nullable|string',
-        ];
+        $request->merge([
+            'harga_beli' => $this->normalizePrice($request->input('harga_beli')),
+            'harga_jual' => $this->normalizePrice($request->input('harga_jual')),
+        ]);
+
+        $validated = $request->validate([
+            'nama_produk' => ['required', 'string', 'max:255'],
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'merk' => ['nullable', 'string', 'max:255'],
+            'satuan' => ['required', 'string', 'max:50'],
+            'stok_minimum' => ['required', 'integer', 'min:0'],
+            'harga_beli' => ['required', 'numeric', 'min:0'],
+            'harga_jual' => ['required', 'numeric', 'min:0'],
+            'deskripsi' => ['nullable', 'string'],
+        ]);
 
         for ($attempt = 1; ; $attempt++) {
             try {
-                DB::transaction(function () use ($request, $rules) {
-                    $identity = [
-                        'kode_produk' => $this->generateNextProductCode(),
-                        'barcode' => $this->generateNextBarcode(),
-                    ];
-                    $input = array_merge(
-                        $request->except(['kode_produk', 'barcode']),
-                        $identity
-                    );
-                    $validated = Validator::make($input, $rules, [
-                        'harga_jual.gt' => 'Harga jual harus lebih besar dari harga beli.',
-                    ])->validate();
-                    $validated['stok'] = 0;
+                $code = DB::transaction(function () use ($validated) {
+                    $code = $this->generateNextProductCode();
+                    Product::create(array_merge($validated, [
+                        'kode_produk' => $code,
+                        'stok' => 0,
+                        'aktif' => true,
+                    ]));
 
-                    Product::create($validated);
+                    return $code;
                 });
-
                 break;
             } catch (QueryException $exception) {
-                if ($attempt >= 5 || !$this->isProductIdentityCollision($exception)) {
-                    throw $exception;
-                }
-            } catch (ValidationException $exception) {
-                $errors = $exception->errors();
-                $identityCollision = isset($errors['kode_produk']) || isset($errors['barcode']);
-
-                if ($attempt >= 5 || !$identityCollision) {
+                if ($attempt >= 5 || !$this->isProductCodeCollision($exception)) {
                     throw $exception;
                 }
             }
         }
 
-        return redirect()
-            ->route('produk.index')
-            ->with('success', 'Barang berhasil ditambahkan');
+        return redirect()->route('produk.index')
+            ->with('success', "Data barang {$code} berhasil disimpan.");
     }
 
     public function edit(Product $product)
     {
-        $categories = Category::orderBy('nama_kategori')->get();
-
-        return view('produk.edit', compact('product', 'categories'));
+        return view('produk.edit', [
+            'product' => $product,
+            'categories' => Category::orderBy('nama_kategori')->get(),
+        ]);
     }
 
     public function update(Request $request, Product $product)
     {
-        $validated = $request->validate([
-            'category_id' => 'nullable|exists:categories,id',
-            'nama_produk' => 'required|string|max:255',
-            'merk' => 'nullable|string|max:255',
-            'satuan' => 'required|string|max:50',
-            'stok_minimum' => 'required|integer|min:0',
-            'harga_beli' => 'required|numeric|min:0',
-            'harga_jual' => ['required', 'numeric', 'gt:harga_beli'],
-            'deskripsi' => 'nullable|string',
-        ], [
-            'harga_jual.gt' => 'Harga jual harus lebih besar dari harga beli.',
+        $request->merge([
+            'harga_beli' => $this->normalizePrice($request->input('harga_beli')),
+            'harga_jual' => $this->normalizePrice($request->input('harga_jual')),
         ]);
 
-        $product->update($validated);
+        $validated = $request->validate([
+            'category_id' => ['nullable', 'exists:categories,id'],
+            'nama_produk' => ['required', 'string', 'max:255'],
+            'merk' => ['nullable', 'string', 'max:255'],
+            'satuan' => ['required', 'string', 'max:50'],
+            'stok_minimum' => ['required', 'integer', 'min:0'],
+            'harga_beli' => ['required', 'numeric', 'min:0'],
+            'harga_jual' => ['required', 'numeric', 'min:0'],
+            'deskripsi' => ['nullable', 'string'],
+        ]);
 
-        return redirect()
-            ->route('produk.index')
-            ->with('success', 'Barang berhasil diperbarui');
+        $newSalePrice = (float) $validated['harga_jual'];
+        $belowBuyPrice = DB::transaction(function () use ($product, $validated, $newSalePrice) {
+            $lockedProduct = Product::query()->whereKey($product->id)->lockForUpdate()->firstOrFail();
+            $oldSalePrice = (float) $lockedProduct->harga_jual;
+            $oldBuyPrice = (float) $lockedProduct->harga_beli;
+            if ($oldSalePrice !== $newSalePrice && !Auth::user()->isOwner()) {
+                abort(403, 'Hanya Owner yang dapat mengubah harga jual.');
+            }
+
+            $validated['harga_beli'] = $oldBuyPrice;
+            $lockedProduct->update($validated);
+            if ($oldSalePrice !== $newSalePrice) {
+                ProductPriceHistory::create([
+                    'product_id' => $lockedProduct->id,
+                    'jenis_harga' => 'jual',
+                    'harga_lama' => $oldSalePrice,
+                    'harga_baru' => $newSalePrice,
+                    'user_id' => Auth::id(),
+                    'keterangan' => 'Perubahan harga jual dari Edit Barang',
+                ]);
+            }
+
+            return $newSalePrice < $oldBuyPrice;
+        });
+
+        $warning = $belowBuyPrice
+            ? ' Peringatan: harga jual berada di bawah harga beli terakhir. Pastikan harga ini merupakan keputusan Owner/subsidi silang.'
+            : '';
+
+        return redirect()->route('produk.show', $product)
+            ->with('success', 'Data barang berhasil diperbarui.' . $warning);
+    }
+
+    public function toggleStatus(Product $product)
+    {
+        $product->update(['aktif' => !$product->aktif]);
+        $message = $product->aktif ? 'Barang berhasil diaktifkan.' : 'Barang berhasil dinonaktifkan.';
+
+        return redirect()->route('produk.index')->with('success', $message);
     }
 
     public function destroy(Product $product)
@@ -143,98 +175,54 @@ class ProductController extends Controller
         $hasHistory = $product->detailPenjualans()->exists()
             || DB::table('detail_fakturs')->where('product_id', $product->id)->exists()
             || $product->detailPenerimaanBarangs()->exists()
-            || $product->stockMovements()->exists();
+            || $product->stockMovements()->exists()
+            || $product->priceHistories()->exists();
 
         if ($hasHistory) {
-            return redirect()
-                ->route('produk.index')
-                ->with('error', 'Barang tidak dapat dihapus karena sudah memiliki riwayat transaksi atau pergerakan stok.');
+            $product->update(['aktif' => false]);
+
+            return redirect()->route('produk.index')
+                ->with('success', 'Barang yang memiliki histori telah dinonaktifkan, bukan dihapus.');
         }
 
         $product->delete();
 
-        return redirect()
-            ->route('produk.index')
-            ->with('success', 'Barang berhasil dihapus');
+        return redirect()->route('produk.index')->with('success', 'Barang berhasil dihapus.');
     }
 
     private function generateNextProductCode(): string
     {
-        $largestNumber = Product::query()
-            ->where('kode_produk', 'like', 'TERA%')
-            ->pluck('kode_produk')
-            ->reduce(function (int $largest, string $code): int {
-                if (preg_match('/^TERA(\d{4})$/', $code, $matches)) {
-                    return max($largest, (int) $matches[1]);
-                }
+        $codes = Product::query()->pluck('kode_produk');
+        $number = $codes->reduce(function (int $largest, string $code): int {
+            return preg_match('/^\d{4}$/', $code) ? max($largest, (int) $code) : $largest;
+        }, 0) + 1;
 
-                return $largest;
-            }, 0);
-
-        $number = $largestNumber + 1;
-        if ($number > 9999) {
-            throw new \RuntimeException('Kode barang telah mencapai batas sequence empat digit.');
-        }
-
-        do {
-            $code = 'TERA' . str_pad((string) $number, 4, '0', STR_PAD_LEFT);
+        while ($number <= 9999) {
+            $code = str_pad((string) $number, 4, '0', STR_PAD_LEFT);
+            if (!$codes->contains($code)) {
+                return $code;
+            }
             $number++;
-        } while (Product::where('kode_produk', $code)->exists());
-
-        return $code;
-    }
-
-    private function generateNextBarcode(): string
-    {
-        $prefix = 200000000000;
-        $largestSequence = Product::query()
-            ->where('barcode', 'like', '200%')
-            ->whereNotNull('barcode')
-            ->pluck('barcode')
-            ->reduce(function (int $largest, string $barcode) use ($prefix): int {
-                if (!preg_match('/^\d{13}$/', $barcode)) {
-                    return $largest;
-                }
-
-                $body = substr($barcode, 0, 12);
-                if (!$this->hasValidEan13CheckDigit($barcode) || (int) $body <= $prefix) {
-                    return $largest;
-                }
-
-                return max($largest, (int) $body - $prefix);
-            }, 0);
-
-        $sequence = $largestSequence + 1;
-        do {
-            $body = str_pad((string) ($prefix + $sequence), 12, '0', STR_PAD_LEFT);
-            $barcode = $body . $this->ean13CheckDigit($body);
-            $sequence++;
-        } while (Product::where('barcode', $barcode)->exists());
-
-        return $barcode;
-    }
-
-    private function ean13CheckDigit(string $body): string
-    {
-        $sum = 0;
-        foreach (str_split($body) as $index => $digit) {
-            $sum += (int) $digit * ($index % 2 === 0 ? 1 : 3);
         }
 
-        return (string) ((10 - ($sum % 10)) % 10);
+        throw new \RuntimeException('Kode barang 4 digit telah habis.');
     }
 
-    private function hasValidEan13CheckDigit(string $barcode): bool
+    private function normalizePrice(mixed $value): mixed
     {
-        return substr($barcode, -1) === $this->ean13CheckDigit(substr($barcode, 0, 12));
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return preg_replace('/[^\d]/', '', $value);
     }
 
-    private function isProductIdentityCollision(QueryException $exception): bool
+    private function isProductCodeCollision(QueryException $exception): bool
     {
         $sqlState = $exception->errorInfo[0] ?? null;
-        $databaseMessage = strtolower($exception->getPrevious()?->getMessage() ?? $exception->getMessage());
+        $message = strtolower($exception->getPrevious()?->getMessage() ?? $exception->getMessage());
 
         return in_array($sqlState, ['23000', '23505'], true)
-            && (str_contains($databaseMessage, 'kode_produk') || str_contains($databaseMessage, 'barcode'));
+            && str_contains($message, 'kode_produk');
     }
 }

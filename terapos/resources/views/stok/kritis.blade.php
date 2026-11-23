@@ -209,7 +209,7 @@
                                 </span>
                                 <input id="critical-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0" value="{{ request('search') }}"
-                                    placeholder="Kode barang, barcode, atau nama barang...">
+                                    placeholder="Kode barang atau nama barang...">
                             </div>
                         </div>
 

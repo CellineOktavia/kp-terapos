@@ -33,6 +33,16 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+        if (!$user->aktif) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'Akun tidak aktif. Hubungi Owner.',
+            ]);
+        }
+
         if ($user->role !== 'owner' && $user->role !== 'co_owner') {
             Auth::logout();
             $request->session()->invalidate();

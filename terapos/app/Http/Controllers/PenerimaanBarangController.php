@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DetailPenerimaanBarang;
 use App\Models\PenerimaanBarang;
 use App\Models\Product;
+use App\Models\ProductPriceHistory;
 use App\Models\StockMovement;
 use App\Models\User;
 use Illuminate\Database\QueryException;
@@ -62,7 +63,7 @@ class PenerimaanBarangController extends Controller
 
     public function create()
     {
-        $products = Product::query()->orderBy('nama_produk')->get();
+        $products = Product::query()->where('aktif', true)->orderBy('nama_produk')->get();
 
         return view('penerimaan.create', [
             'products' => $products,
@@ -72,17 +73,26 @@ class PenerimaanBarangController extends Controller
 
     public function store(Request $request)
     {
+        $items = $request->input('items', []);
+        foreach ($items as $index => $item) {
+            if (isset($item['harga_beli'])) {
+                $items[$index]['harga_beli'] = $this->normalizePrice($item['harga_beli']);
+            }
+        }
+        $request->merge(['items' => $items]);
+
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
             'keterangan' => ['nullable', 'string', 'max:1000'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => ['required', 'distinct', 'exists:products,id'],
             'items.*.qty' => ['required', 'integer', 'min:1'],
+            'items.*.harga_beli' => ['required', 'numeric', 'min:0'],
         ]);
 
         for ($attempt = 1; ; $attempt++) {
             try {
-                DB::transaction(function () use ($validated) {
+                [$receiptId, $nomorPenerimaan] = DB::transaction(function () use ($validated) {
                     $items = collect($validated['items']);
                     $productIds = $items->pluck('product_id')
                         ->map(fn ($id) => (int) $id)
@@ -97,9 +107,10 @@ class PenerimaanBarangController extends Controller
                         ->get()
                         ->keyBy('id');
 
-                    if ($products->count() !== $productIds->count()) {
+                    if ($products->count() !== $productIds->count()
+                        || $products->contains(fn (Product $product) => !$product->aktif)) {
                         throw ValidationException::withMessages([
-                            'items' => 'Salah satu barang tidak lagi tersedia.',
+                            'items' => 'Salah satu barang tidak lagi aktif atau tersedia.',
                         ]);
                     }
 
@@ -114,15 +125,35 @@ class PenerimaanBarangController extends Controller
                     foreach ($items as $item) {
                         $product = $products->get((int) $item['product_id']);
                         $qty = (int) $item['qty'];
+                        $stockBefore = (int) $product->stok;
+                        $oldBuyPrice = (float) $product->harga_beli;
+                        $newBuyPrice = (float) $item['harga_beli'];
 
                         DetailPenerimaanBarang::create([
                             'penerimaan_barang_id' => $penerimaan->id,
                             'product_id' => $product->id,
                             'qty' => $qty,
+                            'harga_beli' => $newBuyPrice,
+                            'stok_sebelum' => $stockBefore,
+                            'stok_sesudah' => $stockBefore + $qty,
                         ]);
 
                         $product->stok += $qty;
+                        $product->harga_beli = $newBuyPrice;
                         $product->save();
+
+                        if ($oldBuyPrice !== $newBuyPrice) {
+                            ProductPriceHistory::create([
+                                'product_id' => $product->id,
+                                'jenis_harga' => 'beli',
+                                'harga_lama' => $oldBuyPrice,
+                                'harga_baru' => $newBuyPrice,
+                                'reference_type' => PenerimaanBarang::class,
+                                'reference_id' => $penerimaan->id,
+                                'user_id' => Auth::id(),
+                                'keterangan' => 'Perubahan harga beli dari Penerimaan Barang ' . $nomorPenerimaan,
+                            ]);
+                        }
 
                         StockMovement::create([
                             'product_id' => $product->id,
@@ -131,6 +162,8 @@ class PenerimaanBarangController extends Controller
                             'keterangan' => 'Penerimaan Barang ' . $nomorPenerimaan,
                         ]);
                     }
+
+                    return [$penerimaan->id, $nomorPenerimaan];
                 });
 
                 break;
@@ -142,8 +175,8 @@ class PenerimaanBarangController extends Controller
         }
 
         return redirect()
-            ->route('penerimaan.index')
-            ->with('success', 'Penerimaan barang berhasil disimpan dan stok telah diperbarui.');
+            ->route('penerimaan.show', $receiptId)
+            ->with('success', "Penerimaan {$nomorPenerimaan} berhasil. Stok " . count($validated['items']) . ' barang telah diperbarui.');
     }
 
     public function show(PenerimaanBarang $penerimaanBarang)
@@ -190,5 +223,14 @@ class PenerimaanBarangController extends Controller
 
         return in_array($sqlState, ['23000', '23505'], true)
             && str_contains($message, 'nomor_penerimaan');
+    }
+
+    private function normalizePrice(mixed $value): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        return preg_replace('/[^\d]/', '', $value);
     }
 }

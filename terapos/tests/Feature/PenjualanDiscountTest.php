@@ -27,7 +27,7 @@ class PenjualanDiscountTest extends TestCase
             'bayar' => 300000,
         ]);
 
-        $response->assertRedirect(route('penjualan.index'));
+        $response->assertRedirect(route('penjualan.show', 1));
         $sale = Penjualan::query()->sole();
         $this->assertSame('0.00', $sale->diskon_persen);
         $this->assertSame('0.00', $sale->diskon_nominal);
@@ -49,7 +49,7 @@ class PenjualanDiscountTest extends TestCase
             'bayar' => 285000.95,
         ]);
 
-        $response->assertRedirect(route('penjualan.index'));
+        $response->assertRedirect(route('penjualan.show', 1));
         $sale = Penjualan::query()->sole();
         $this->assertSame('5.00', $sale->diskon_persen);
         $this->assertSame('15000.05', $sale->diskon_nominal);
@@ -74,7 +74,7 @@ class PenjualanDiscountTest extends TestCase
             'total' => 400000,
         ]);
 
-        $response->assertRedirect(route('penjualan.index'));
+        $response->assertRedirect(route('penjualan.show', 1));
         $sale = Penjualan::query()->sole();
         $this->assertSame(400000.0, (float) $sale->detailPenjualans->sum('subtotal'));
         $this->assertSame('5.00', $sale->diskon_persen);
@@ -82,6 +82,7 @@ class PenjualanDiscountTest extends TestCase
         $this->assertSame('380000.00', $sale->total);
         $this->assertSame('400000.00', $sale->bayar);
         $this->assertSame('20000.00', $sale->kembalian);
+        $this->assertSame(1, $product->fresh()->stok);
     }
 
     public function test_payment_below_discounted_total_is_rejected_and_stock_is_unchanged(): void
@@ -104,5 +105,43 @@ class PenjualanDiscountTest extends TestCase
         $response->assertSessionHasErrors('bayar');
         $this->assertDatabaseCount('penjualans', 0);
         $this->assertSame(2, $product->fresh()->stok);
+    }
+
+    public function test_inactive_product_cannot_be_sold(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'owner']));
+        $product = Product::factory()->create(['aktif' => false, 'stok' => 5]);
+
+        $response = $this->post(route('penjualan.store'), [
+            'tanggal' => '2026-11-13',
+            'items' => [['product_id' => $product->id, 'qty' => 1]],
+            'bayar' => 100000,
+        ]);
+
+        $response->assertSessionHasErrors('items');
+        $this->assertSame(5, $product->fresh()->stok);
+        $this->assertDatabaseCount('penjualans', 0);
+    }
+
+    public function test_sale_note_pdf_is_downloadable(): void
+    {
+        $this->actingAs(User::factory()->create(['role' => 'owner']));
+        $product = Product::factory()->create([
+            'nama_produk' => 'Lampu Uji',
+            'harga_jual' => 10000,
+            'stok' => 2,
+        ]);
+        $this->post(route('penjualan.store'), [
+            'tanggal' => '2026-11-13',
+            'items' => [['product_id' => $product->id, 'qty' => 1]],
+            'bayar' => 10000,
+        ]);
+        $sale = Penjualan::query()->sole();
+
+        $response = $this->get(route('penjualan.nota', $sale));
+
+        $response->assertOk();
+        $response->assertHeader('content-type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF', $response->getContent());
     }
 }

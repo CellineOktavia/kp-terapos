@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Faktur;
+use App\Models\DetailPenerimaanBarang;
+use App\Models\PenerimaanBarang;
 use App\Models\Penjualan;
 use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -87,11 +88,11 @@ class LaporanController extends Controller
         ]);
 
         $baseQuery = Product::query()
+            ->where('aktif', true)
             ->whereColumn('stok', '<=', 'stok_minimum')
             ->when($filters['search'] ?? null, function (Builder $query, string $search) {
                 $query->where(function (Builder $q) use ($search) {
                     $q->where('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             })
@@ -153,6 +154,33 @@ class LaporanController extends Controller
             ->download('laporan-penjualan.pdf');
     }
 
+    public function barangMasuk(Request $request)
+    {
+        $period = $this->resolvePeriod($request);
+        $details = $this->receiptDetailQuery($period['start'], $period['end'])
+            ->with(['penerimaanBarang.user', 'product'])
+            ->orderByDesc('id')
+            ->paginate(25)
+            ->withQueryString();
+        $summary = $this->receiptSummary($period['start'], $period['end']);
+
+        return view('laporan.barang-masuk', compact('details', 'summary', 'period'));
+    }
+
+    public function barangMasukPdf(Request $request)
+    {
+        $period = $this->resolvePeriod($request);
+        $details = $this->receiptDetailQuery($period['start'], $period['end'])
+            ->with(['penerimaanBarang.user', 'product'])
+            ->orderByDesc('id')
+            ->get();
+        $summary = $this->receiptSummary($period['start'], $period['end']);
+
+        return Pdf::loadView('laporan.pdf.barang-masuk', compact('details', 'summary', 'period'))
+            ->setPaper('a4', 'landscape')
+            ->download('laporan-barang-masuk.pdf');
+    }
+
     public function stokPdf(Request $request)
     {
         $filters = $this->validateStockFilters($request);
@@ -184,11 +212,11 @@ class LaporanController extends Controller
         ]);
 
         $baseQuery = Product::query()
+            ->where('aktif', true)
             ->whereColumn('stok', '<=', 'stok_minimum')
             ->when($filters['search'] ?? null, function (Builder $query, string $search) {
                 $query->where(function (Builder $q) use ($search) {
                     $q->where('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             })
@@ -258,18 +286,13 @@ class LaporanController extends Controller
             ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()]);
     }
 
-    private function purchaseQuery(Carbon $start, Carbon $end): Builder
-    {
-        return Faktur::query()
-            ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()]);
-    }
-
     private function saleSummary(Carbon $start, Carbon $end): array
     {
         $query = $this->saleQuery($start, $end);
 
         return [
             'total' => (float) (clone $query)->sum('total'),
+            'discount' => (float) (clone $query)->sum('diskon_nominal'),
             'transactions' => (clone $query)->count(),
             'qty' => (int) DB::table('detail_penjualans')
                 ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
@@ -278,17 +301,26 @@ class LaporanController extends Controller
         ];
     }
 
-    private function purchaseSummary(Carbon $start, Carbon $end): array
+    private function receiptDetailQuery(Carbon $start, Carbon $end): Builder
     {
-        $query = $this->purchaseQuery($start, $end);
+        return DetailPenerimaanBarang::query()
+            ->whereHas('penerimaanBarang', fn (Builder $query) => $query
+                ->whereBetween('tanggal', [$start->toDateString(), $end->toDateString()]));
+    }
+
+    private function receiptSummary(Carbon $start, Carbon $end): array
+    {
+        $query = DB::table('detail_penerimaan_barangs')
+            ->join('penerimaan_barangs', 'detail_penerimaan_barangs.penerimaan_barang_id', '=', 'penerimaan_barangs.id')
+            ->whereBetween('penerimaan_barangs.tanggal', [$start->toDateString(), $end->toDateString()]);
 
         return [
-            'total' => (float) (clone $query)->sum('total'),
-            'transactions' => (clone $query)->count(),
-            'qty' => (int) DB::table('detail_fakturs')
-                ->join('fakturs', 'detail_fakturs.faktur_id', '=', 'fakturs.id')
-                ->whereBetween('fakturs.tanggal', [$start->toDateString(), $end->toDateString()])
-                ->sum('detail_fakturs.qty'),
+            'receipts' => (clone $query)->distinct('penerimaan_barangs.id')->count('penerimaan_barangs.id'),
+            'qty' => (int) (clone $query)->sum('detail_penerimaan_barangs.qty'),
+            'value' => (float) (clone $query)
+                ->selectRaw('COALESCE(SUM(detail_penerimaan_barangs.qty * detail_penerimaan_barangs.harga_beli), 0) as total_value')
+                ->first()
+                ->total_value,
         ];
     }
 
@@ -307,7 +339,6 @@ class LaporanController extends Controller
             ->when($filters['search'] ?? null, function (Builder $query, string $search) {
                 $query->where(function (Builder $productQuery) use ($search) {
                     $productQuery->where('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             })

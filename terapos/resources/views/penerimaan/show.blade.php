@@ -178,7 +178,11 @@
                             <tr>
                                 <th class="ps-4" width="180">Kode Barang</th>
                                 <th>Nama Barang</th>
-                                <th class="text-end pe-4" width="200">Qty Diterima</th>
+                                <th class="text-end" width="130">Stok Awal</th>
+                                <th class="text-end" width="130">Qty Masuk</th>
+                                <th class="text-end" width="130">Stok Setelah</th>
+                                <th class="text-end" width="170">Harga Beli</th>
+                                <th class="text-end pe-4" width="180">Nilai Barang</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -196,6 +200,7 @@
                                     <td class="fw-bold text-dark">
                                         {{ $detail->product?->nama_produk ?? 'Barang tidak tersedia' }}
                                     </td>
+                                    <td class="text-end">{{ number_format($detail->stok_sebelum ?? 0, 0, ',', '.') }}</td>
                                     <td class="text-end pe-4">
                                         <span class="qty-badge-in">
                                             <i class="bi bi-plus-circle-fill me-1"></i>
@@ -203,10 +208,15 @@
                                             {{ $detail->product?->satuan ?? '' }}
                                         </span>
                                     </td>
+                                    <td class="text-end">{{ number_format($detail->stok_sesudah ?? 0, 0, ',', '.') }}</td>
+                                    <td class="text-end">Rp {{ number_format($detail->harga_beli ?? 0, 0, ',', '.') }}</td>
+                                    <td class="text-end pe-4 fw-semibold">
+                                        Rp {{ number_format(($detail->harga_beli ?? 0) * $detail->qty, 0, ',', '.') }}
+                                    </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="3" class="text-center py-5 text-muted">
+                                    <td colspan="7" class="text-center py-5 text-muted">
                                         <i class="bi bi-box-seam fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6 text-dark">Tidak ada rincian barang</div>
                                     </td>

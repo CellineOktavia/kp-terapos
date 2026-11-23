@@ -242,7 +242,7 @@
                                 </span>
                                 <input id="stock-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0"
-                                    value="{{ $filters['search'] ?? '' }}" placeholder="Kode barang, barcode, atau nama barang...">
+                                    value="{{ $filters['search'] ?? '' }}" placeholder="Kode barang atau nama barang...">
                             </div>
                         </div>
 
@@ -298,7 +298,6 @@
                         <thead>
                             <tr>
                                 <th class="ps-4">Kode</th>
-                                <th>Barcode</th>
                                 <th>Nama Barang</th>
                                 <th>Kategori</th>
                                 <th class="text-center">Satuan</th>
@@ -316,9 +315,6 @@
                                         <span class="badge-code">
                                             {{ $product->kode_produk }}
                                         </span>
-                                    </td>
-                                    <td class="font-monospace small text-muted">
-                                        {{ $product->barcode ?? '-' }}
                                     </td>
                                     <td class="fw-bold text-dark">
                                         {{ $product->nama_produk }}
@@ -360,7 +356,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center py-5 text-muted">
+                                    <td colspan="9" class="text-center py-5 text-muted">
                                         <i class="bi bi-archive fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6 text-dark">Tidak ada data persediaan</div>
                                         <p class="small text-muted mb-0">Tidak terdapat barang yang sesuai dengan kriteria

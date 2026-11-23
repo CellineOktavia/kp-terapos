@@ -10,16 +10,13 @@ class CategorySeeder extends Seeder
     public function run(): void
     {
         $categories = [
-            'Lampu & Penerangan',
-            'Kelistrikan',
-            'Kabel & Aksesoris Listrik',
-            'Elektronik Rumah Tangga',
-            'Peralatan Rumah Tangga',
-            'Peralatan Kebersihan',
-            'Kebutuhan Kebersihan',
-            'Peralatan Dapur',
-            'Pecah Belah',
-            'Lain-lain',
+            'Lampu Hannochs Sonic',
+            'Lampu Gepeng / Downlight',
+            'Lampu Hannochs Vario',
+            'Lampu Hannochs Premier',
+            'Gembok',
+            'Kabel',
+            'Stop Kontak',
         ];
 
         foreach ($categories as $name) {

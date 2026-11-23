@@ -115,7 +115,7 @@
         <!-- Header Halaman & Tombol Aksi -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
-                <h3 class="fw-bold text-dark mb-1">Penyesuaian Stok</h3>
+                <h3 class="fw-bold text-dark mb-1">Koreksi Stok</h3>
                 <p class="text-muted small mb-0">Catat koreksi jumlah stok fisik barang dengan alasan yang jelas.</p>
             </div>
             <a href="{{ route('stok.index') }}" class="btn-action-outline">
@@ -137,12 +137,12 @@
             </div>
         @endif
 
-        <!-- Card Form Penyesuaian Stok -->
+        <!-- Card Form Koreksi Stok -->
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="card card-terapos">
                     <div class="card-header-purple">
-                        <i class="bi bi-sliders"></i> Form Penyesuaian Stok
+                        <i class="bi bi-sliders"></i> Form Koreksi Stok
                     </div>
                     <div class="card-body p-4">
                         <form action="{{ route('stok.adjustment.store') }}" method="POST">
@@ -167,9 +167,9 @@
                             </div>
 
                             <div class="row g-3 mb-4">
-                                <!-- Jenis Penyesuaian -->
+                                <!-- Jenis Koreksi -->
                                 <div class="col-md-6">
-                                    <label for="jenis" class="label-title">Jenis Penyesuaian</label>
+                                    <label for="jenis" class="label-title">Jenis Koreksi</label>
                                     <select id="jenis" name="jenis" class="form-select form-select-terapos" required>
                                         <option value="">Pilih jenis...</option>
                                         <option value="masuk" @selected(old('jenis') === 'masuk')>Tambah (+ Stok Masuk)</option>
@@ -186,9 +186,9 @@
                                 </div>
                             </div>
 
-                            <!-- Alasan Penyesuaian -->
+                            <!-- Alasan Koreksi -->
                             <div class="mb-4">
-                                <label for="alasan" class="label-title">Alasan Penyesuaian</label>
+                                <label for="alasan" class="label-title">Alasan Koreksi</label>
                                 <input id="alasan" type="text" name="alasan"
                                     class="form-control form-control-terapos" value="{{ old('alasan') }}" maxlength="200"
                                     required placeholder="Contoh: Barang rusak, selisih opname, atau koreksi stok awal">
@@ -201,7 +201,7 @@
                                     Batal
                                 </a>
                                 <button type="submit" class="btn-submit-purple">
-                                    <i class="bi bi-check-circle-fill"></i> Simpan Penyesuaian
+                                    <i class="bi bi-check-circle-fill"></i> Simpan Koreksi Stok
                                 </button>
                             </div>
                         </form>

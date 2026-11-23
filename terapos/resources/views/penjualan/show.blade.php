@@ -137,9 +137,9 @@
                 </p>
             </div>
             <div class="d-flex gap-2 no-print">
-                <button type="button" onclick="window.print()" class="btn-print-green">
-                    <i class="bi bi-printer-fill"></i> Cetak Struk
-                </button>
+                <a href="{{ route('penjualan.nota', $penjualan) }}" class="btn-print-green">
+                    <i class="bi bi-printer-fill"></i> Cetak Nota
+                </a>
                 <a href="{{ route('penjualan.index') }}" class="btn-action-outline">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>

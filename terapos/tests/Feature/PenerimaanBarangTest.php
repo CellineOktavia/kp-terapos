@@ -6,30 +6,12 @@ use App\Models\PenerimaanBarang;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
-use Database\Seeders\ProductSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class PenerimaanBarangTest extends TestCase
 {
     use RefreshDatabase;
-
-    public function test_demo_catalog_has_150_valid_household_items(): void
-    {
-        $catalog = ProductSeeder::catalog();
-
-        $this->assertCount(150, $catalog);
-
-        foreach ($catalog as $item) {
-            $this->assertGreaterThan($item['harga_beli'], $item['harga_jual']);
-            $this->assertGreaterThanOrEqual(1, $item['stok']);
-            $this->assertGreaterThanOrEqual(1, $item['stok_minimum']);
-            $this->assertDoesNotMatchRegularExpression(
-                '/\b(aki|ban|oli|busi|motor|mobil|truck|truk|sparepart|onderdil)\b|kampas\s+rem|filter\s+(oli|udara)/i',
-                $item['name']
-            );
-        }
-    }
 
     public function test_owner_receipt_increments_stock_and_records_movements(): void
     {
@@ -47,12 +29,14 @@ class PenerimaanBarangTest extends TestCase
             'tanggal' => '2026-11-12',
             'keterangan' => 'Barang masuk',
             'items' => [
-                ['product_id' => $firstProduct->id, 'qty' => 10],
-                ['product_id' => $secondProduct->id, 'qty' => 5],
+                ['product_id' => $firstProduct->id, 'qty' => 10, 'harga_beli' => $firstProduct->harga_beli],
+                ['product_id' => $secondProduct->id, 'qty' => 5, 'harga_beli' => $secondProduct->harga_beli + 100],
             ],
         ]);
 
-        $response->assertRedirect(route('penerimaan.index'));
+        $receiptId = PenerimaanBarang::where('nomor_penerimaan', 'TRM000005')->value('id');
+        $response->assertRedirect(route('penerimaan.show', $receiptId));
+        $response->assertSessionHas('success', 'Penerimaan TRM000005 berhasil. Stok 2 barang telah diperbarui.');
         $this->assertDatabaseHas('penerimaan_barangs', [
             'nomor_penerimaan' => 'TRM000005',
             'user_id' => $owner->id,
@@ -66,6 +50,19 @@ class PenerimaanBarangTest extends TestCase
             'jenis' => 'masuk',
             'qty' => 10,
             'keterangan' => 'Penerimaan Barang TRM000005',
+        ]);
+        $this->assertDatabaseHas('detail_penerimaan_barangs', [
+            'product_id' => $firstProduct->id,
+            'harga_beli' => $firstProduct->harga_beli,
+            'stok_sebelum' => 2,
+            'stok_sesudah' => 12,
+        ]);
+        $this->assertSame((float) $secondProduct->harga_beli + 100, (float) $secondProduct->fresh()->harga_beli);
+        $this->assertDatabaseHas('product_price_histories', [
+            'product_id' => $secondProduct->id,
+            'jenis_harga' => 'beli',
+            'harga_lama' => $secondProduct->harga_beli,
+            'harga_baru' => $secondProduct->harga_beli + 100,
         ]);
     }
 
@@ -85,5 +82,24 @@ class PenerimaanBarangTest extends TestCase
         $this->assertSame(2, $product->fresh()->stok);
         $this->assertDatabaseCount('penerimaan_barangs', 0);
         $this->assertDatabaseCount('stock_movements', 0);
+    }
+
+    public function test_inactive_product_cannot_be_received(): void
+    {
+        $owner = User::factory()->create(['role' => 'owner']);
+        $product = Product::factory()->create(['aktif' => false, 'stok' => 3]);
+
+        $response = $this->actingAs($owner)->post(route('penerimaan.store'), [
+            'tanggal' => '2026-11-12',
+            'items' => [[
+                'product_id' => $product->id,
+                'qty' => 2,
+                'harga_beli' => $product->harga_beli,
+            ]],
+        ]);
+
+        $response->assertSessionHasErrors('items');
+        $this->assertSame(3, $product->fresh()->stok);
+        $this->assertDatabaseCount('penerimaan_barangs', 0);
     }
 }

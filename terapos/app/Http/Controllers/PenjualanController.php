@@ -7,6 +7,7 @@ use App\Models\Penjualan;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,7 @@ class PenjualanController extends Controller
 
     public function create()
     {
-        $products = Product::orderBy('nama_produk')->get();
+        $products = Product::where('aktif', true)->orderBy('nama_produk')->get();
         $generatedNumber = $this->generateNextSaleNumber();
 
         return view('penjualan.create', compact('products', 'generatedNumber'));
@@ -75,6 +76,11 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
+        $request->merge([
+            'bayar' => is_string($request->input('bayar'))
+                ? preg_replace('/[^\d]/', '', $request->input('bayar'))
+                : $request->input('bayar'),
+        ]);
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
             'items' => ['required', 'array', 'min:1'],
@@ -93,7 +99,7 @@ class PenjualanController extends Controller
 
         for ($attempt = 1;; $attempt++) {
             try {
-                DB::transaction(function () use ($validated) {
+                [$saleId, $saleNumber] = DB::transaction(function () use ($validated) {
                     $saleNumber = $this->generateNextSaleNumber();
                     $items = collect($validated['items']);
                     $productIds = $items->pluck('product_id')
@@ -109,9 +115,10 @@ class PenjualanController extends Controller
                         ->get()
                         ->keyBy('id');
 
-                    if ($products->count() !== $productIds->count()) {
+                    if ($products->count() !== $productIds->count()
+                        || $products->contains(fn (Product $product) => !$product->aktif)) {
                         throw ValidationException::withMessages([
-                            'items' => 'Salah satu barang tidak lagi tersedia.',
+                            'items' => 'Salah satu barang tidak lagi aktif atau tersedia.',
                         ]);
                     }
 
@@ -183,6 +190,8 @@ class PenjualanController extends Controller
                         'bayar' => $bayar,
                         'kembalian' => round($bayar - $total, 2),
                     ]);
+
+                    return [$penjualan->id, $saleNumber];
                 });
 
                 break;
@@ -194,8 +203,8 @@ class PenjualanController extends Controller
         }
 
         return redirect()
-            ->route('penjualan.index')
-            ->with('success', 'Penjualan berhasil disimpan.');
+            ->route('penjualan.show', $saleId)
+            ->with('success', "Penjualan {$saleNumber} berhasil disimpan.");
     }
 
     public function show(Penjualan $penjualan)
@@ -208,56 +217,13 @@ class PenjualanController extends Controller
         return view('penjualan.show', compact('penjualan'));
     }
 
-    public function destroy(Penjualan $penjualan)
+    public function receiptPdf(Penjualan $penjualan)
     {
-        if (Auth::user()->role !== 'owner') {
-            abort(403, 'Hanya Owner yang dapat membatalkan transaksi.');
-        }
+        $penjualan->load(['user', 'detailPenjualans.product']);
 
-        DB::transaction(function () use ($penjualan) {
-            $lockedSale = Penjualan::query()
-                ->whereKey($penjualan->id)
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            $details = $lockedSale->detailPenjualans()
-                ->orderBy('product_id')
-                ->get();
-
-            $productIds = $details->pluck('product_id')->unique()->sort()->values();
-
-            $products = Product::query()
-                ->whereIn('id', $productIds)
-                ->orderBy('id')
-                ->lockForUpdate()
-                ->get()
-                ->keyBy('id');
-
-            foreach ($details as $detail) {
-                $product = $products->get($detail->product_id);
-                if (!$product) {
-                    throw ValidationException::withMessages([
-                        'sale' => 'Penjualan tidak dapat dibatalkan karena salah satu produk sudah tidak tersedia.',
-                    ]);
-                }
-
-                $product->stok += $detail->qty;
-                $product->save();
-
-                StockMovement::create([
-                    'product_id' => $product->id,
-                    'jenis' => 'masuk',
-                    'qty' => $detail->qty,
-                    'keterangan' => 'Pembatalan Penjualan ' . $lockedSale->nomor_penjualan,
-                ]);
-            }
-
-            $lockedSale->delete();
-        });
-
-        return redirect()
-            ->route('penjualan.index')
-            ->with('success', 'Penjualan dibatalkan dan stok telah dikembalikan.');
+        return Pdf::loadView('penjualan.receipt-pdf', compact('penjualan'))
+            ->setPaper([0, 0, 226.77, 600], 'portrait')
+            ->download('nota-' . $penjualan->nomor_penjualan . '.pdf');
     }
 
     private function generateNextSaleNumber(): string

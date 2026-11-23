@@ -18,11 +18,11 @@ class StockController extends Controller
         ]);
 
         $products = Product::query()
+            ->where('aktif', true)
             ->with('category')
             ->when($validated['search'] ?? null, function ($query, $search) {
                 $query->where(function ($productQuery) use ($search) {
                     $productQuery->where('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('barcode', 'like', "%{$search}%")
                         ->orWhere('nama_produk', 'like', "%{$search}%");
                 });
             })
@@ -57,7 +57,6 @@ class StockController extends Controller
                 ->when($validated['search'] ?? null, function ($query, $search) {
                     $query->where(function ($productQuery) use ($search) {
                         $productQuery->where('kode_produk', 'like', "%{$search}%")
-                            ->orWhere('barcode', 'like', "%{$search}%")
                             ->orWhere('nama_produk', 'like', "%{$search}%");
                     });
                 })
@@ -114,12 +113,12 @@ class StockController extends Controller
                 'product_id' => $product->id,
                 'jenis' => $validated['jenis'],
                 'qty' => $validated['qty'],
-                'keterangan' => 'Penyesuaian stok: ' . $validated['alasan'],
+                'keterangan' => 'Koreksi stok: ' . $validated['alasan'],
             ]);
         });
 
         return redirect()
             ->route('stok.index')
-            ->with('success', 'Penyesuaian stok berhasil disimpan.');
+            ->with('success', 'Koreksi stok berhasil disimpan.');
     }
 }

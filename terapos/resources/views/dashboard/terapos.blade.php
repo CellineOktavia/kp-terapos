@@ -449,6 +449,29 @@
                 </table>
             </div>
         </div>
+        <div class="card dashboard-card overflow-hidden mt-4">
+            <div class="card-header bg-transparent border-0 d-flex justify-content-between align-items-center pt-3 pt-md-4 px-3 px-md-4 pb-2">
+                <h2 class="h6 fw-bold text-dark mb-0">Penerimaan Terbaru</h2>
+                <a href="{{ route('penerimaan.index') }}" class="btn btn-sm btn-link text-primary text-decoration-none fw-semibold p-0">Semua Penerimaan</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-custom align-middle mb-0">
+                    <thead><tr><th>No. Penerimaan</th><th>Tanggal</th><th>Jenis Barang</th><th>User</th></tr></thead>
+                    <tbody>
+                        @forelse ($latestReceipts ?? [] as $receipt)
+                            <tr>
+                                <td><a href="{{ route('penerimaan.show', $receipt) }}" class="fw-semibold text-primary text-decoration-none">{{ $receipt->nomor_penerimaan }}</a></td>
+                                <td>{{ $receipt->tanggal?->format('d/m/Y') ?? '-' }}</td>
+                                <td>{{ number_format($receipt->detail_penerimaan_barangs_count, 0, ',', '.') }}</td>
+                                <td>{{ $receipt->user?->name ?? '-' }}</td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="4" class="text-center text-muted py-4">Belum ada penerimaan barang.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 @endsection
 

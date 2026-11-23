@@ -326,7 +326,6 @@
         .dashboard-card:hover,
         .summary-card:hover,
         .custom-card:hover {
-            transform: translateY(-6px);
             box-shadow: 0 12px 30px rgba(37, 99, 235, .12);
         }
 
@@ -336,7 +335,6 @@
 
         .table tbody tr:hover {
             background: #eff6ff;
-            transform: scale(1.002);
         }
 
         .btn {
@@ -352,6 +350,19 @@
         .form-select:focus {
             border-color: #2563eb;
             box-shadow: 0 0 0 .15rem rgba(37, 99, 235, .15);
+        }
+
+        .label-title,
+        .info-label {
+            color: #475569 !important;
+        }
+
+        .form-control:focus-visible,
+        .form-select:focus-visible,
+        button:focus-visible,
+        a:focus-visible {
+            outline: 2px solid #2563eb;
+            outline-offset: 2px;
         }
 
         .alert {
@@ -379,6 +390,42 @@
             justify-content: center;
             font-size: 1.85rem;
             margin: 0 auto 16px;
+        }
+
+        .app-sidebar-shell {
+            flex: 0 0 260px;
+            width: 260px;
+            max-width: 260px;
+        }
+
+        .app-main-content {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+
+        @media (max-width: 991.98px) {
+            .app-sidebar-shell {
+                position: absolute;
+                width: 0;
+                max-width: 0;
+                flex: 0 0 0;
+                min-height: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+            }
+
+            .app-main-content {
+                width: 100%;
+                padding: 1rem !important;
+            }
+
+            .user-detail {
+                display: none;
+            }
+
+            .top-navbar {
+                padding: 0 10px;
+            }
         }
     </style>
 </head>
@@ -416,13 +463,13 @@
 
     <div class="container-fluid">
         <div class="row">
-            <aside class="col-md-3 col-lg-2 sidebar-custom min-vh-100 p-3">
+            <aside class="app-sidebar-shell sidebar-custom min-vh-100 p-3">
                 @section('sidebar')
                     @include('app.sidebar')
                 @show
             </aside>
 
-            <main class="col-md-9 col-lg-10 p-4">
+            <main class="app-main-content p-4">
                 @yield('content')
             </main>
         </div>

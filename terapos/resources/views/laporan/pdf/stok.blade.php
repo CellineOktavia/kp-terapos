@@ -163,13 +163,6 @@
             color: #0f172a;
         }
 
-        .barcode-sub {
-            font-family: DejaVu Sans Mono, monospace;
-            font-size: 6.5px;
-            color: #64748b;
-            display: block;
-        }
-
         .right {
             text-align: right;
         }
@@ -295,7 +288,7 @@
         <thead>
             <tr>
                 <th class="center" style="width: 4%;">No</th>
-                <th style="width: 14%;">Kode / Barcode</th>
+                <th style="width: 14%;">Kode Barang</th>
                 <th style="width: 22%;">Nama Barang</th>
                 <th style="width: 13%;">Kategori</th>
                 <th class="right" style="width: 8%;">Stok</th>
@@ -315,7 +308,6 @@
                     <td class="center nowrap">{{ $loop->iteration }}</td>
                     <td class="nowrap">
                         <span class="code-text">{{ $product->kode_produk }}</span>
-                        <span class="barcode-sub">{{ $product->barcode ?? '-' }}</span>
                     </td>
                     <td><strong>{{ $product->nama_produk }}</strong></td>
                     <td>{{ $product->category?->nama_kategori ?? '-' }}</td>

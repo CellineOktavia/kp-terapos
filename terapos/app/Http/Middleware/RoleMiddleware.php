@@ -18,6 +18,7 @@ class RoleMiddleware
 
         if (
             !$user ||
+            !$user->aktif ||
             !in_array($role, $validRoles, true) ||
             $user->role !== $role
         ) {

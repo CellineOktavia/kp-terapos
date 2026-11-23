@@ -218,7 +218,7 @@
                         <div class="col-12">
                             <label for="keterangan" class="label-title">Keterangan</label>
                             <textarea id="keterangan" name="keterangan" rows="2" class="form-control form-control-terapos"
-                                placeholder="Contoh: Barang masuk dari supplier utama">{{ old('keterangan') }}</textarea>
+                                placeholder="Catatan penerimaan (opsional)">{{ old('keterangan') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -237,6 +237,24 @@
                     </button>
                 </div>
                 <div class="card-body p-0">
+                    <div class="row g-2 align-items-end p-3 border-bottom">
+                        <div class="col-md-9">
+                            <label for="receipt-product-search" class="label-title">Cari barang berdasarkan kode atau nama</label>
+                            <input id="receipt-product-search" type="search" list="receipt-product-options"
+                                class="form-control form-control-terapos" placeholder="Ketik kode atau nama barang">
+                            <datalist id="receipt-product-options">
+                                @foreach ($products as $product)
+                                    <option value="{{ $product->kode_produk }} - {{ $product->nama_produk }}"></option>
+                                @endforeach
+                            </datalist>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary w-100" id="add-search-receipt-product">
+                                <i class="bi bi-plus-lg me-1"></i>Tambah Barang
+                            </button>
+                        </div>
+                        <div class="col-12" id="receipt-search-status" role="status" aria-live="polite"></div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-borderless table-terapos mb-0">
                             <thead>
@@ -244,7 +262,10 @@
                                     <th class="ps-4" style="min-width: 300px">Barang</th>
                                     <th width="160">Kode Barang</th>
                                     <th width="160">Stok Saat Ini</th>
+                                    <th width="160">Stok Setelah</th>
                                     <th style="min-width: 140px" width="160">Qty Diterima</th>
+                                    <th style="min-width: 190px">Harga Beli Terakhir</th>
+                                    <th style="min-width: 190px">Harga Beli Baru</th>
                                     <th class="text-center pe-4" width="90">Aksi</th>
                                 </tr>
                             </thead>
@@ -252,12 +273,14 @@
                                 @foreach ($oldItems as $index => $oldItem)
                                     <tr class="receipt-item">
                                         <td class="ps-4">
-                                            <select class="form-select form-select-terapos item-product" required>
+                                            <select class="form-select form-select-terapos item-product" aria-label="Barang" required>
                                                 <option value="">Pilih barang...</option>
                                                 @foreach ($products as $product)
                                                     <option value="{{ $product->id }}"
                                                         data-code="{{ $product->kode_produk }}"
+                                                        data-name="{{ $product->nama_produk }}"
                                                         data-stock="{{ $product->stok }}"
+                                                        data-buy="{{ $product->harga_beli }}"
                                                         data-unit="{{ $product->satuan }}" @selected(($oldItem['product_id'] ?? '') == $product->id)>
                                                         {{ $product->kode_produk }} - {{ $product->nama_produk }}
                                                     </option>
@@ -266,9 +289,16 @@
                                         </td>
                                         <td class="item-code text-muted">-</td>
                                         <td class="item-stock text-muted fw-medium">-</td>
+                                        <td class="item-stock-after fw-semibold">-</td>
                                         <td>
                                             <input type="number" class="form-control form-control-terapos item-qty"
-                                                min="1" value="{{ $oldItem['qty'] ?? 1 }}" required>
+                                                min="1" value="{{ $oldItem['qty'] ?? 1 }}" aria-label="Qty masuk" required>
+                                        </td>
+                                        <td class="item-buy-current text-muted">-</td>
+                                        <td>
+                                            <input type="text" inputmode="numeric"
+                                                class="form-control form-control-terapos item-buy-new"
+                                                value="{{ $oldItem['harga_beli'] ?? '' }}" aria-label="Harga beli baru" required>
                                         </td>
                                         <td class="text-center pe-4">
                                             <button type="button" class="action-btn btn-delete remove-item"
@@ -294,11 +324,12 @@
         <template id="receipt-item-template">
             <tr class="receipt-item">
                 <td class="ps-4">
-                    <select class="form-select form-select-terapos item-product" required>
+                    <select class="form-select form-select-terapos item-product" aria-label="Barang" required>
                         <option value="">Pilih barang...</option>
                         @foreach ($products as $product)
-                            <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}"
-                                data-stock="{{ $product->stok }}" data-unit="{{ $product->satuan }}">
+                            <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}" data-name="{{ $product->nama_produk }}"
+                                data-stock="{{ $product->stok }}" data-buy="{{ $product->harga_beli }}"
+                                data-unit="{{ $product->satuan }}">
                                 {{ $product->kode_produk }} - {{ $product->nama_produk }}
                             </option>
                         @endforeach
@@ -306,9 +337,15 @@
                 </td>
                 <td class="item-code text-muted">-</td>
                 <td class="item-stock text-muted fw-medium">-</td>
+                <td class="item-stock-after fw-semibold">-</td>
                 <td>
                     <input type="number" class="form-control form-control-terapos item-qty" min="1"
-                        value="1" required>
+                        value="1" aria-label="Qty masuk" required>
+                </td>
+                <td class="item-buy-current text-muted">-</td>
+                <td>
+                    <input type="text" inputmode="numeric" class="form-control form-control-terapos item-buy-new"
+                        aria-label="Harga beli baru" required>
                 </td>
                 <td class="text-center pe-4">
                     <button type="button" class="action-btn btn-delete remove-item" title="Hapus Baris">
@@ -326,33 +363,112 @@
             const form = document.getElementById('receipt-form');
             const tbody = document.getElementById('receipt-items');
             const template = document.getElementById('receipt-item-template');
+            const search = document.getElementById('receipt-product-search');
+            const searchStatus = document.getElementById('receipt-search-status');
 
             function updateRow(row) {
                 const select = row.querySelector('.item-product');
                 const option = select.selectedOptions[0];
                 const selected = Boolean(select.value);
                 const codeCell = row.querySelector('.item-code');
+                const qty = Number(row.querySelector('.item-qty').value || 0);
 
                 if (selected) {
                     codeCell.innerHTML = `<span class="product-code-badge">${option.dataset.code}</span>`;
-                    row.querySelector('.item-stock').textContent =
-                        Number(option.dataset.stock).toLocaleString('id-ID') + ' ' + option.dataset.unit;
+                    const stock = Number(option.dataset.stock);
+                    row.querySelector('.item-stock').textContent = stock.toLocaleString('id-ID') + ' ' + option.dataset.unit;
+                    row.querySelector('.item-stock-after').textContent =
+                        (stock + qty).toLocaleString('id-ID') + ' ' + option.dataset.unit;
+                    row.querySelector('.item-buy-current').textContent = currency(option.dataset.buy);
+                    const priceInput = row.querySelector('.item-buy-new');
+                    if (!priceInput.value) priceInput.value = formatPrice(option.dataset.buy);
                 } else {
                     codeCell.textContent = '-';
                     row.querySelector('.item-stock').textContent = '-';
+                    row.querySelector('.item-stock-after').textContent = '-';
+                    row.querySelector('.item-buy-current').textContent = '-';
                 }
+            }
+
+            function formatPrice(value) {
+                const digits = String(value || '').replace(/\D/g, '');
+                return digits ? Number(digits).toLocaleString('id-ID') : '';
+            }
+
+            function currency(value) {
+                return 'Rp ' + Number(value || 0).toLocaleString('id-ID');
+            }
+
+            function notify(message, type) {
+                searchStatus.innerHTML = '';
+                const alert = document.createElement('div');
+                alert.className = 'alert alert-' + type + ' py-2 mb-0';
+                alert.textContent = message;
+                searchStatus.appendChild(alert);
             }
 
             function reindexRows() {
                 tbody.querySelectorAll('.receipt-item').forEach(function(row, index) {
                     row.querySelector('.item-product').name = 'items[' + index + '][product_id]';
                     row.querySelector('.item-qty').name = 'items[' + index + '][qty]';
+                    row.querySelector('.item-buy-new').name = 'items[' + index + '][harga_beli]';
                 });
+            }
+
+            function addSearchedProduct() {
+                const term = search.value.trim().toLocaleLowerCase('id-ID');
+                if (!term) return;
+                const options = Array.from(template.content.querySelectorAll('.item-product option')).filter(option => option.value);
+                const matches = options.filter(option =>
+                    (option.dataset.code + ' - ' + option.dataset.name).toLocaleLowerCase('id-ID') === term
+                    || option.dataset.code.toLocaleLowerCase('id-ID') === term
+                    || option.dataset.name.toLocaleLowerCase('id-ID') === term
+                );
+                if (matches.length !== 1) {
+                    notify(matches.length ? 'Pencarian cocok dengan beberapa barang. Pilih kode dan nama lengkap dari saran.' : 'Barang tidak ditemukan.', matches.length ? 'warning' : 'danger');
+                    return;
+                }
+                const productId = matches[0].value;
+                if (Array.from(tbody.querySelectorAll('.item-product')).some(select => select.value === productId)) {
+                    notify('Barang yang sama tidak boleh ditambahkan dua kali pada satu penerimaan.', 'warning');
+                    return;
+                }
+                let row = Array.from(tbody.querySelectorAll('.receipt-item'))
+                    .find(item => !item.querySelector('.item-product').value);
+                if (!row) {
+                    document.getElementById('add-item').click();
+                    row = tbody.lastElementChild;
+                }
+                row.querySelector('.item-product').value = productId;
+                updateRow(row);
+                reindexRows();
+                notify(matches[0].dataset.name + ' ditambahkan. Periksa stok dan harga sebelum menyimpan.', 'success');
+                search.value = '';
+                search.focus();
             }
 
             tbody.addEventListener('change', function(event) {
                 if (event.target.matches('.item-product')) {
                     updateRow(event.target.closest('.receipt-item'));
+                }
+                if (event.target.matches('.item-qty')) updateRow(event.target.closest('.receipt-item'));
+                if (event.target.matches('.item-buy-new')) {
+                    event.target.value = formatPrice(event.target.value);
+                }
+            });
+            tbody.addEventListener('input', function(event) {
+                if (event.target.matches('.item-qty')) updateRow(event.target.closest('.receipt-item'));
+                if (event.target.matches('.item-buy-new')) {
+                    const start = event.target.selectionStart;
+                    const before = event.target.value.slice(0, start).replace(/\D/g, '').length;
+                    event.target.value = formatPrice(event.target.value);
+                    let position = 0;
+                    let digits = 0;
+                    while (position < event.target.value.length && digits < before) {
+                        if (/\d/.test(event.target.value[position])) digits++;
+                        position++;
+                    }
+                    event.target.setSelectionRange(position, position);
                 }
             });
 
@@ -365,6 +481,7 @@
                 if (rows.length === 1) {
                     row.querySelector('.item-product').value = '';
                     row.querySelector('.item-qty').value = 1;
+                    row.querySelector('.item-buy-new').value = '';
                     updateRow(row);
                 } else {
                     row.remove();
@@ -376,8 +493,21 @@
                 tbody.appendChild(template.content.firstElementChild.cloneNode(true));
                 reindexRows();
             });
+            document.getElementById('add-search-receipt-product').addEventListener('click', addSearchedProduct);
+            search.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    addSearchedProduct();
+                }
+            });
 
-            form.addEventListener('submit', reindexRows);
+            form.addEventListener('submit', function() {
+                reindexRows();
+                form.querySelectorAll('.item-buy-new').forEach(function(input) {
+                    input.value = input.value.replace(/\D/g, '');
+                });
+                form.querySelector('button[type="submit"]').disabled = true;
+            });
             tbody.querySelectorAll('.receipt-item').forEach(updateRow);
             reindexRows();
         });

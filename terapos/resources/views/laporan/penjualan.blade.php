@@ -377,47 +377,30 @@
             ])
         </div>
 
-        <!-- Ringkasan Statistik Laporan (3 Kolom) -->
+        <!-- Ringkasan Statistik Laporan -->
         <div class="row g-4 mb-4">
-            <div class="col-md-4">
+            <div class="col-lg-3 col-sm-6">
                 <div class="stat-card-report stat-card-emerald border-start border-success border-4">
-                    <div>
-                        <span class="label-title text-success">Total Omzet Penjualan</span>
-                        <div class="stat-value text-success tabular-nums">
-                            Rp {{ number_format($summary['total'], 0, ',', '.') }}
-                        </div>
-                    </div>
-                    <div class="stat-icon-box" style="background-color: #dcfce7; color: #15803d;">
-                        <i class="bi bi-cash-stack"></i>
-                    </div>
+                    <div><span class="label-title text-success">Omzet Bersih</span><div class="stat-value text-success tabular-nums">Rp {{ number_format($summary['total'], 0, ',', '.') }}</div></div>
+                    <div class="stat-icon-box" style="background-color: #dcfce7; color: #15803d;"><i class="bi bi-cash-stack"></i></div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 col-sm-6">
                 <div class="stat-card-report border-start border-primary border-4">
-                    <div>
-                        <span class="label-title text-primary">Total Transaksi</span>
-                        <div class="stat-value text-dark tabular-nums">
-                            {{ number_format($summary['transactions'], 0, ',', '.') }}
-                            <span class="fs-6 fw-normal text-muted">Transaksi</span>
-                        </div>
-                    </div>
-                    <div class="stat-icon-box" style="background-color: #dbeafe; color: #2563eb;">
-                        <i class="bi bi-receipt"></i>
-                    </div>
+                    <div><span class="label-title text-primary">Jumlah Transaksi</span><div class="stat-value text-dark tabular-nums">{{ number_format($summary['transactions'], 0, ',', '.') }}</div></div>
+                    <div class="stat-icon-box" style="background-color: #dbeafe; color: #2563eb;"><i class="bi bi-receipt"></i></div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-lg-3 col-sm-6">
                 <div class="stat-card-report border-start border-info border-4">
-                    <div>
-                        <span class="label-title" style="color: #0891b2;">Total Item Terjual</span>
-                        <div class="stat-value text-dark tabular-nums">
-                            {{ number_format($summary['qty'], 0, ',', '.') }}
-                            <span class="fs-6 fw-normal text-muted">pcs</span>
-                        </div>
-                    </div>
-                    <div class="stat-icon-box" style="background-color: #cffafe; color: #0891b2;">
-                        <i class="bi bi-box-seam"></i>
-                    </div>
+                    <div><span class="label-title" style="color: #0891b2;">Barang Terjual</span><div class="stat-value text-dark tabular-nums">{{ number_format($summary['qty'], 0, ',', '.') }}</div></div>
+                    <div class="stat-icon-box" style="background-color: #cffafe; color: #0891b2;"><i class="bi bi-box-seam"></i></div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6">
+                <div class="stat-card-report border-start border-warning border-4">
+                    <div><span class="label-title text-warning">Total Diskon</span><div class="stat-value text-dark tabular-nums">Rp {{ number_format($summary['discount'], 0, ',', '.') }}</div></div>
+                    <div class="stat-icon-box" style="background-color: #fef3c7; color: #b45309;"><i class="bi bi-percent"></i></div>
                 </div>
             </div>
         </div>

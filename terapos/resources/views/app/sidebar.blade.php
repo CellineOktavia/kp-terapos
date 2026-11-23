@@ -186,7 +186,9 @@
 </style>
 
 @php
-    $criticalStockCount = \App\Models\Product::whereColumn('stok', '<=', 'stok_minimum')->count();
+    $criticalStockCount = \App\Models\Product::where('aktif', true)
+        ->whereColumn('stok', '<=', 'stok_minimum')
+        ->count();
     $isOwner = auth()->user()->isOwner();
 @endphp
 
@@ -297,7 +299,7 @@
                 class="list-group-item list-group-item-action {{ request()->routeIs('stok.adjustment*') ? 'active' : '' }}">
                 <div class="sidebar-item-left">
                     <i class="bi bi-sliders"></i>
-                    <span>Penyesuaian Stok</span>
+                    <span>Koreksi Stok</span>
                 </div>
             </a>
         @endif
@@ -310,6 +312,13 @@
                 <div class="sidebar-item-left">
                     <i class="bi bi-graph-up-arrow"></i>
                     <span>Laporan Penjualan</span>
+                </div>
+            </a>
+            <a href="{{ route('laporan.barang-masuk') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('laporan.barang-masuk*') ? 'active' : '' }}">
+                <div class="sidebar-item-left">
+                    <i class="bi bi-box-arrow-in-down"></i>
+                    <span>Laporan Barang Masuk</span>
                 </div>
             </a>
             <a href="{{ route('laporan.stok') }}"
@@ -351,6 +360,14 @@
 
         <!-- Sistem (Khusus Owner) -->
         @if ($isOwner)
+            <div class="sidebar-title">Manajemen</div>
+            <a href="{{ route('users.index') }}"
+                class="list-group-item list-group-item-action {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <div class="sidebar-item-left">
+                    <i class="bi bi-people"></i>
+                    <span>Manajemen User</span>
+                </div>
+            </a>
             <div class="sidebar-title">Sistem</div>
             <a href="{{ route('backup.index') }}"
                 class="list-group-item list-group-item-action {{ request()->is('backup*') ? 'active' : '' }}">
