@@ -1,6 +1,7 @@
 <?php
 
 // Extracted from Data_Master_Barang_Owner_v2.xlsx, sheet 'Data Master Barang'.
+// Source SHA-256: EBE4C7E28AB474F567265E22B1206F7E24042261C2874628793652FCD2B5F1DA
 return [
     [
         'kode_produk' => '0001',
@@ -889,7 +890,7 @@ return [
         'stok' => 1,
         'harga_beli' => 210000,
         'harga_jual' => 250000,
-        'merk' => 'PRABA/Supreme',
+        'merk' => null,
         'satuan' => 'roll',
     ],
     [
@@ -899,7 +900,7 @@ return [
         'stok' => 1,
         'harga_beli' => 380000,
         'harga_jual' => 450000,
-        'merk' => 'PRABA/Supreme',
+        'merk' => null,
         'satuan' => 'roll',
     ],
     [

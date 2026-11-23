@@ -11,6 +11,17 @@ class OwnerProductMasterDatasetTest extends TestCase
         return require database_path('seeders/data/owner_product_master.php');
     }
 
+    public function test_dataset_is_pinned_to_the_owner_workbook_version(): void
+    {
+        $source = database_path('seeders/data/Data_Master_Barang_Owner_v2.xlsx');
+
+        $this->assertFileExists($source);
+        $this->assertSame(
+            'ebe4c7e28ab474f567265e22b1206f7e24042261c2874628793652fcd2b5f1da',
+            hash_file('sha256', $source)
+        );
+    }
+
     public function test_owner_dataset_has_150_unique_products_and_expected_category_counts(): void
     {
         $products = $this->products();
