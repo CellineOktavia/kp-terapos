@@ -37,6 +37,8 @@ class LaporanController extends Controller
             ->with(['user', 'detailPenjualans'])
             ->withCount('detailPenjualans')
             ->withSum('detailPenjualans', 'qty')
+            ->withSum('returnedDetails as returned_qty', 'qty')
+            ->withSum('returns as returned_amount', 'refund_amount')
             ->orderByDesc('tanggal')
             ->orderByDesc('id')
             ->paginate(25)
@@ -144,6 +146,7 @@ class LaporanController extends Controller
         $period = $this->resolvePeriod($request);
         $penjualans = $this->saleQuery($period['start'], $period['end'])
             ->with(['user', 'detailPenjualans.product'])
+            ->withSum('returns as returned_amount', 'refund_amount')
             ->orderByDesc('tanggal')
             ->orderByDesc('id')
             ->get();
@@ -289,15 +292,22 @@ class LaporanController extends Controller
     private function saleSummary(Carbon $start, Carbon $end): array
     {
         $query = $this->saleQuery($start, $end);
+        $dateRange = [$start->toDateString(), $end->toDateString()];
+        $netTotal = DB::table('penjualans as p')
+            ->whereBetween('p.tanggal', $dateRange)
+            ->selectRaw('COALESCE(SUM(p.total - COALESCE((SELECT SUM(r.refund_amount) FROM penjualan_returns r WHERE r.penjualan_id = p.id), 0)), 0) as net_total')
+            ->value('net_total');
+        $netQuantity = DB::table('detail_penjualans as d')
+            ->join('penjualans as p', 'd.penjualan_id', '=', 'p.id')
+            ->whereBetween('p.tanggal', $dateRange)
+            ->selectRaw('COALESCE(SUM(d.qty - COALESCE((SELECT SUM(r.qty) FROM detail_penjualan_returns r WHERE r.detail_penjualan_id = d.id), 0)), 0) as net_quantity')
+            ->value('net_quantity');
 
         return [
-            'total' => (float) (clone $query)->sum('total'),
-            'discount' => (float) (clone $query)->sum('diskon_nominal'),
+            'total' => (float) $netTotal,
+            'discount' => (float) (clone $query)->sum(DB::raw('diskon_nominal + cross_subsidy_amount')),
             'transactions' => (clone $query)->count(),
-            'qty' => (int) DB::table('detail_penjualans')
-                ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
-                ->whereBetween('penjualans.tanggal', [$start->toDateString(), $end->toDateString()])
-                ->sum('detail_penjualans.qty'),
+            'qty' => (int) $netQuantity,
         ];
     }
 

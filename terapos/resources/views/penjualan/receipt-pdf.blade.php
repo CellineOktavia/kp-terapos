@@ -46,6 +46,9 @@
     <table class="totals">
         <tr><td>Subtotal</td><td class="right">Rp {{ number_format($subtotal, 0, ',', '.') }}</td></tr>
         <tr><td>Diskon</td><td class="right">Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}</td></tr>
+        @if ((float) $penjualan->cross_subsidy_amount > 0)
+            <tr><td>Subsidi Silang</td><td class="right">Rp {{ number_format($penjualan->cross_subsidy_amount, 0, ',', '.') }}</td></tr>
+        @endif
         <tr class="grand-total"><td>Total</td><td class="right">Rp {{ number_format($penjualan->total, 0, ',', '.') }}</td></tr>
         <tr><td>Bayar</td><td class="right">Rp {{ number_format($penjualan->bayar, 0, ',', '.') }}</td></tr>
         <tr><td>Kembalian</td><td class="right">Rp {{ number_format($penjualan->kembalian, 0, ',', '.') }}</td></tr>

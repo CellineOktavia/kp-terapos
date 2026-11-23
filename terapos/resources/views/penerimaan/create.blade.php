@@ -239,14 +239,12 @@
                 <div class="card-body p-0">
                     <div class="row g-2 align-items-end p-3 border-bottom">
                         <div class="col-md-9">
-                            <label for="receipt-product-search" class="label-title">Cari barang berdasarkan kode atau nama</label>
-                            <input id="receipt-product-search" type="search" list="receipt-product-options"
-                                class="form-control form-control-terapos" placeholder="Ketik kode atau nama barang">
-                            <datalist id="receipt-product-options">
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->kode_produk }} - {{ $product->nama_produk }}"></option>
-                                @endforeach
-                            </datalist>
+                            <label for="receipt-product-search" class="label-title">Cari kode, nama, merk, atau kategori</label>
+                            <input id="receipt-product-search" type="search"
+                                class="form-control form-control-terapos"
+                                placeholder="Ketik kode, nama, merk, atau kategori..."
+                                autocomplete="off" aria-controls="receipt-product-results" aria-autocomplete="list">
+                            <div id="receipt-product-results" class="list-group mt-2" role="listbox"></div>
                         </div>
                         <div class="col-md-3">
                             <button type="button" class="btn btn-primary w-100" id="add-search-receipt-product">
@@ -279,6 +277,8 @@
                                                     <option value="{{ $product->id }}"
                                                         data-code="{{ $product->kode_produk }}"
                                                         data-name="{{ $product->nama_produk }}"
+                                                        data-brand="{{ $product->merk }}"
+                                                        data-category="{{ $product->category?->nama_kategori }}"
                                                         data-stock="{{ $product->stok }}"
                                                         data-buy="{{ $product->harga_beli }}"
                                                         data-unit="{{ $product->satuan }}" @selected(($oldItem['product_id'] ?? '') == $product->id)>
@@ -327,7 +327,9 @@
                     <select class="form-select form-select-terapos item-product" aria-label="Barang" required>
                         <option value="">Pilih barang...</option>
                         @foreach ($products as $product)
-                            <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}" data-name="{{ $product->nama_produk }}"
+                            <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}"
+                                data-name="{{ $product->nama_produk }}" data-brand="{{ $product->merk }}"
+                                data-category="{{ $product->category?->nama_kategori }}"
                                 data-stock="{{ $product->stok }}" data-buy="{{ $product->harga_beli }}"
                                 data-unit="{{ $product->satuan }}">
                                 {{ $product->kode_produk }} - {{ $product->nama_produk }}
@@ -364,7 +366,9 @@
             const tbody = document.getElementById('receipt-items');
             const template = document.getElementById('receipt-item-template');
             const search = document.getElementById('receipt-product-search');
+            const productResults = document.getElementById('receipt-product-results');
             const searchStatus = document.getElementById('receipt-search-status');
+            let searchMatches = [];
 
             function updateRow(row) {
                 const select = row.querySelector('.item-product');
@@ -415,41 +419,124 @@
                 });
             }
 
-            function addSearchedProduct() {
+            function renderSearchResults() {
                 const term = search.value.trim().toLocaleLowerCase('id-ID');
+                productResults.replaceChildren();
+                searchMatches = [];
                 if (!term) return;
+
                 const options = Array.from(template.content.querySelectorAll('.item-product option')).filter(option => option.value);
-                const matches = options.filter(option =>
-                    (option.dataset.code + ' - ' + option.dataset.name).toLocaleLowerCase('id-ID') === term
-                    || option.dataset.code.toLocaleLowerCase('id-ID') === term
-                    || option.dataset.name.toLocaleLowerCase('id-ID') === term
+                const exact = options.find(option => [
+                    option.dataset.code,
+                    option.dataset.name,
+                    option.dataset.code + ' - ' + option.dataset.name,
+                ].some(value => value.toLocaleLowerCase('id-ID') === term));
+                const matches = exact ? [exact] : options.filter(option => [
+                    option.dataset.code,
+                    option.dataset.name,
+                    option.dataset.brand,
+                    option.dataset.category,
+                ].some(value => (value || '').toLocaleLowerCase('id-ID').includes(term)));
+                searchMatches = matches.slice(0, 10);
+
+                if (!searchMatches.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'list-group-item small text-muted';
+                    empty.textContent = 'Barang tidak ditemukan.';
+                    productResults.appendChild(empty);
+                    return;
+                }
+
+                searchMatches.forEach(function(option) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'list-group-item list-group-item-action text-start';
+                    button.setAttribute('role', 'option');
+                    button.dataset.productId = option.value;
+                    const title = document.createElement('div');
+                    title.className = 'fw-semibold';
+                    title.textContent = option.dataset.code + ' - ' + option.dataset.name;
+                    const details = document.createElement('div');
+                    details.className = 'small text-muted';
+                    details.textContent = [
+                        option.dataset.brand,
+                        option.dataset.category,
+                        'Stok ' + option.dataset.stock + ' ' + option.dataset.unit,
+                    ].filter(Boolean).join(' · ');
+                    button.append(title, details);
+                    productResults.appendChild(button);
+                });
+            }
+
+            function selectReceiptProduct(productId) {
+                const option = Array.from(template.content.querySelectorAll('.item-product option'))
+                    .find(item => item.value === String(productId));
+                if (!option) {
+                    notify('Barang tidak ditemukan.', 'danger');
+                    return;
+                }
+
+                const existingRow = Array.from(tbody.querySelectorAll('.receipt-item')).find(
+                    row => row.querySelector('.item-product').value === String(productId)
                 );
-                if (matches.length !== 1) {
-                    notify(matches.length ? 'Pencarian cocok dengan beberapa barang. Pilih kode dan nama lengkap dari saran.' : 'Barang tidak ditemukan.', matches.length ? 'warning' : 'danger');
+                if (existingRow) {
+                    const quantity = existingRow.querySelector('.item-qty');
+                    quantity.value = Number(quantity.value || 0) + 1;
+                    updateRow(existingRow);
+                    notify(option.dataset.name + ' ditambahkan ke baris yang sama. Qty: ' + quantity.value + '.', 'success');
+                    search.value = '';
+                    productResults.replaceChildren();
+                    searchMatches = [];
+                    search.focus();
                     return;
                 }
-                const productId = matches[0].value;
-                if (Array.from(tbody.querySelectorAll('.item-product')).some(select => select.value === productId)) {
-                    notify('Barang yang sama tidak boleh ditambahkan dua kali pada satu penerimaan.', 'warning');
-                    return;
-                }
+
                 let row = Array.from(tbody.querySelectorAll('.receipt-item'))
                     .find(item => !item.querySelector('.item-product').value);
                 if (!row) {
                     document.getElementById('add-item').click();
                     row = tbody.lastElementChild;
                 }
-                row.querySelector('.item-product').value = productId;
+                row.querySelector('.item-product').value = String(productId);
                 updateRow(row);
                 reindexRows();
-                notify(matches[0].dataset.name + ' ditambahkan. Periksa stok dan harga sebelum menyimpan.', 'success');
+                notify(option.dataset.name + ' ditambahkan. Stok saat ini: ' + option.dataset.stock + ' ' +
+                    option.dataset.unit + '. Periksa harga sebelum menyimpan.', 'success');
                 search.value = '';
+                productResults.replaceChildren();
+                searchMatches = [];
                 search.focus();
+            }
+
+            function addSearchedProduct() {
+                if (!search.value.trim()) return;
+                if (searchMatches.length === 1) {
+                    selectReceiptProduct(searchMatches[0].value);
+                    return;
+                }
+                notify(
+                    searchMatches.length ? 'Pilih barang dari hasil pencarian.' : 'Barang tidak ditemukan.',
+                    searchMatches.length ? 'warning' : 'danger'
+                );
             }
 
             tbody.addEventListener('change', function(event) {
                 if (event.target.matches('.item-product')) {
-                    updateRow(event.target.closest('.receipt-item'));
+                    const row = event.target.closest('.receipt-item');
+                    const productId = event.target.value;
+                    const duplicateRow = productId && Array.from(tbody.querySelectorAll('.receipt-item'))
+                        .find(other => other !== row && other.querySelector('.item-product').value === productId);
+                    if (duplicateRow) {
+                        const existingQty = duplicateRow.querySelector('.item-qty');
+                        existingQty.value = Number(existingQty.value || 0) +
+                            Number(row.querySelector('.item-qty').value || 0);
+                        row.remove();
+                        updateRow(duplicateRow);
+                        reindexRows();
+                        notify('Barang yang sama digabung ke satu baris. Qty: ' + existingQty.value + '.', 'success');
+                        return;
+                    }
+                    updateRow(row);
                 }
                 if (event.target.matches('.item-qty')) updateRow(event.target.closest('.receipt-item'));
                 if (event.target.matches('.item-buy-new')) {
@@ -494,10 +581,17 @@
                 reindexRows();
             });
             document.getElementById('add-search-receipt-product').addEventListener('click', addSearchedProduct);
+            search.addEventListener('input', renderSearchResults);
+            productResults.addEventListener('click', function(event) {
+                const button = event.target.closest('button[data-product-id]');
+                if (button) selectReceiptProduct(button.dataset.productId);
+            });
             search.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     event.preventDefault();
                     addSearchedProduct();
+                } else if (event.key === 'Escape') {
+                    productResults.replaceChildren();
                 }
             });
 

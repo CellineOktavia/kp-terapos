@@ -161,17 +161,18 @@
                 <div class="card-body">
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label for="kode_produk" class="info-label">Kode Barang</label>
-                            <input id="kode_produk" type="text" name="kode_produk"
-                                class="form-control form-control-terapos form-control-readonly" value="{{ $generatedCode }}"
-                                required readonly>
-                            <small class="text-muted d-block mt-1" style="font-size: .78rem;">*Dibuat otomatis oleh
-                                sistem.</small>
+                            <label for="kode_dasar" class="info-label">Kode Dasar</label>
+                            <input id="kode_dasar" type="text" name="kode_dasar"
+                                class="form-control form-control-terapos" value="{{ old('kode_dasar') }}"
+                                placeholder="Contoh: snc3w" required>
+                            <small class="text-muted d-block mt-1" style="font-size: .78rem;">Preview kode: <span
+                                    id="kode-preview">-</span>. Kode final ditentukan server.</small>
                         </div>
                         <div class="col-md-6">
                             <label for="nama_produk" class="info-label">Nama Barang</label>
                             <input id="nama_produk" type="text" name="nama_produk" class="form-control form-control-terapos"
                                 value="{{ old('nama_produk') }}" placeholder="Masukkan nama barang" required>
+                            <div id="product-suggestions" class="list-group mt-2 small" role="status" aria-live="polite"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="category_id" class="info-label">Kategori</label>
@@ -197,11 +198,6 @@
                                     </option>
                                 @endforeach
                             </select>
-                        </div>
-                        <div class="col-12">
-                            <label for="deskripsi" class="info-label">Deskripsi</label>
-                            <textarea id="deskripsi" name="deskripsi" rows="3" class="form-control form-control-terapos"
-                                placeholder="Tambah deskripsi barang (opsional)...">{{ old('deskripsi') }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -277,9 +273,22 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const base = document.querySelector('[name="kode_dasar"]');
+            const name = document.querySelector('[name="nama_produk"]');
             const buy = document.querySelector('[name="harga_beli"]');
             const sell = document.querySelector('[name="harga_jual"]');
             const form = buy.closest('form');
+            const suggestions = document.getElementById('product-suggestions');
+            const productUrl = @js(url('/produk'));
+            const existingProducts = @js($existingProducts->map(fn ($product) => [
+                'id' => $product->id,
+                'code' => $product->kode_produk,
+                'name' => $product->nama_produk,
+                'brand' => $product->merk,
+                'category' => $product->category?->nama_kategori,
+                'price' => $product->harga_jual,
+            ])->values());
+            let currentMatches = [];
             const warning = document.createElement('div');
             warning.className = 'alert alert-warning mt-3 mb-0';
             warning.textContent = 'Peringatan: harga jual berada di bawah harga beli terakhir. Pastikan harga ini merupakan keputusan Owner/subsidi silang.';
@@ -292,15 +301,85 @@
             function check() {
                 warning.hidden = Number(sell.value.replace(/\D/g, '') || 0) >= Number(buy.value.replace(/\D/g, '') || 0);
             }
+            function updateCodePreview() {
+                const codeBase = base.value.toLowerCase().replace(/\s+/g, '');
+                const price = Number(sell.value.replace(/\D/g, '') || 0);
+                const suffix = (price / 1000).toFixed(3).replace(/\.?0+$/, '');
+                const code = codeBase && price ? codeBase + '-' + suffix : '';
+                document.getElementById('kode-preview').textContent = code || '-';
+                updateSuggestions(code);
+            }
+            function updateSuggestions(code) {
+                const nameTerm = name.value.trim().toLocaleLowerCase('id-ID');
+                const codeTerm = base.value.trim().toLocaleLowerCase('id-ID').replace(/\s+/g, '');
+                const generatedCode = code.toLocaleLowerCase('id-ID');
+                suggestions.replaceChildren();
+                currentMatches = [];
+
+                if (nameTerm.length < 2 && codeTerm.length < 2) return;
+
+                currentMatches = existingProducts.map(function(product) {
+                    const productName = product.name.toLocaleLowerCase('id-ID');
+                    const productCode = product.code.toLocaleLowerCase('id-ID');
+                    let score = Infinity;
+                    if (nameTerm.length >= 2 && productName === nameTerm) score = 0;
+                    else if (generatedCode && productCode === generatedCode) score = 0;
+                    else if (nameTerm.length >= 2 && productName.includes(nameTerm)) score = 1;
+                    else if (codeTerm.length >= 2 && productCode.includes(codeTerm)) score = 2;
+                    return score === Infinity ? null : { product, score };
+                }).filter(Boolean).sort((a, b) => a.score - b.score).slice(0, 5);
+
+                if (!currentMatches.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'text-muted';
+                    empty.textContent = 'Tidak ditemukan nama atau kode barang yang mirip.';
+                    suggestions.appendChild(empty);
+                    return;
+                }
+
+                currentMatches.forEach(function(match) {
+                    const product = match.product;
+                    const item = document.createElement('a');
+                    item.className = 'list-group-item list-group-item-action py-2';
+                    item.href = productUrl + '/' + product.id;
+                    const title = document.createElement('div');
+                    title.className = 'fw-semibold';
+                    title.textContent = product.code + ' - ' + product.name;
+                    const details = document.createElement('div');
+                    details.className = 'text-muted';
+                    details.textContent = [product.brand, product.category, 'Rp ' +
+                        Number(product.price).toLocaleString('id-ID')
+                    ].filter(Boolean).join(' · ');
+                    item.append(title, details);
+                    suggestions.appendChild(item);
+                });
+            }
             [buy, sell].forEach(input => input.addEventListener('input', function() {
                 format(this);
                 check();
             }));
-            form.addEventListener('submit', function() {
+            [base, name, sell].forEach(input => input.addEventListener('input', updateCodePreview));
+            form.addEventListener('submit', function(event) {
+                const nameTerm = name.value.trim().toLocaleLowerCase('id-ID');
+                const code = document.getElementById('kode-preview').textContent.toLocaleLowerCase('id-ID');
+                const exactMatch = currentMatches.some(match =>
+                    match.product.name.toLocaleLowerCase('id-ID') === nameTerm ||
+                    match.product.code.toLocaleLowerCase('id-ID') === code
+                );
+                if (exactMatch) {
+                    event.preventDefault();
+                    window.alert('Nama atau kode barang yang sama sudah tersedia. Periksa rekomendasi sebelum menyimpan.');
+                    return;
+                }
+                if (currentMatches.length && !window.confirm('Ditemukan produk dengan nama atau kode yang mirip. Tetap simpan barang baru?')) {
+                    event.preventDefault();
+                    return;
+                }
                 [buy, sell].forEach(input => input.value = input.value.replace(/\D/g, ''));
                 form.querySelector('button[type="submit"]').disabled = true;
             });
             check();
+            updateCodePreview();
         });
     </script>
 @endpush

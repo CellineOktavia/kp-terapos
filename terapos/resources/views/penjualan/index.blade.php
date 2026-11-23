@@ -292,6 +292,7 @@
                             <tr>
                                 <th class="ps-4">No. Penjualan</th>
                                 <th>Tanggal</th>
+                                <th>Status</th>
                                 <th class="text-center">Jenis Item</th>
                                 <th class="text-center">Total Qty</th>
                                 <th class="text-end">Total Penjualan</th>
@@ -310,15 +311,26 @@
                                     <td class="fw-semibold text-dark">
                                         {{ \Carbon\Carbon::parse($penjualan->tanggal)->translatedFormat('d M Y') }}
                                     </td>
+                                    <td>
+                                        <span class="badge {{ $penjualan->status === 'completed' ? 'bg-success' : 'bg-secondary' }}">
+                                            {{ match ($penjualan->status) {
+                                                'completed' => 'Selesai',
+                                                'partially_returned' => 'Retur Sebagian',
+                                                'returned' => 'Diretur',
+                                                'cancelled' => 'Dibatalkan',
+                                                default => $penjualan->status,
+                                            } }}
+                                        </span>
+                                    </td>
                                     <td class="text-center text-muted fw-semibold">
                                         {{ $penjualan->detail_penjualans_count }} Jenis
                                     </td>
                                     <td class="text-center text-muted fw-semibold">
-                                        {{ number_format($penjualan->detail_penjualans_sum_qty ?? 0, 0, ',', '.') }} pcs
+                                        {{ number_format(max(0, (int) ($penjualan->detail_penjualans_sum_qty ?? 0) - (int) ($penjualan->returned_qty ?? 0)), 0, ',', '.') }} pcs
                                     </td>
                                     <td class="text-end">
                                         <span class="amount-badge">
-                                            Rp {{ number_format($penjualan->total, 0, ',', '.') }}
+                                            Rp {{ number_format(max(0, (float) $penjualan->total - (float) $penjualan->returned_amount), 0, ',', '.') }}
                                         </span>
                                     </td>
                                     <td>
@@ -336,7 +348,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="8" class="text-center py-5 text-muted">
                                         <i class="bi bi-receipt fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6">Belum ada data transaksi</div>
                                         <p class="small text-muted mb-0">Tidak ada transaksi yang cocok dengan kriteria

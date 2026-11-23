@@ -1,10 +1,10 @@
 <?php
 
-// Extracted from Data_Master_Barang_Owner_v2.xlsx, sheet 'Data Master Barang'.
-// Source SHA-256: EBE4C7E28AB474F567265E22B1206F7E24042261C2874628793652FCD2B5F1DA
+// Extracted from Data_Master_Toko_Terang_Abadi_v4.xlsx, sheet 'Data Master Barang'.
+// Source SHA-256: DA278A4ED242047B97A15F9B8A1BE2FF81D4615075D901EDAF2A3A202CEC5748
 return [
     [
-        'kode_produk' => '0001',
+        'kode_produk' => 'snc3w-15',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 3W',
         'stok' => 86,
@@ -14,7 +14,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0002',
+        'kode_produk' => 'snc5w-17',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 5W',
         'stok' => 76,
@@ -24,7 +24,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0003',
+        'kode_produk' => 'snc7w-20',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 7W',
         'stok' => 52,
@@ -34,7 +34,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0004',
+        'kode_produk' => 'snc9w-23',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 9W',
         'stok' => 28,
@@ -44,7 +44,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0005',
+        'kode_produk' => 'snc12w-27',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 12W',
         'stok' => 54,
@@ -54,7 +54,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0006',
+        'kode_produk' => 'snc15w-35',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 15W',
         'stok' => 71,
@@ -64,7 +64,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0007',
+        'kode_produk' => 'snc20w-40',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 20W',
         'stok' => 25,
@@ -74,7 +74,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0008',
+        'kode_produk' => 'snc25w-56',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 25W',
         'stok' => 50,
@@ -84,7 +84,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0009',
+        'kode_produk' => 'snc30w-72',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 30W',
         'stok' => 21,
@@ -94,7 +94,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0010',
+        'kode_produk' => 'snc40w-100',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 40W',
         'stok' => 6,
@@ -104,7 +104,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0011',
+        'kode_produk' => 'snc50w-120',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Lampu Hannochs Sonic 50W',
         'stok' => 4,
@@ -114,7 +114,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0415',
+        'kode_produk' => 'snc6w31-55',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Sonic 6W (3 free 1)',
         'stok' => 17,
@@ -124,7 +124,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0416',
+        'kode_produk' => 'snc10w31-75',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Sonic 10W (3 free 1)',
         'stok' => 12,
@@ -134,7 +134,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0417',
+        'kode_produk' => 'snc13w31-90',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Sonic 13W (3 free 1)',
         'stok' => 25,
@@ -144,7 +144,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0097',
+        'kode_produk' => 'snc18w31-120',
         'kategori' => 'Lampu Hannochs Sonic',
         'nama_produk' => 'Sonic 18W (3 free 1)',
         'stok' => 32,
@@ -154,7 +154,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0012',
+        'kode_produk' => 'dlmts6w-50',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Downlight Mitsuyama 6W 2 Warna',
         'stok' => 5,
@@ -164,7 +164,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0013',
+        'kode_produk' => 'dlmts12w-60',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Downlight Mitsuyama 12W 2 Warna',
         'stok' => 5,
@@ -174,7 +174,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0014',
+        'kode_produk' => 'dlmts18w-75',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Downlight Mitsuyama 18W 2 Warna',
         'stok' => 3,
@@ -184,7 +184,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0015',
+        'kode_produk' => 'dlebr9w-55',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBR Tricolour 9W',
         'stok' => 3,
@@ -194,7 +194,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0016',
+        'kode_produk' => 'dlebr12w-70',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBR Tricolour 12W',
         'stok' => 3,
@@ -204,7 +204,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0017',
+        'kode_produk' => 'dlebr15w-86',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBR Tricolour 15W',
         'stok' => 4,
@@ -214,7 +214,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0018',
+        'kode_produk' => 'dlebs3w-35',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBS Tricolour 3W',
         'stok' => 4,
@@ -224,7 +224,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0019',
+        'kode_produk' => 'dlebs5w-45',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBS Tricolour 5W',
         'stok' => 4,
@@ -234,7 +234,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0020',
+        'kode_produk' => 'dlebs9w-60',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBS Tricolour 9W',
         'stok' => 3,
@@ -244,7 +244,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0021',
+        'kode_produk' => 'dlebs12w-75',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBS Tricolour 12W',
         'stok' => 3,
@@ -254,7 +254,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0022',
+        'kode_produk' => 'dlebs15w-92',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Hannochs Easy II IBS Tricolour 15W',
         'stok' => 3,
@@ -264,7 +264,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0023',
+        'kode_produk' => 'dlblt3w-30',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 3W Hannochs',
         'stok' => 6,
@@ -274,7 +274,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0024',
+        'kode_produk' => 'dlblt5w-35',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 5W Hannochs',
         'stok' => 10,
@@ -284,7 +284,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0025',
+        'kode_produk' => 'dlblt7w-40',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 7W Hannochs',
         'stok' => 10,
@@ -294,7 +294,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0026',
+        'kode_produk' => 'dlblt9w-47',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 9W Hannochs',
         'stok' => 2,
@@ -304,7 +304,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0027',
+        'kode_produk' => 'dlblt12w-60',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 12W Hannochs',
         'stok' => 4,
@@ -314,7 +314,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0028',
+        'kode_produk' => 'dlblt15w-80',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 15W Hannochs',
         'stok' => 2,
@@ -324,7 +324,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0029',
+        'kode_produk' => 'dlblt20w-90',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 20W Hannochs',
         'stok' => 2,
@@ -334,7 +334,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0030',
+        'kode_produk' => 'dlblt25w-122',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Bulat 25W Hannochs',
         'stok' => 4,
@@ -344,7 +344,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0031',
+        'kode_produk' => 'dlsgi3w-31',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 3W Hannochs',
         'stok' => 5,
@@ -354,7 +354,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0032',
+        'kode_produk' => 'dlsgi5w-41',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 5W Hannochs',
         'stok' => 5,
@@ -364,7 +364,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0033',
+        'kode_produk' => 'dlsgi7w-43',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 7W Hannochs',
         'stok' => 5,
@@ -374,7 +374,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0034',
+        'kode_produk' => 'dlsgi9w-50',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 9W Hannochs',
         'stok' => 5,
@@ -384,7 +384,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0035',
+        'kode_produk' => 'dlsgi12w-62',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 12W Hannochs',
         'stok' => 4,
@@ -394,7 +394,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0036',
+        'kode_produk' => 'dlsgi15w-80',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 15W Hannochs',
         'stok' => 1,
@@ -404,7 +404,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0037',
+        'kode_produk' => 'dlsgi20w-90',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 20W Hannochs',
         'stok' => 3,
@@ -414,7 +414,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0038',
+        'kode_produk' => 'dlsgi25w-125',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Downlight Segi 25W Hannochs',
         'stok' => 2,
@@ -424,7 +424,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0039',
+        'kode_produk' => 'dlobr15w-80',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Hannochs OBR 15 Watt',
         'stok' => 3,
@@ -434,7 +434,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0040',
+        'kode_produk' => 'dlobr20w-100',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Hannochs OBR 20 Watt',
         'stok' => 4,
@@ -444,7 +444,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0041',
+        'kode_produk' => 'dlobr25w-122',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Hannochs OBR 25 Watt',
         'stok' => 3,
@@ -454,7 +454,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0042',
+        'kode_produk' => 'dlobs15w-80',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Hannochs OBS 15 Watt',
         'stok' => 2,
@@ -464,7 +464,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0043',
+        'kode_produk' => 'dlobs20w-105',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Hannochs OBS 20 Watt',
         'stok' => 5,
@@ -474,7 +474,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0044',
+        'kode_produk' => 'dlobs25w-126',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'Lampu Hannochs OBS 25 Watt',
         'stok' => 3,
@@ -484,7 +484,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0045',
+        'kode_produk' => 'dlobr9w-60',
         'kategori' => 'Lampu Gepeng / Downlight',
         'nama_produk' => 'OBR 9 watt',
         'stok' => 3,
@@ -494,7 +494,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0046',
+        'kode_produk' => 'vro6w-17',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 6W Fix',
         'stok' => 11,
@@ -504,7 +504,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0047',
+        'kode_produk' => 'vro12w-23',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 12W Fix',
         'stok' => 68,
@@ -514,7 +514,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0048',
+        'kode_produk' => 'vro18w-35',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 18W',
         'stok' => 39,
@@ -524,7 +524,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0049',
+        'kode_produk' => 'vro24w-37',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 22 / 24W',
         'stok' => 43,
@@ -534,7 +534,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0050',
+        'kode_produk' => 'vro30w-48',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 30W',
         'stok' => 24,
@@ -544,7 +544,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0051',
+        'kode_produk' => 'vro36w-60',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 32 / 36W',
         'stok' => 43,
@@ -554,7 +554,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0052',
+        'kode_produk' => 'vro40w-72',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 40W',
         'stok' => 14,
@@ -564,7 +564,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0053',
+        'kode_produk' => 'vro45w-83',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 45W',
         'stok' => 0,
@@ -574,7 +574,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0054',
+        'kode_produk' => 'vro50w-100',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 50W',
         'stok' => 23,
@@ -584,7 +584,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0055',
+        'kode_produk' => 'vro70w-180',
         'kategori' => 'Lampu Hannochs Vario',
         'nama_produk' => 'Lampu Hannochs VARIO 70W',
         'stok' => 12,
@@ -594,7 +594,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0056',
+        'kode_produk' => 'prm3w-17',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 3W',
         'stok' => 51,
@@ -604,7 +604,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0057',
+        'kode_produk' => 'prm5w-22',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 5W',
         'stok' => 95,
@@ -614,7 +614,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0058',
+        'kode_produk' => 'prm7w-25',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 7W',
         'stok' => 62,
@@ -624,7 +624,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0059',
+        'kode_produk' => 'prm9w-28',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 9W',
         'stok' => 74,
@@ -634,7 +634,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0060',
+        'kode_produk' => 'prm12w-36',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 12W',
         'stok' => 24,
@@ -644,7 +644,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0061',
+        'kode_produk' => 'prm15w-48',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 15W',
         'stok' => 35,
@@ -654,7 +654,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0062',
+        'kode_produk' => 'prm18w-57',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 18W',
         'stok' => 10,
@@ -664,7 +664,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0063',
+        'kode_produk' => 'prm25w-66',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 25W',
         'stok' => 10,
@@ -674,7 +674,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0064',
+        'kode_produk' => 'prm30w-86',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 30W',
         'stok' => 11,
@@ -684,7 +684,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0065',
+        'kode_produk' => 'prm40w-115',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 40W',
         'stok' => 2,
@@ -694,7 +694,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0066',
+        'kode_produk' => 'prm50w-140',
         'kategori' => 'Lampu Hannochs Premier',
         'nama_produk' => 'Lampu Hannochs Premier 50W',
         'stok' => 2,
@@ -704,7 +704,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0067',
+        'kode_produk' => 'gbk30-15',
         'kategori' => 'Gembok',
         'nama_produk' => 'Gembok 30mm',
         'stok' => 10,
@@ -714,7 +714,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0068',
+        'kode_produk' => 'gbk40-20',
         'kategori' => 'Gembok',
         'nama_produk' => 'Gembok 40mm',
         'stok' => 11,
@@ -724,7 +724,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0069',
+        'kode_produk' => 'gbk50-25',
         'kategori' => 'Gembok',
         'nama_produk' => 'Gembok 50mm',
         'stok' => 23,
@@ -734,7 +734,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0070',
+        'kode_produk' => 'gbk60-30',
         'kategori' => 'Gembok',
         'nama_produk' => 'Gembok 60mm',
         'stok' => 4,
@@ -744,7 +744,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0071',
+        'kode_produk' => 'gbkair60-40',
         'kategori' => 'Gembok',
         'nama_produk' => 'Gembok Anti Air 60mm',
         'stok' => 6,
@@ -754,7 +754,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0072',
+        'kode_produk' => 'gbkmn20-15',
         'kategori' => 'Gembok',
         'nama_produk' => 'Gembok Mini 20mm Brabus',
         'stok' => 2,
@@ -764,7 +764,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0073',
+        'kode_produk' => 'kblbox10m-70',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Box 10M Yunior',
         'stok' => 3,
@@ -774,7 +774,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0074',
+        'kode_produk' => 'kblbox15m-87',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Box 15M Yunior',
         'stok' => 10,
@@ -784,7 +784,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0075',
+        'kode_produk' => 'kblbox6m-35',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Box 6M Yunior',
         'stok' => 5,
@@ -794,7 +794,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0076',
+        'kode_produk' => 'kblcfe10f-130',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Fitting Lampu Cafe 10M 10F',
         'stok' => 3,
@@ -804,7 +804,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0077',
+        'kode_produk' => 'kblcfe20f-175',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Fitting Lampu Cafe 10M 20F',
         'stok' => 3,
@@ -814,7 +814,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0078',
+        'kode_produk' => 'kblhdmi-15',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel HDMI',
         'stok' => 4,
@@ -824,7 +824,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0079',
+        'kode_produk' => 'kbllan10m-32',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel LAN UTP 10M',
         'stok' => 1,
@@ -834,7 +834,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0080',
+        'kode_produk' => 'kbllan20m-55',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel LAN UTP 20M',
         'stok' => 1,
@@ -844,7 +844,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0081',
+        'kode_produk' => 'nya15m-7.5',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYA PRABA 1.5 / M',
         'stok' => 6,
@@ -854,7 +854,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0082',
+        'kode_produk' => 'nya15r100-500',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYA PRABA 1.5/100M',
         'stok' => 2,
@@ -864,7 +864,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0083',
+        'kode_produk' => 'nya25m-10',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYA PRABA 2.5 / M',
         'stok' => 30,
@@ -874,7 +874,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0084',
+        'kode_produk' => 'nya25r100-760',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYA PRABA 2.5/100M',
         'stok' => 1,
@@ -884,7 +884,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0085',
+        'kode_produk' => 'nyasup15r50-250',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYA PRABA/Supreme 1.5/ 50M',
         'stok' => 1,
@@ -894,7 +894,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0086',
+        'kode_produk' => 'nyasup25r50-450',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYA PRABA/Supreme 2.5/ 50M',
         'stok' => 1,
@@ -904,7 +904,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0087',
+        'kode_produk' => 'nym315m-18',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM PRABA 3X1,5 /M',
         'stok' => 45,
@@ -914,7 +914,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0088',
+        'kode_produk' => 'nym315r50-800',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM PRABA 3X1,5 50M',
         'stok' => 1,
@@ -924,7 +924,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0089',
+        'kode_produk' => 'nym325m-25',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM PRABA 3X2,5 /M',
         'stok' => 7,
@@ -934,7 +934,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0090',
+        'kode_produk' => 'nym325r50-1150',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM PRABA 3X2,5 50M',
         'stok' => 1,
@@ -944,7 +944,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0091',
+        'kode_produk' => 'nym340r50-2200',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM PRABA 3X4 50M',
         'stok' => 2,
@@ -954,7 +954,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0092',
+        'kode_produk' => 'nym340m-46',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM PRABA 3x4 /M',
         'stok' => 49,
@@ -964,7 +964,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0093',
+        'kode_produk' => 'nym215m-15',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM Premium 2X1.5 /M',
         'stok' => 65,
@@ -974,7 +974,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0094',
+        'kode_produk' => 'nym215r50-670',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM Premium 2x1.5 50M',
         'stok' => 2,
@@ -984,7 +984,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0095',
+        'kode_produk' => 'nym225m-20',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM Premium 2x2.5 /M',
         'stok' => 4,
@@ -994,7 +994,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0096',
+        'kode_produk' => 'nym225r50-900',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYM Premium 2x2.5 50M',
         'stok' => 3,
@@ -1004,7 +1004,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0098',
+        'kode_produk' => 'nyy315m-6.5',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel NYY 3x1.5 Serabut',
         'stok' => 43,
@@ -1014,7 +1014,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0099',
+        'kode_produk' => 'kblpwr3l-15',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Power 3 Lobang',
         'stok' => 8,
@@ -1024,7 +1024,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0100',
+        'kode_produk' => 'kbla8-10',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Power Angka 8',
         'stok' => 0,
@@ -1034,7 +1034,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0101',
+        'kode_produk' => 'kblmc-20',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Power Magic Com',
         'stok' => 17,
@@ -1044,7 +1044,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0102',
+        'kode_produk' => 'kblrca31-10',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel RCA 3 to 1',
         'stok' => 0,
@@ -1054,7 +1054,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0103',
+        'kode_produk' => 'kblrca45m-23',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel RCA Audio 4.5M',
         'stok' => 4,
@@ -1064,7 +1064,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0104',
+        'kode_produk' => 'srb075m-5',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Serabut 2x0.75 / M SNI',
         'stok' => 40,
@@ -1074,7 +1074,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0105',
+        'kode_produk' => 'srb075r50-200',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Serabut 2x0.75 50 Yard SNI',
         'stok' => 3,
@@ -1084,7 +1084,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0106',
+        'kode_produk' => 'srb15m-8.5',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Serabut 2x1.5 / M SNI',
         'stok' => 0,
@@ -1094,7 +1094,7 @@ return [
         'satuan' => 'meter',
     ],
     [
-        'kode_produk' => '0107',
+        'kode_produk' => 'srb15r50-450',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Serabut 2x1.5 SNI 50M',
         'stok' => 6,
@@ -1104,7 +1104,7 @@ return [
         'satuan' => 'roll',
     ],
     [
-        'kode_produk' => '0108',
+        'kode_produk' => 'kblstr-22',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Setrika',
         'stok' => 1,
@@ -1114,7 +1114,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0109',
+        'kode_produk' => 'kblprk-1',
         'kategori' => 'Kabel',
         'nama_produk' => 'Kabel Tipis Praktek',
         'stok' => 0,
@@ -1124,7 +1124,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0110',
+        'kode_produk' => 'brc3l-40',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'BROCO 3L',
         'stok' => 3,
@@ -1134,7 +1134,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0111',
+        'kode_produk' => 'brc4l-50',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'BROCO 4L',
         'stok' => 5,
@@ -1144,7 +1144,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0112',
+        'kode_produk' => 'brc5l-60',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'BROCO 5L',
         'stok' => 14,
@@ -1154,7 +1154,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0113',
+        'kode_produk' => 'brc6l-70',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'BROCO 6L',
         'stok' => 5,
@@ -1164,7 +1164,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0114',
+        'kode_produk' => 'brg15m3l-22',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (1.5M 3L)',
         'stok' => 3,
@@ -1174,7 +1174,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0115',
+        'kode_produk' => 'brg15m4l-23',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (1.5M 4L)',
         'stok' => 9,
@@ -1184,7 +1184,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0116',
+        'kode_produk' => 'brg15m5l-24',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (1.5M 5L)',
         'stok' => 5,
@@ -1194,7 +1194,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0117',
+        'kode_produk' => 'brg3m3l-25',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (3M 3L)',
         'stok' => 7,
@@ -1204,7 +1204,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0118',
+        'kode_produk' => 'brg3m4l-26',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (3M 4L)',
         'stok' => 4,
@@ -1214,7 +1214,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0119',
+        'kode_produk' => 'brg3m5l-27',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (3M 5L)',
         'stok' => 7,
@@ -1224,7 +1224,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0120',
+        'kode_produk' => 'brg5m3l-28',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (5M 3L)',
         'stok' => 2,
@@ -1234,7 +1234,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0121',
+        'kode_produk' => 'brg5m4l-29',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (5M 4L)',
         'stok' => 6,
@@ -1244,7 +1244,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0122',
+        'kode_produk' => 'brg5m5l-30',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Bright G (5M 5L)',
         'stok' => 2,
@@ -1254,7 +1254,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0123',
+        'kode_produk' => 'skskl3l-12',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak + Saklar 3L',
         'stok' => 5,
@@ -1264,7 +1264,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0124',
+        'kode_produk' => 'skskl4l-17',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak + Saklar 4L',
         'stok' => 4,
@@ -1274,7 +1274,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0125',
+        'kode_produk' => 'skskl5l-20',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak + Saklar 5L',
         'stok' => 5,
@@ -1284,7 +1284,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0126',
+        'kode_produk' => 'lylskl3l-32',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak + Saklar LOYAL 3L',
         'stok' => 2,
@@ -1294,7 +1294,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0127',
+        'kode_produk' => 'lylskl4l-36',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak + Saklar LOYAL 4L',
         'stok' => 7,
@@ -1304,7 +1304,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0128',
+        'kode_produk' => 'lylskl6l-47',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak + Saklar LOYAL 6L',
         'stok' => 2,
@@ -1314,7 +1314,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0129',
+        'kode_produk' => 'ard4chy-23',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Arde 4in1 Cahaya',
         'stok' => 5,
@@ -1324,7 +1324,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0130',
+        'kode_produk' => 'ard4lyl-33',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Arde 4in1 Loyal',
         'stok' => 1,
@@ -1334,7 +1334,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0131',
+        'kode_produk' => 'ardskl4-28',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Arde Saklar 4in1',
         'stok' => 3,
@@ -1344,7 +1344,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0132',
+        'kode_produk' => 'ard3skl-70',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Arde Triple Soket + Saklar',
         'stok' => 2,
@@ -1354,7 +1354,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0133',
+        'kode_produk' => 'skgpg2l-6.5',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Gepeng 2L',
         'stok' => 8,
@@ -1364,7 +1364,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0134',
+        'kode_produk' => 'skgpg3l-8',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Gepeng 3L',
         'stok' => 2,
@@ -1374,7 +1374,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0135',
+        'kode_produk' => 'skgpg4l-10',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Gepeng 4L',
         'stok' => 8,
@@ -1384,7 +1384,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0136',
+        'kode_produk' => 'skgpg5l-13',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Gepeng 5L',
         'stok' => 11,
@@ -1394,7 +1394,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0137',
+        'kode_produk' => 'skhsc2l-8',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak HSC 2 lobang',
         'stok' => 23,
@@ -1404,7 +1404,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0138',
+        'kode_produk' => 'skhsc3l-10',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak HSC 3 Lobang',
         'stok' => 1,
@@ -1414,7 +1414,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0139',
+        'kode_produk' => 'skhsc4l-12',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak HSC 4 Lobang',
         'stok' => 5,
@@ -1424,7 +1424,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0140',
+        'kode_produk' => 'skhsc5l-14',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak HSC 5 lobang',
         'stok' => 1,
@@ -1434,7 +1434,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0141',
+        'kode_produk' => 'sklyl1l-14',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Loyal 1L',
         'stok' => 54,
@@ -1444,7 +1444,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0142',
+        'kode_produk' => 'sklyl2l-17',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Loyal 2L',
         'stok' => 49,
@@ -1454,7 +1454,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0143',
+        'kode_produk' => 'sklyl3l-22',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Loyal 3L',
         'stok' => 24,
@@ -1464,7 +1464,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0144',
+        'kode_produk' => 'sklyl4l-27',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Loyal 4L',
         'stok' => 28,
@@ -1474,7 +1474,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0145',
+        'kode_produk' => 'sklyl5l-32',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Loyal 5 L',
         'stok' => 19,
@@ -1484,7 +1484,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0146',
+        'kode_produk' => 'sklyl6l-35',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Loyal 6L',
         'stok' => 18,
@@ -1494,7 +1494,7 @@ return [
         'satuan' => 'pcs',
     ],
     [
-        'kode_produk' => '0147',
+        'kode_produk' => 'skstl4l-11',
         'kategori' => 'Stop Kontak',
         'nama_produk' => 'Stop Kontak Steele 4 lobang',
         'stok' => 74,

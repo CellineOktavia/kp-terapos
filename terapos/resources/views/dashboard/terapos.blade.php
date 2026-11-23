@@ -435,7 +435,7 @@
                                 </td>
                                 <td class="text-nowrap">{{ $sale->tanggal?->format('d/m/Y') ?? '-' }}</td>
                                 <td class="fw-bold text-dark tabular-nums text-nowrap">
-                                    Rp {{ number_format($sale->total ?? 0, 0, ',', '.') }}
+                                    Rp {{ number_format(max(0, (float) ($sale->total ?? 0) - (float) ($sale->returned_amount ?? 0)), 0, ',', '.') }}
                                 </td>
                                 <td class="text-nowrap">{{ $sale->user?->name ?? '-' }}</td>
                             </tr>

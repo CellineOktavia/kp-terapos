@@ -22,14 +22,16 @@ class DashboardDataService
 
         $dailySales = Penjualan::query()
             ->whereDate('tanggal', $today)
-            ->sum('total');
+            ->selectRaw('COALESCE(SUM(total - COALESCE((SELECT SUM(r.refund_amount) FROM penjualan_returns r WHERE r.penjualan_id = penjualans.id), 0)), 0) as net_total')
+            ->value('net_total');
 
         $monthlySales = Penjualan::query()
             ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
-            ->sum('total');
+            ->selectRaw('COALESCE(SUM(total - COALESCE((SELECT SUM(r.refund_amount) FROM penjualan_returns r WHERE r.penjualan_id = penjualans.id), 0)), 0) as net_total')
+            ->value('net_total');
 
         $salesByDate = Penjualan::query()
-            ->selectRaw('DATE(tanggal) as sale_date, SUM(total) as total')
+            ->selectRaw('DATE(tanggal) as sale_date, SUM(total - COALESCE((SELECT SUM(r.refund_amount) FROM penjualan_returns r WHERE r.penjualan_id = penjualans.id), 0)) as total')
             ->whereBetween('tanggal', [$chartStart->toDateString(), $chartEnd->toDateString()])
             ->groupByRaw('DATE(tanggal)')
             ->get()
@@ -49,7 +51,7 @@ class DashboardDataService
                 'products.id',
                 'products.nama_produk',
                 'products.satuan',
-                DB::raw('SUM(detail_penjualans.qty) as qty_terjual')
+                DB::raw('SUM(detail_penjualans.qty - COALESCE((SELECT SUM(r.qty) FROM detail_penjualan_returns r WHERE r.detail_penjualan_id = detail_penjualans.id), 0)) as qty_terjual')
             )
             ->groupBy('products.id', 'products.nama_produk', 'products.satuan')
             ->orderByDesc('qty_terjual')
@@ -68,16 +70,21 @@ class DashboardDataService
 
         return [
             'todaySales' => (float) $dailySales,
-            'todaySalesCount' => Penjualan::query()->whereDate('tanggal', $today)->count(),
+            'todaySalesCount' => Penjualan::query()
+                ->whereDate('tanggal', $today)
+                ->whereIn('status', ['completed', 'partially_returned'])
+                ->count(),
             'todayItemsSold' => (int) DB::table('detail_penjualans')
                 ->join('penjualans', 'detail_penjualans.penjualan_id', '=', 'penjualans.id')
                 ->whereDate('penjualans.tanggal', $today)
-                ->sum('detail_penjualans.qty'),
+                ->selectRaw('COALESCE(SUM(detail_penjualans.qty - COALESCE((SELECT SUM(r.qty) FROM detail_penjualan_returns r WHERE r.detail_penjualan_id = detail_penjualans.id), 0)), 0) as net_qty')
+                ->value('net_qty'),
             'criticalStockCount' => Product::query()->where('aktif', true)
                 ->whereColumn('stok', '<=', 'stok_minimum')->count(),
             'monthSales' => (float) $monthlySales,
             'monthSalesCount' => Penjualan::query()
                 ->whereBetween('tanggal', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->whereIn('status', ['completed', 'partially_returned'])
                 ->count(),
             'salesChartLabels' => $salesChartLabels,
             'salesChartValues' => $salesChartValues,
@@ -85,6 +92,7 @@ class DashboardDataService
             'criticalProducts' => $criticalProducts,
             'latestSales' => Penjualan::query()
                 ->with('user')
+                ->withSum('returns as returned_amount', 'refund_amount')
                 ->orderByDesc('created_at')
                 ->orderByDesc('id')
                 ->limit(5)

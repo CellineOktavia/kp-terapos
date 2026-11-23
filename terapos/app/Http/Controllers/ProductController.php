@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\QueryException;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
@@ -18,20 +19,25 @@ class ProductController extends Controller
         $filters = $request->validate([
             'search' => ['nullable', 'string', 'max:100'],
             'status' => ['nullable', Rule::in(['all', 'active', 'inactive'])],
+            'category_id' => ['nullable', 'integer', 'exists:categories,id'],
+            'merk' => ['nullable', 'string', 'max:255'],
         ]);
 
         $products = Product::query()
             ->with('category')
+            ->when($filters['category_id'] ?? null, fn ($query, $categoryId) => $query->where('category_id', $categoryId))
+            ->when($filters['merk'] ?? null, fn ($query, $merk) => $query->whereRaw('LOWER(merk) = ?', [mb_strtolower($merk)]))
             ->when(($filters['status'] ?? 'active') !== 'all', function ($query) use ($filters) {
                 $query->where('aktif', ($filters['status'] ?? 'active') === 'active');
             })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($productQuery) use ($search) {
-                    $productQuery->where('nama_produk', 'like', "%{$search}%")
-                        ->orWhere('kode_produk', 'like', "%{$search}%")
-                        ->orWhere('merk', 'like', "%{$search}%")
+                    $term = '%' . mb_strtolower($search) . '%';
+                    $productQuery->whereRaw('LOWER(nama_produk) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(kode_produk) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(merk) LIKE ?', [$term])
                         ->orWhereHas('category', function ($categoryQuery) use ($search) {
-                            $categoryQuery->where('nama_kategori', 'like', "%{$search}%");
+                            $categoryQuery->whereRaw('LOWER(nama_kategori) LIKE ?', ['%' . mb_strtolower($search) . '%']);
                         });
                 });
             })
@@ -39,7 +45,16 @@ class ProductController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        return view('produk.index', ['products' => $products, 'filters' => $filters]);
+        $categories = Category::query()->orderBy('nama_kategori')->get(['id', 'nama_kategori']);
+        $brands = Product::query()
+            ->whereNotNull('merk')
+            ->where('merk', '<>', '')
+            ->select('merk')
+            ->distinct()
+            ->orderBy('merk')
+            ->pluck('merk');
+
+        return view('produk.index', compact('products', 'filters', 'categories', 'brands'));
     }
 
     public function show(Product $product)
@@ -55,20 +70,28 @@ class ProductController extends Controller
 
     public function create()
     {
+        $existingProducts = Product::query()
+            ->with('category:id,nama_kategori')
+            ->where('aktif', true)
+            ->orderBy('nama_produk')
+            ->get(['id', 'category_id', 'kode_produk', 'nama_produk', 'merk', 'satuan', 'harga_jual']);
+
         return view('produk.create', [
             'categories' => Category::orderBy('nama_kategori')->get(),
-            'generatedCode' => $this->generateNextProductCode(),
+            'existingProducts' => $existingProducts,
         ]);
     }
 
     public function store(Request $request)
     {
         $request->merge([
+            'kode_dasar' => strtolower(preg_replace('/\s+/', '', (string) $request->input('kode_dasar'))),
             'harga_beli' => $this->normalizePrice($request->input('harga_beli')),
             'harga_jual' => $this->normalizePrice($request->input('harga_jual')),
         ]);
 
         $validated = $request->validate([
+            'kode_dasar' => ['required', 'string', 'max:80', 'regex:/^[a-z0-9]+$/'],
             'nama_produk' => ['required', 'string', 'max:255'],
             'category_id' => ['nullable', 'exists:categories,id'],
             'merk' => ['nullable', 'string', 'max:255'],
@@ -79,24 +102,41 @@ class ProductController extends Controller
             'deskripsi' => ['nullable', 'string'],
         ]);
 
-        for ($attempt = 1; ; $attempt++) {
-            try {
-                $code = DB::transaction(function () use ($validated) {
-                    $code = $this->generateNextProductCode();
-                    Product::create(array_merge($validated, [
-                        'kode_produk' => $code,
-                        'stok' => 0,
-                        'aktif' => true,
-                    ]));
+        $duplicateName = Product::query()
+            ->whereRaw('LOWER(nama_produk) = ?', [mb_strtolower(trim($validated['nama_produk']))])
+            ->first();
 
-                    return $code;
-                });
-                break;
-            } catch (QueryException $exception) {
-                if ($attempt >= 5 || !$this->isProductCodeCollision($exception)) {
-                    throw $exception;
+        if ($duplicateName) {
+            throw ValidationException::withMessages([
+                'nama_produk' => "Nama barang sudah digunakan oleh {$duplicateName->kode_produk} ({$duplicateName->nama_produk}).",
+            ]);
+        }
+
+        $code = $this->codeFromBaseAndPrice($validated['kode_dasar'], $validated['harga_jual']);
+        unset($validated['kode_dasar']);
+
+        try {
+            DB::transaction(function () use ($validated, $code): void {
+                if (Product::query()->where('kode_produk', $code)->exists()) {
+                    throw ValidationException::withMessages([
+                        'kode_dasar' => 'Kode barang tersebut sudah digunakan untuk harga jual ini.',
+                    ]);
                 }
+
+                Product::create(array_merge($validated, [
+                    'kode_produk' => $code,
+                    'stok' => 0,
+                    'aktif' => true,
+                ]));
+            });
+        } catch (QueryException $exception) {
+            if (!$this->isProductCodeCollision($exception)) {
+                throw $exception;
             }
+
+            throw ValidationException::withMessages([
+                'kode_dasar' => 'Kode barang tersebut sudah digunakan untuk harga jual ini.',
+            ]);
         }
 
         return redirect()->route('produk.index')
@@ -108,6 +148,7 @@ class ProductController extends Controller
         return view('produk.edit', [
             'product' => $product,
             'categories' => Category::orderBy('nama_kategori')->get(),
+            'codeBase' => $this->codeBase($product->kode_produk),
         ]);
     }
 
@@ -139,6 +180,19 @@ class ProductController extends Controller
             }
 
             $validated['harga_beli'] = $oldBuyPrice;
+            if ($oldSalePrice !== $newSalePrice) {
+                $base = $this->codeBase($lockedProduct->kode_produk);
+                $newCode = $this->codeFromBaseAndPrice($base, $newSalePrice);
+
+                if (Product::query()->where('kode_produk', $newCode)->where('id', '<>', $lockedProduct->id)->exists()) {
+                    throw ValidationException::withMessages([
+                        'harga_jual' => "Kode baru {$newCode} sudah digunakan produk lain.",
+                    ]);
+                }
+
+                $validated['kode_produk'] = $newCode;
+            }
+
             $lockedProduct->update($validated);
             if ($oldSalePrice !== $newSalePrice) {
                 ProductPriceHistory::create([
@@ -176,7 +230,11 @@ class ProductController extends Controller
             || DB::table('detail_fakturs')->where('product_id', $product->id)->exists()
             || $product->detailPenerimaanBarangs()->exists()
             || $product->stockMovements()->exists()
-            || $product->priceHistories()->exists();
+            || $product->priceHistories()->exists()
+            || DB::table('cross_subsidy_programs')
+                ->where('source_product_id', $product->id)
+                ->orWhere('recipient_product_id', $product->id)
+                ->exists();
 
         if ($hasHistory) {
             $product->update(['aktif' => false]);
@@ -190,28 +248,41 @@ class ProductController extends Controller
         return redirect()->route('produk.index')->with('success', 'Barang berhasil dihapus.');
     }
 
-    private function generateNextProductCode(): string
+    private function codeBase(string $code): string
     {
-        $codes = Product::query()->pluck('kode_produk');
-        $number = $codes->reduce(function (int $largest, string $code): int {
-            return preg_match('/^\d{4}$/', $code) ? max($largest, (int) $code) : $largest;
-        }, 0) + 1;
+        $separator = strrpos($code, '-');
+        $base = $separator === false ? $code : substr($code, 0, $separator);
+        $base = strtolower(preg_replace('/\s+/', '', $base));
 
-        while ($number <= 9999) {
-            $code = str_pad((string) $number, 4, '0', STR_PAD_LEFT);
-            if (!$codes->contains($code)) {
-                return $code;
-            }
-            $number++;
+        if (!preg_match('/^[a-z0-9]+$/', $base)) {
+            throw new \RuntimeException('Basis kode produk saat ini tidak dapat digunakan untuk membentuk kode baru.');
         }
 
-        throw new \RuntimeException('Kode barang 4 digit telah habis.');
+        return $base;
+    }
+
+    private function codeFromBaseAndPrice(string $base, mixed $price): string
+    {
+        $cents = (int) round((float) $price * 100);
+        $thousands = intdiv($cents, 100000);
+        $fraction = $cents % 100000;
+        $suffix = (string) $thousands;
+
+        if ($fraction !== 0) {
+            $suffix .= '.' . rtrim(str_pad((string) $fraction, 5, '0', STR_PAD_LEFT), '0');
+        }
+
+        return $base . '-' . $suffix;
     }
 
     private function normalizePrice(mixed $value): mixed
     {
         if (!is_string($value)) {
             return $value;
+        }
+
+        if (str_contains($value, '-')) {
+            return '-' . preg_replace('/\D/', '', $value);
         }
 
         return preg_replace('/[^\d]/', '', $value);

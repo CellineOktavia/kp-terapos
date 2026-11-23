@@ -234,7 +234,7 @@
             <div class="card-body p-4">
                 <form method="GET" action="{{ route('produk.index') }}">
                     <div class="row g-3 align-items-end">
-                        <div class="col-lg-8 col-md-7">
+                        <div class="col-lg-4 col-md-6">
                             <label for="product-search" class="label-title">Kata Kunci Search</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light text-muted border-end-0"
@@ -247,15 +247,37 @@
                                     value="{{ request('search') }}">
                             </div>
                         </div>
-                        <div class="col-lg-2 col-md-3">
-                            <label for="status" class="label-title">Status</label>
-                            <select id="status" name="status" class="form-select form-control-terapos">
-                                <option value="active" @selected(request('status', 'active') === 'active')>Aktif</option>
-                                <option value="inactive" @selected(request('status') === 'inactive')>Tidak Aktif</option>
-                                <option value="all" @selected(request('status') === 'all')>Semua</option>
+                        <div class="col-lg-2 col-md-6">
+                            <label for="category_id" class="label-title">Kategori</label>
+                            <select id="category_id" name="category_id" class="form-select form-control-terapos">
+                                <option value="">Semua Kategori</option>
+                                @foreach ($categories as $category)
+                                    <option value="{{ $category->id }}" @selected(($filters['category_id'] ?? '') == $category->id)>
+                                        {{ $category->nama_kategori }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
-                        <div class="col-lg-2 col-md-2">
+                        <div class="col-lg-2 col-md-6">
+                            <label for="merk" class="label-title">Merk</label>
+                            <select id="merk" name="merk" class="form-select form-control-terapos">
+                                <option value="">Semua Merk</option>
+                                @foreach ($brands as $brand)
+                                    <option value="{{ $brand }}" @selected(($filters['merk'] ?? '') === $brand)>
+                                        {{ $brand }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
+                            <label for="status" class="label-title">Status</label>
+                            <select id="status" name="status" class="form-select form-control-terapos">
+                                <option value="active" @selected(($filters['status'] ?? 'active') === 'active')>Aktif</option>
+                                <option value="inactive" @selected(($filters['status'] ?? '') === 'inactive')>Tidak Aktif</option>
+                                <option value="all" @selected(($filters['status'] ?? '') === 'all')>Semua</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-6">
                             <button type="submit"
                                 class="btn btn-primary w-100 fw-semibold rounded-3 py-2 d-flex align-items-center justify-content-center gap-2">
                                 <i class="bi bi-filter"></i> Cari Barang

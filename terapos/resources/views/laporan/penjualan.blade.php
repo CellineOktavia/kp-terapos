@@ -450,7 +450,7 @@
                                         {{ number_format($penjualan->detail_penjualans_count, 0, ',', '.') }} Jenis
                                     </td>
                                     <td class="text-center text-muted fw-semibold text-nowrap tabular-nums">
-                                        {{ number_format($penjualan->detail_penjualans_sum_qty ?? 0, 0, ',', '.') }} pcs
+                                        {{ number_format(max(0, (int) ($penjualan->detail_penjualans_sum_qty ?? 0) - (int) ($penjualan->returned_qty ?? 0)), 0, ',', '.') }} pcs
                                     </td>
                                     <td class="text-end text-dark text-nowrap tabular-nums">
                                         Rp {{ number_format($penjualan->detailPenjualans->sum('subtotal'), 0, ',', '.') }}
@@ -462,12 +462,12 @@
                                             </span><br>
                                         @endif
                                         <span class="text-muted fw-medium small">
-                                            Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}
+                                            Rp {{ number_format((float) $penjualan->diskon_nominal + (float) $penjualan->cross_subsidy_amount, 0, ',', '.') }}
                                         </span>
                                     </td>
                                     <td class="text-end tabular-nums">
                                         <span class="amount-badge">
-                                            Rp {{ number_format($penjualan->total, 0, ',', '.') }}
+                                            Rp {{ number_format(max(0, (float) $penjualan->total - (float) $penjualan->returned_amount), 0, ',', '.') }}
                                         </span>
                                     </td>
                                     <td class="text-end text-muted fw-semibold text-nowrap tabular-nums">

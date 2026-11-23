@@ -13,11 +13,11 @@ class OwnerProductMasterDatasetTest extends TestCase
 
     public function test_dataset_is_pinned_to_the_owner_workbook_version(): void
     {
-        $source = database_path('seeders/data/Data_Master_Barang_Owner_v2.xlsx');
+        $source = database_path('seeders/data/Data_Master_Toko_Terang_Abadi_v4.xlsx');
 
         $this->assertFileExists($source);
         $this->assertSame(
-            'ebe4c7e28ab474f567265e22b1206f7e24042261c2874628793652fcd2b5f1da',
+            'da278a4ed242047b97a15f9b8a1be2ff81d4615075d901edaf2a3a202cec5748',
             hash_file('sha256', $source)
         );
     }
@@ -32,7 +32,7 @@ class OwnerProductMasterDatasetTest extends TestCase
         foreach ($products as $product) {
             $categories[$product['kategori']] = ($categories[$product['kategori']] ?? 0) + 1;
             $this->assertArrayNotHasKey('barcode', $product);
-            $this->assertDoesNotMatchRegularExpression('/^TERA/i', $product['kode_produk']);
+            $this->assertMatchesRegularExpression('/^[a-z0-9]+-[0-9]+(?:\.[0-9]+)?$/', $product['kode_produk']);
         }
 
         $this->assertCount(150, $products);
@@ -49,16 +49,16 @@ class OwnerProductMasterDatasetTest extends TestCase
         ], $categories);
     }
 
-    public function test_owner_codes_keep_leading_zeroes_and_nonsequential_codes(): void
+    public function test_owner_codes_match_the_v4_format_and_keep_decimal_suffixes(): void
     {
         $codes = array_column($this->products(), 'kode_produk');
 
-        foreach (['0001', '0097', '0415', '0416', '0417'] as $code) {
+        foreach (['snc3w-15', 'snc5w-17', 'dlmts6w-50', 'nya15m-7.5', 'nym340r50-2200', 'skgpg2l-6.5', 'sklyl4l-27'] as $code) {
             $this->assertContains($code, $codes);
         }
 
-        $this->assertSame('0001', $codes[0]);
-        $this->assertSame('0147', $codes[149]);
+        $this->assertSame('snc3w-15', $codes[0]);
+        $this->assertSame('skstl4l-11', $codes[149]);
     }
 
     public function test_owner_sample_product_values_match_the_workbook(): void
@@ -71,7 +71,7 @@ class OwnerProductMasterDatasetTest extends TestCase
             'stok' => 86,
             'harga_beli' => 9500,
             'harga_jual' => 15000,
-        ], array_intersect_key($products['0001'], array_flip([
+        ], array_intersect_key($products['snc3w-15'], array_flip([
             'kategori',
             'nama_produk',
             'stok',
@@ -86,7 +86,7 @@ class OwnerProductMasterDatasetTest extends TestCase
             'harga_jual' => 2200000,
             'merk' => 'Praba',
             'satuan' => 'roll',
-        ], array_intersect_key($products['0091'], array_flip([
+        ], array_intersect_key($products['nym340r50-2200'], array_flip([
             'nama_produk',
             'stok',
             'harga_beli',
@@ -100,7 +100,7 @@ class OwnerProductMasterDatasetTest extends TestCase
             'stok' => 74,
             'harga_beli' => 7500,
             'harga_jual' => 11000,
-        ], array_intersect_key($products['0147'], array_flip([
+        ], array_intersect_key($products['skstl4l-11'], array_flip([
             'nama_produk',
             'stok',
             'harga_beli',
@@ -112,9 +112,7 @@ class OwnerProductMasterDatasetTest extends TestCase
     {
         $products = collect($this->products())->keyBy('kode_produk');
 
-        $this->assertSame('Lampu Hannochs Sonic', $products['0002']['kategori']);
-        $this->assertSame('Lampu Gepeng / Downlight', $products['0012']['kategori']);
-        $this->assertNull($products['0045']['merk']);
-        $this->assertSame('meter', $products['0081']['satuan']);
+        $this->assertSame('Lampu Hannochs Sonic', $products['snc5w-17']['kategori']);
+        $this->assertSame('Lampu Gepeng / Downlight', $products['dlebr9w-55']['kategori']);
     }
 }

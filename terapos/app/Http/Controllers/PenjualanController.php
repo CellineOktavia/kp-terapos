@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailPenjualan;
+use App\Models\CrossSubsidyProgram;
+use App\Models\DiscountSetting;
 use App\Models\Penjualan;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
+use App\Services\DiscountCalculator;
+use App\Services\CrossSubsidyService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -39,6 +44,8 @@ class PenjualanController extends Controller
             ->with(['user'])
             ->withCount('detailPenjualans')
             ->withSum('detailPenjualans', 'qty')
+            ->withSum('returnedDetails as returned_qty', 'qty')
+            ->withSum('returns as returned_amount', 'refund_amount')
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(function ($saleQuery) use ($search) {
                     $saleQuery->where('nomor_penjualan', 'like', "%{$search}%")
@@ -66,16 +73,40 @@ class PenjualanController extends Controller
         return view('penjualan.index', compact('penjualans', 'users', 'filters'));
     }
 
-    public function create()
+    public function create(CrossSubsidyService $subsidyService)
     {
-        $products = Product::where('aktif', true)->orderBy('nama_produk')->get();
+        $products = Product::query()
+            ->with('category:id,nama_kategori')
+            ->where('aktif', true)
+            ->orderBy('nama_produk')
+            ->get(['id', 'category_id', 'kode_produk', 'nama_produk', 'merk', 'satuan', 'harga_beli', 'harga_jual', 'stok']);
         $generatedNumber = $this->generateNextSaleNumber();
+        $discountSetting = DiscountSetting::current();
+        $crossSubsidyProgram = CrossSubsidyProgram::current();
+        $crossSubsidySetting = [
+            'is_active' => $crossSubsidyProgram->is_active,
+            'recipient_product_id' => $crossSubsidyProgram->recipient_product_id,
+            'subsidy_amount' => (float) $crossSubsidyProgram->subsidy_amount,
+            'maximum_subsidy' => (float) $crossSubsidyProgram->maximum_subsidy,
+            'minimum_selling_price' => (float) $crossSubsidyProgram->minimum_selling_price,
+            'balance' => max(0, $subsidyService->balance($crossSubsidyProgram)),
+        ];
+        $requestToken = (string) Str::uuid();
 
-        return view('penjualan.create', compact('products', 'generatedNumber'));
+        return view('penjualan.create', compact(
+            'products',
+            'generatedNumber',
+            'discountSetting',
+            'crossSubsidySetting',
+            'requestToken'
+        ));
     }
 
     public function store(Request $request)
     {
+        $request->merge([
+            'request_token' => $request->input('request_token') ?: (string) Str::uuid(),
+        ]);
         $request->merge([
             'bayar' => is_string($request->input('bayar'))
                 ? preg_replace('/[^\d]/', '', $request->input('bayar'))
@@ -83,6 +114,7 @@ class PenjualanController extends Controller
         ]);
         $validated = $request->validate([
             'tanggal' => ['required', 'date'],
+            'request_token' => ['required', 'uuid'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_id' => [
                 'required',
@@ -100,6 +132,14 @@ class PenjualanController extends Controller
         for ($attempt = 1;; $attempt++) {
             try {
                 [$saleId, $saleNumber] = DB::transaction(function () use ($validated) {
+                    $existingSale = Penjualan::query()
+                        ->where('request_token', $validated['request_token'])
+                        ->first();
+
+                    if ($existingSale) {
+                        return [$existingSale->id, $existingSale->nomor_penjualan];
+                    }
+
                     $saleNumber = $this->generateNextSaleNumber();
                     $items = collect($validated['items']);
                     $productIds = $items->pluck('product_id')
@@ -133,32 +173,76 @@ class PenjualanController extends Controller
                         }
                     }
 
-                    $penjualan = Penjualan::create([
-                        'nomor_penjualan' => $saleNumber,
-                        'user_id' => Auth::id(),
-                        'tanggal' => $validated['tanggal'],
-                        'total' => 0,
-                        'diskon_persen' => 0,
-                        'diskon_nominal' => 0,
-                        'bayar' => 0,
-                        'kembalian' => 0,
-                    ]);
-
-                    $subtotalPenjualan = 0;
+                    $discountSetting = DiscountSetting::query()->whereKey(1)->lockForUpdate()->firstOrFail();
+                    $crossSubsidyProgram = CrossSubsidyProgram::query()
+                        ->whereKey(1)
+                        ->lockForUpdate()
+                        ->first();
+                    $lines = [];
+                    $subtotalPenjualan = 0.0;
                     foreach ($items as $item) {
                         $product = $products->get((int) $item['product_id']);
                         $qty = (int) $item['qty'];
-                        $harga = $product->harga_jual;
-                        $subtotal = round($qty * $harga, 2);
-                        $subtotalPenjualan += $subtotal;
+                        $lineSubtotal = round($qty * (float) $product->harga_jual, 2);
+                        $lines[$product->id] = [
+                            'product' => $product,
+                            'qty' => $qty,
+                            'subtotal' => $lineSubtotal,
+                        ];
+                        $subtotalPenjualan += $lineSubtotal;
+                    }
 
-                        DetailPenjualan::create([
+                    $subtotalPenjualan = round($subtotalPenjualan, 2);
+                    $discount = app(DiscountCalculator::class)->calculate($subtotalPenjualan, $discountSetting);
+                    $diskonPersen = $discount['percentage'];
+                    $diskonNominal = $discount['discount'];
+                    $benefits = app(CrossSubsidyService::class)->calculateSaleBenefits(
+                        $lines,
+                        $diskonNominal,
+                        $crossSubsidyProgram
+                    );
+                    $crossSubsidyAmount = $benefits['subsidy_total'];
+                    $total = round($discount['total'] - $crossSubsidyAmount, 2);
+                    $bayar = round((float) $validated['bayar'], 2);
+
+                    if ($bayar < $total) {
+                        throw ValidationException::withMessages([
+                            'bayar' => 'Jumlah pembayaran harus sama dengan atau lebih besar dari total penjualan.',
+                        ]);
+                    }
+
+                    $penjualan = Penjualan::create([
+                        'nomor_penjualan' => $saleNumber,
+                        'request_token' => $validated['request_token'],
+                        'user_id' => Auth::id(),
+                        'tanggal' => $validated['tanggal'],
+                        'diskon_persen' => $diskonPersen,
+                        'diskon_nominal' => $diskonNominal,
+                        'diskon_aktif' => $discountSetting->is_active,
+                        'diskon_minimum_pembelian' => $discountSetting->minimum_purchase,
+                        'diskon_operator' => $discountSetting->condition_operator,
+                        'cross_subsidy_amount' => $crossSubsidyAmount,
+                        'status' => 'completed',
+                        'total' => $total,
+                        'bayar' => $bayar,
+                        'kembalian' => round($bayar - $total, 2),
+                    ]);
+
+                    $details = [];
+                    foreach ($lines as $productId => $line) {
+                        /** @var Product $product */
+                        $product = $line['product'];
+                        $qty = $line['qty'];
+                        $detail = DetailPenjualan::create([
                             'penjualan_id' => $penjualan->id,
                             'product_id' => $product->id,
                             'qty' => $qty,
-                            'harga' => $harga,
-                            'subtotal' => $subtotal,
+                            'harga' => $product->harga_jual,
+                            'subtotal' => $line['subtotal'],
+                            'discount_share' => $benefits['discount_shares'][$productId] ?? 0,
+                            'cross_subsidy_per_unit' => $benefits['subsidy_per_unit'][$productId] ?? 0,
                         ]);
+                        $details[$productId] = $detail;
 
                         $product->stok -= $qty;
                         $product->save();
@@ -171,31 +255,32 @@ class PenjualanController extends Controller
                         ]);
                     }
 
-                    $subtotalPenjualan = round($subtotalPenjualan, 2);
-                    $diskonPersen = $subtotalPenjualan > 300000 ? 5 : 0;
-                    $diskonNominal = round($subtotalPenjualan * $diskonPersen / 100, 2);
-                    $total = round($subtotalPenjualan - $diskonNominal, 2);
-                    $bayar = round((float) $validated['bayar'], 2);
-
-                    if ($bayar < $total) {
-                        throw ValidationException::withMessages([
-                            'bayar' => 'Jumlah pembayaran harus sama dengan atau lebih besar dari total penjualan.',
-                        ]);
-                    }
-
-                    $penjualan->update([
-                        'diskon_persen' => $diskonPersen,
-                        'diskon_nominal' => $diskonNominal,
-                        'total' => $total,
-                        'bayar' => $bayar,
-                        'kembalian' => round($bayar - $total, 2),
-                    ]);
+                    app(CrossSubsidyService::class)->recordSaleEntries(
+                        $penjualan,
+                        $lines,
+                        $details,
+                        $benefits,
+                        $crossSubsidyProgram,
+                        (int) Auth::id()
+                    );
 
                     return [$penjualan->id, $saleNumber];
                 });
 
                 break;
             } catch (QueryException $exception) {
+                if ($this->isRequestTokenCollision($exception)) {
+                    $existingSale = Penjualan::query()
+                        ->where('request_token', $validated['request_token'])
+                        ->first();
+
+                    if ($existingSale) {
+                        $saleId = $existingSale->id;
+                        $saleNumber = $existingSale->nomor_penjualan;
+                        break;
+                    }
+                }
+
                 if ($attempt >= 5 || !$this->isSaleNumberCollision($exception)) {
                     throw $exception;
                 }
@@ -212,9 +297,13 @@ class PenjualanController extends Controller
         $penjualan->load([
             'user',
             'detailPenjualans.product',
+            'detailPenjualans.returns',
+            'returns.user',
+            'returns.details.detailPenjualan.product',
         ]);
+        $returnToken = (string) Str::uuid();
 
-        return view('penjualan.show', compact('penjualan'));
+        return view('penjualan.show', compact('penjualan', 'returnToken'));
     }
 
     public function receiptPdf(Penjualan $penjualan)
@@ -260,5 +349,16 @@ class PenjualanController extends Controller
 
         return in_array($sqlState, ['23000', '23505'], true)
             && str_contains($message, 'nomor_penjualan');
+    }
+
+    private function isRequestTokenCollision(QueryException $exception): bool
+    {
+        $sqlState = $exception->errorInfo[0] ?? null;
+        $message = strtolower(
+            $exception->getPrevious()?->getMessage() ?? $exception->getMessage()
+        );
+
+        return in_array($sqlState, ['23000', '23505'], true)
+            && str_contains($message, 'request_token');
     }
 }

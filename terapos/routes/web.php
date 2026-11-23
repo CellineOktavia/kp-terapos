@@ -3,6 +3,9 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DiscountSettingController;
+use App\Http\Controllers\CrossSubsidyController;
+use App\Http\Controllers\PenjualanReturnController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\StockController;
@@ -66,6 +69,15 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureActiveUser::class])->group
 
     // Owner Only Routes
     Route::middleware('role:owner')->group(function () {
+        Route::get('/diskon', [DiscountSettingController::class, 'edit'])->name('diskon.edit');
+        Route::put('/diskon', [DiscountSettingController::class, 'update'])->name('diskon.update');
+        Route::get('/subsidi-silang', [CrossSubsidyController::class, 'edit'])->name('subsidi-silang.edit');
+        Route::put('/subsidi-silang', [CrossSubsidyController::class, 'update'])->name('subsidi-silang.update');
+        Route::post('/penjualan/{penjualan}/returns', [PenjualanReturnController::class, 'store'])
+            ->name('penjualan.returns.store');
+        Route::post('/penjualan/{penjualan}/cancel', [PenjualanReturnController::class, 'cancel'])
+            ->name('penjualan.cancel');
+
         Route::get('/users', [UserManagementController::class, 'index'])->name('users.index');
         Route::get('/users/create', [UserManagementController::class, 'create'])->name('users.create');
         Route::post('/users', [UserManagementController::class, 'store'])->name('users.store');

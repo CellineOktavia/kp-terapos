@@ -221,7 +221,7 @@
 
     @php
         $totalGross = $penjualans->sum(fn($s) => $s->detailPenjualans->sum('subtotal'));
-        $totalDiscount = $penjualans->sum('diskon_nominal');
+        $totalDiscount = $penjualans->sum(fn($s) => (float) $s->diskon_nominal + (float) $s->cross_subsidy_amount);
     @endphp
 
     <!-- Kop Laporan -->
@@ -301,10 +301,16 @@
                                 -Rp {{ number_format($sale->diskon_nominal, 0, ',', '.') }}
                             </span>
                         @endif
+                        @if ((float) $sale->cross_subsidy_amount > 0)
+                             |  Subsidi Silang: -Rp {{ number_format($sale->cross_subsidy_amount, 0, ',', '.') }}
+                        @endif
+                        @if ((float) $sale->returned_amount > 0)
+                             |  Retur: -Rp {{ number_format($sale->returned_amount, 0, ',', '.') }}
+                        @endif
 
                          | 
                         <span style="color: #047857; font-weight: bold;">
-                            Total Nota: Rp {{ number_format($sale->total, 0, ',', '.') }}
+                            Total Nota: Rp {{ number_format(max(0, (float) $sale->total - (float) $sale->returned_amount), 0, ',', '.') }}
                         </span>
                     </td>
                 </tr>

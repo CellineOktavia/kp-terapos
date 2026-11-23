@@ -63,7 +63,11 @@ class PenerimaanBarangController extends Controller
 
     public function create()
     {
-        $products = Product::query()->where('aktif', true)->orderBy('nama_produk')->get();
+        $products = Product::query()
+            ->with('category:id,nama_kategori')
+            ->where('aktif', true)
+            ->orderBy('nama_produk')
+            ->get(['id', 'category_id', 'kode_produk', 'nama_produk', 'merk', 'satuan', 'harga_beli', 'stok']);
 
         return view('penerimaan.create', [
             'products' => $products,

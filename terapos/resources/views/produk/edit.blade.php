@@ -166,6 +166,8 @@
                             <input id="kode_produk" type="text" name="kode_produk"
                                 class="form-control form-control-terapos form-control-readonly"
                                 value="{{ $product->kode_produk }}" required readonly>
+                            <small class="text-muted d-block mt-1" style="font-size: .78rem;">Kode setelah harga jual berubah:
+                                <span id="kode-preview">{{ $product->kode_produk }}</span></small>
                         </div>
                         <div class="col-md-6">
                             <label for="nama_produk" class="info-label">Nama Barang</label>
@@ -291,6 +293,9 @@
             const buy = document.querySelector('[name="harga_beli"]');
             const sell = document.querySelector('[name="harga_jual"]');
             const form = buy.closest('form');
+            const oldCode = @json($product->kode_produk);
+            const codeBase = @json($codeBase);
+            const originalPrice = sell.value.replace(/\D/g, '');
             const warning = document.createElement('div');
             warning.className = 'alert alert-warning mt-3 mb-0';
             warning.textContent = 'Peringatan: harga jual berada di bawah harga beli terakhir. Pastikan harga ini merupakan keputusan Owner/subsidi silang.';
@@ -299,16 +304,32 @@
             function check() {
                 warning.hidden = Number(sell.value.replace(/\D/g, '') || 0) >= Number(buy.value.replace(/\D/g, '') || 0);
             }
+            function updateCodePreview() {
+                const price = Number(sell.value.replace(/\D/g, '') || 0);
+                const suffix = (price / 1000).toFixed(3).replace(/\.?0+$/, '');
+                document.getElementById('kode-preview').textContent =
+                    price ? codeBase + '-' + suffix : oldCode;
+            }
             sell.addEventListener('input', function() {
                 const digits = this.value.replace(/\D/g, '');
                 this.value = digits ? Number(digits).toLocaleString('id-ID') : '';
                 check();
+                updateCodePreview();
             });
-            form.addEventListener('submit', function() {
+            form.addEventListener('submit', function(event) {
+                const newPrice = sell.value.replace(/\D/g, '');
+                const newCode = document.getElementById('kode-preview').textContent;
+                if (newPrice !== originalPrice &&
+                    !window.confirm('Harga jual berubah. Kode lama: ' + oldCode + '. Kode baru: ' + newCode +
+                        '. Lanjutkan menyimpan perubahan?')) {
+                    event.preventDefault();
+                    return;
+                }
                 sell.value = sell.value.replace(/\D/g, '');
                 form.querySelector('button[type="submit"]').disabled = true;
             });
             check();
+            updateCodePreview();
         });
     </script>
 @endpush

@@ -179,6 +179,18 @@
                                 {{ $penjualan->user?->name ?? '-' }}
                             </div>
                         </div>
+                        <div class="mt-4">
+                            <span class="label-title">Status Transaksi</span>
+                            <span class="badge {{ $penjualan->status === 'completed' ? 'bg-success' : 'bg-secondary' }}">
+                                {{ match ($penjualan->status) {
+                                    'completed' => 'Selesai',
+                                    'partially_returned' => 'Retur Sebagian',
+                                    'returned' => 'Diretur',
+                                    'cancelled' => 'Dibatalkan',
+                                    default => $penjualan->status,
+                                } }}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -207,6 +219,8 @@
                                             <th class="text-center ps-4">Kode</th>
                                             <th>Nama Barang</th>
                                             <th class="text-center">Qty</th>
+                                            <th class="text-center">Diretur</th>
+                                            <th class="text-center">Sisa</th>
                                             <th class="text-end">Harga</th>
                                             <th class="text-end pe-4">Subtotal</th>
                                         </tr>
@@ -223,6 +237,12 @@
                                                 <td class="text-center text-muted fw-semibold">
                                                     {{ $detail->qty }} {{ $detail->product->satuan ?? 'pcs' }}
                                                 </td>
+                                                <td class="text-center text-muted">
+                                                    {{ $detail->returns->sum('qty') }}
+                                                </td>
+                                                <td class="text-center text-muted">
+                                                    {{ $detail->qty - $detail->returns->sum('qty') }}
+                                                </td>
                                                 <td class="text-end text-muted">
                                                     Rp {{ number_format($detail->harga, 0, ',', '.') }}
                                                 </td>
@@ -236,6 +256,51 @@
                             </div>
                         </div>
                     </div>
+
+                    @if (auth()->user()->isOwner() && in_array($penjualan->status, ['completed', 'partially_returned'], true))
+                        <div class="card card-terapos no-print">
+                            <div class="card-header-green">Retur atau Pembatalan Penjualan</div>
+                            <div class="card-body p-4">
+                                <p class="small text-muted">Pilih jumlah barang yang dikembalikan. Subsidi dan stok akan disesuaikan otomatis. Dana refund harus dikembalikan kepada pelanggan.</p>
+                                <form method="POST" action="{{ route('penjualan.returns.store', $penjualan) }}">
+                                    @csrf
+                                    <input type="hidden" name="request_token" value="{{ $returnToken }}">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle">
+                                            <thead><tr><th>Barang</th><th>Sisa dapat diretur</th><th>Qty retur</th></tr></thead>
+                                            <tbody>
+                                                @foreach ($penjualan->detailPenjualans as $detail)
+                                                    @php($remainingQty = $detail->qty - $detail->returns->sum('qty'))
+                                                    @if ($remainingQty > 0)
+                                                        <tr>
+                                                            <td>{{ $detail->product?->nama_produk ?? 'Barang tidak tersedia' }}</td>
+                                                            <td>{{ $remainingQty }}</td>
+                                                            <td>
+                                                                <input class="form-control form-control-sm" type="number"
+                                                                    min="0" max="{{ $remainingQty }}"
+                                                                    name="items[{{ $detail->id }}][qty]" value="0">
+                                                                <input type="hidden"
+                                                                    name="items[{{ $detail->id }}][detail_penjualan_id]"
+                                                                    value="{{ $detail->id }}">
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="submit" class="btn btn-outline-success">Proses Retur Sebagian</button>
+                                </form>
+
+                                <form method="POST" action="{{ route('penjualan.cancel', $penjualan) }}" class="mt-3"
+                                    onsubmit="return confirm('Batalkan seluruh sisa barang pada transaksi ini? Stok dan saldo subsidi akan disesuaikan.')">
+                                    @csrf
+                                    <input type="hidden" name="request_token" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
+                                    <button type="submit" class="btn btn-outline-danger">Batalkan Sisa Transaksi</button>
+                                </form>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Card Ringkasan Pembayaran -->
                     <div class="card card-terapos">
@@ -258,6 +323,14 @@
                                     Rp {{ number_format($penjualan->diskon_nominal, 0, ',', '.') }}
                                 </span>
                             </div>
+                            @if ((float) $penjualan->cross_subsidy_amount > 0)
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-muted small">Subsidi Silang</span>
+                                    <span class="fw-semibold text-success">
+                                        Rp {{ number_format($penjualan->cross_subsidy_amount, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            @endif
                             <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
                                 <span class="text-muted fw-semibold">Total Bayar</span>
                                 <span class="total-amount-highlight">
@@ -276,8 +349,48 @@
                                     Rp {{ number_format($penjualan->kembalian, 0, ',', '.') }}
                                 </span>
                             </div>
+                            @php($refundedAmount = $penjualan->returns->sum('refund_amount'))
+                            @if ($refundedAmount > 0)
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+                                    <span class="text-muted small">Dana retur yang dikembalikan</span>
+                                    <span class="fw-semibold text-danger">
+                                        Rp {{ number_format($refundedAmount, 0, ',', '.') }}
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-2">
+                                    <span class="text-muted fw-semibold">Penjualan bersih</span>
+                                    <span class="fw-bold text-dark">
+                                        Rp {{ number_format(max(0, (float) $penjualan->total - $refundedAmount), 0, ',', '.') }}
+                                    </span>
+                                </div>
+                            @endif
                         </div>
                     </div>
+
+                    @if ($penjualan->returns->isNotEmpty())
+                        <div class="card card-terapos">
+                            <div class="card-header-green">Riwayat Retur</div>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead><tr><th>Waktu</th><th>Jenis</th><th>Barang</th><th>Qty</th><th class="text-end">Refund</th><th>Petugas</th></tr></thead>
+                                    <tbody>
+                                        @foreach ($penjualan->returns as $return)
+                                            @foreach ($return->details as $returnedLine)
+                                                <tr>
+                                                    <td>{{ $return->created_at->format('d-m-Y H:i') }}</td>
+                                                    <td>{{ $return->reason === 'cancellation' ? 'Pembatalan' : 'Retur' }}</td>
+                                                    <td>{{ $returnedLine->detailPenjualan?->product?->nama_produk ?? '-' }}</td>
+                                                    <td>{{ $returnedLine->qty }}</td>
+                                                    <td class="text-end">Rp {{ number_format($returnedLine->refund_amount, 0, ',', '.') }}</td>
+                                                    <td>{{ $return->user?->name ?? '-' }}</td>
+                                                </tr>
+                                            @endforeach
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
 
                 </div>
             </div>

@@ -156,7 +156,7 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
                 <h3 class="fw-bold text-dark mb-1">Tambah Penjualan</h3>
-                <p class="text-muted small mb-0">Cari berdasarkan kode atau nama barang, lalu tambahkan ke keranjang.</p>
+                <p class="text-muted small mb-0">Cari berdasarkan kode, nama, merk, atau kategori, lalu tambahkan ke keranjang.</p>
             </div>
             <div>
                 <a href="{{ route('penjualan.index') }}" class="btn-action-outline">
@@ -181,6 +181,7 @@
 
         <form action="{{ route('penjualan.store') }}" method="POST" id="pos-form">
             @csrf
+            <input type="hidden" name="request_token" value="{{ old('request_token', $requestToken) }}">
 
             <div class="row g-4">
 
@@ -234,13 +235,24 @@
                                     <span class="text-muted small" id="sale-discount-label">Diskon</span>
                                     <span class="fw-semibold text-success" id="sale-discount">Rp 0</span>
                                 </div>
+                                @if ($crossSubsidySetting['is_active'])
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <span class="text-muted small">Subsidi Silang</span>
+                                        <span class="fw-semibold text-success" id="sale-cross-subsidy">Rp 0</span>
+                                    </div>
+                                @endif
                                 <span class="label-title">Total Bayar</span>
                                 <div class="price-total-display" id="sale-total">Rp 0</div>
-                                <small class="text-muted d-block mt-2">Diskon 5% untuk pembelian di atas Rp300.000.</small>
+                                @if ($discountSetting->is_active)
+                                    <small class="text-muted d-block mt-2" id="sale-discount-info" aria-live="polite"></small>
+                                @endif
+                                @if ($crossSubsidySetting['is_active'])
+                                    <small class="text-muted d-block mt-1" id="sale-cross-subsidy-info" aria-live="polite"></small>
+                                @endif
                             </div>
 
                             <div class="mb-3">
-                                <label for="bayar" class="label-title">Jumlah Bayar (Rp)</label>
+                                <label for="bayar" class="label-title">Uang Bayar (Rp)</label>
                                 <div class="input-group input-group-terapos">
                                     <span class="input-group-text input-group-text-terapos">Rp</span>
                                     <input id="bayar" type="text" inputmode="numeric" name="bayar"
@@ -275,17 +287,12 @@
                         <div class="card-body p-4">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-8">
-                                    <label for="product-search" class="label-title">Nama atau Kode Barang</label>
-                                    <input id="product-search" type="search" list="product-search-list"
+                                    <label for="product-search" class="label-title">Kode, Nama, Merk, atau Kategori</label>
+                                    <input id="product-search" type="search"
                                         class="form-control form-control-terapos"
-                                        placeholder="Cari nama atau kode barang..." autocomplete="off">
-                                    <datalist id="product-search-list">
-                                        @foreach ($products as $product)
-                                            @if ($product->stok > 0)
-                                                <option value="{{ $product->kode_produk }} - {{ $product->nama_produk }}"></option>
-                                            @endif
-                                        @endforeach
-                                    </datalist>
+                                        placeholder="Ketik kode, nama, merk, atau kategori..." autocomplete="off"
+                                        aria-controls="product-search-results" aria-autocomplete="list">
+                                    <div id="product-search-results" class="list-group mt-2" role="listbox"></div>
                                 </div>
                                 <div class="col-md-4">
                                     <button type="button" class="btn btn-success w-100 py-2 fw-semibold" id="add-search-product">
@@ -342,8 +349,10 @@
                         <option value="">Pilih barang...</option>
                         @foreach ($products as $product)
                             <option value="{{ $product->id }}" data-code="{{ $product->kode_produk }}"
-                                data-name="{{ $product->nama_produk }}" data-price="{{ $product->harga_jual }}"
-                                data-stock="{{ $product->stok }}" @disabled($product->stok < 1)>
+                                data-name="{{ $product->nama_produk }}" data-brand="{{ $product->merk }}"
+                                data-category="{{ $product->category?->nama_kategori }}"
+                                data-price="{{ $product->harga_jual }}" data-stock="{{ $product->stok }}"
+                                data-unit="{{ $product->satuan }}" @disabled($product->stok < 1)>
                                 {{ $product->kode_produk }} - {{ $product->nama_produk }}
                                 (Stok: {{ $product->stok }}
                                 {{ $product->satuan }}{{ $product->stok < 1 ? ' - HABIS' : '' }})
@@ -376,8 +385,18 @@
             const cart = document.getElementById('cart-items');
             const rowTemplate = document.getElementById('cart-row-template');
             const productSearch = document.getElementById('product-search');
+            const productResults = document.getElementById('product-search-results');
             const scanResult = document.getElementById('scan-result');
             const previousItems = @js(old('items', []));
+            const discountSetting = @js([
+                'is_active' => $discountSetting->is_active,
+                'minimum_purchase' => $discountSetting->minimum_purchase,
+                'percentage' => (float) $discountSetting->percentage,
+                'condition_operator' => $discountSetting->condition_operator,
+            ]);
+            const crossSubsidySetting = @js($crossSubsidySetting);
+            let submitting = false;
+            let searchMatches = [];
 
             function currency(value) {
                 return 'Rp ' + Number(value || 0).toLocaleString('id-ID', {
@@ -405,9 +424,31 @@
                 });
             }
 
+            function allocateDiscountCents(discount, weights) {
+                const totalCents = Math.round(discount * 100);
+                const weightCents = weights.map(item => Math.round(item * 100));
+                const weightTotal = weightCents.reduce((sum, value) => sum + value, 0);
+                const allocations = weightCents.map(() => 0);
+                if (totalCents <= 0 || weightTotal <= 0) return allocations;
+
+                const remainders = [];
+                let allocated = 0;
+                weightCents.forEach(function(weight, index) {
+                    const exact = totalCents * (weight / weightTotal);
+                    allocations[index] = Math.floor(exact);
+                    remainders.push({ index: index, remainder: exact - allocations[index] });
+                    allocated += allocations[index];
+                });
+                remainders.sort((left, right) => right.remainder - left.remainder);
+                for (let i = 0; i < totalCents - allocated; i++) {
+                    allocations[remainders[i].index]++;
+                }
+                return allocations.map(value => value / 100);
+            }
+
             function calculateTotals() {
                 let subtotalPenjualan = 0;
-                cart.querySelectorAll('.cart-row').forEach(function(row) {
+                const saleLines = Array.from(cart.querySelectorAll('.cart-row')).map(function(row) {
                     const select = row.querySelector('.cart-product');
                     const option = select.options[select.selectedIndex];
                     const qtyInput = row.querySelector('.cart-qty');
@@ -418,20 +459,74 @@
                     const subtotal = price * qty;
                     subtotalPenjualan += subtotal;
                     row.querySelector('.cart-subtotal').textContent = currency(subtotal);
+                    return {
+                        row: row,
+                        productId: select.value,
+                        qty: qty,
+                        subtotal: subtotal,
+                    };
                 });
 
                 subtotalPenjualan = Math.round((subtotalPenjualan + Number.EPSILON) * 100) / 100;
-                const discountPercent = subtotalPenjualan > 300000 ? 5 : 0;
+                const meetsDiscount = discountSetting.is_active &&
+                    (discountSetting.condition_operator === 'gt' ?
+                        subtotalPenjualan > Number(discountSetting.minimum_purchase) :
+                        subtotalPenjualan >= Number(discountSetting.minimum_purchase));
+                const discountPercent = meetsDiscount ? Number(discountSetting.percentage) : 0;
                 const discount = Math.round((subtotalPenjualan * discountPercent / 100 + Number.EPSILON) * 100) / 100;
-                const total = Math.round((subtotalPenjualan - discount + Number.EPSILON) * 100) / 100;
+                const discountShares = allocateDiscountCents(discount, saleLines.map(line => line.subtotal));
+                let crossSubsidy = 0;
+                const subsidyInfo = document.getElementById('sale-cross-subsidy-info');
+                if (crossSubsidySetting.is_active) {
+                    const recipientIndex = saleLines.findIndex(line =>
+                        line.productId === String(crossSubsidySetting.recipient_product_id)
+                    );
+                    if (recipientIndex >= 0 && saleLines[recipientIndex].qty > 0) {
+                        const recipient = saleLines[recipientIndex];
+                        const netSubtotal = recipient.subtotal - discountShares[recipientIndex];
+                        const headroom = Math.max(0,
+                            netSubtotal - Number(crossSubsidySetting.minimum_selling_price) * recipient.qty
+                        );
+                        const grantCents = Math.min(
+                            Math.round(Number(crossSubsidySetting.subsidy_amount) * 100) * recipient.qty,
+                            Math.round(Number(crossSubsidySetting.maximum_subsidy) * 100),
+                            Math.round(Number(crossSubsidySetting.balance) * 100),
+                            Math.round(headroom * 100)
+                        );
+                        const perUnitCents = Math.floor(Math.max(0, grantCents) / recipient.qty);
+                        crossSubsidy = perUnitCents * recipient.qty / 100;
+                        if (subsidyInfo) {
+                            subsidyInfo.textContent = crossSubsidy > 0 ?
+                                'Subsidi Silang Rp ' + currency(crossSubsidy).replace('Rp ', '') + ' aktif.' :
+                                'Subsidi belum dapat digunakan: saldo tidak cukup atau harga minimum telah tercapai.';
+                        }
+                    } else if (subsidyInfo) {
+                        subsidyInfo.textContent = Number(crossSubsidySetting.balance) > 0 ?
+                            'Saldo Subsidi Silang tersedia untuk produk penerima.' :
+                            'Saldo Subsidi Silang belum tersedia.';
+                    }
+                }
+                const total = Math.round((subtotalPenjualan - discount - crossSubsidy + Number.EPSILON) * 100) / 100;
 
                 document.getElementById('sale-subtotal').textContent = currency(subtotalPenjualan);
                 document.getElementById('sale-discount-label').textContent = discountPercent ?
                     'Diskon ' + discountPercent + '%' : 'Diskon';
                 document.getElementById('sale-discount').textContent = currency(discount);
-                document.getElementById('sale-discount-row').style.display =
-                    discountPercent || subtotalPenjualan === 0 ? 'flex' : 'none';
+                document.getElementById('sale-discount-row').style.display = 'flex';
+                const crossSubsidyDisplay = document.getElementById('sale-cross-subsidy');
+                if (crossSubsidyDisplay) crossSubsidyDisplay.textContent = currency(crossSubsidy);
                 document.getElementById('sale-total').textContent = currency(total);
+                const discountInfo = document.getElementById('sale-discount-info');
+                if (discountInfo) {
+                    if (meetsDiscount) {
+                        discountInfo.textContent = 'Diskon ' + discountSetting.percentage + '% aktif.';
+                    } else {
+                        const gap = Math.max(0, Number(discountSetting.minimum_purchase) - subtotalPenjualan +
+                            (discountSetting.condition_operator === 'gt' ? 1 : 0));
+                        discountInfo.textContent = 'Tambah ' + currency(gap) + ' lagi untuk mendapatkan diskon ' +
+                            discountSetting.percentage + '%.';
+                    }
+                }
                 const paid = numericValue(document.getElementById('bayar').value);
                 document.getElementById('kembalian').value = currency(Math.max(0, paid - total));
                 return total;
@@ -467,9 +562,17 @@
                     row => row.querySelector('.cart-product').value === String(productId)
                 );
                 if (existingRow) {
-                    notify('Barang tersebut sudah ada di keranjang.', 'warning');
-                    existingRow.querySelector('.cart-qty').focus();
-                    return false;
+                    const quantity = existingRow.querySelector('.cart-qty');
+                    const nextQuantity = Number(quantity.value || 0) + 1;
+                    if (nextQuantity > stock) {
+                        notify('Qty barang sudah mencapai stok tersedia (' + stock + ').', 'warning');
+                        quantity.focus();
+                        return false;
+                    }
+                    quantity.value = nextQuantity;
+                    calculateTotals();
+                    notify(option.dataset.name + ' ditambahkan ke baris yang sama. Qty: ' + nextQuantity + '.', 'success');
+                    return true;
                 }
 
                 const blankRow = Array.from(cart.querySelectorAll('.cart-row')).find(
@@ -487,6 +590,7 @@
                 const option = select.options[select.selectedIndex];
 
                 if (!productId) {
+                    select.dataset.previousProductId = '';
                     row.querySelector('.cart-code').textContent = '-';
                     row.querySelector('.cart-stock').textContent = '-';
                     row.querySelector('.cart-price').textContent = '-';
@@ -498,9 +602,24 @@
                     other => other !== select && other.value === productId
                 );
                 if (duplicate) {
-                    select.value = '';
+                    const existingSelect = Array.from(cart.querySelectorAll('.cart-product'))
+                        .find(other => other !== select && other.value === productId);
+                    const existingRow = existingSelect.closest('.cart-row');
+                    const existingQty = existingRow.querySelector('.cart-qty');
+                    const currentQty = row.querySelector('.cart-qty');
+                    const combinedQty = Number(existingQty.value || 0) + Number(currentQty.value || 0);
+                    if (combinedQty <= Number(option.dataset.stock || 0)) {
+                        existingQty.value = combinedQty;
+                        row.remove();
+                        reindexCart();
+                        calculateTotals();
+                        notify(option.dataset.name + ' digabung ke baris yang sama. Qty: ' + combinedQty + '.', 'success');
+                        return;
+                    }
+
+                    select.value = select.dataset.previousProductId || '';
                     if (reportDuplicate) {
-                        notify('Barang tersebut sudah ada di keranjang.', 'warning');
+                        notify('Qty gabungan barang melebihi stok tersedia (' + option.dataset.stock + ').', 'warning');
                     }
                     setRowProduct(row, false);
                     return;
@@ -509,6 +628,7 @@
                 const stock = Number(option.dataset.stock || 0);
                 if (stock < 1) {
                     select.value = '';
+                    select.dataset.previousProductId = '';
                     notify('Stok barang habis.', 'warning');
                     setRowProduct(row, false);
                     return;
@@ -517,37 +637,87 @@
                 row.querySelector('.cart-code').textContent = option.dataset.code;
                 row.querySelector('.cart-stock').textContent = stock;
                 row.querySelector('.cart-price').textContent = currency(option.dataset.price);
+                select.dataset.previousProductId = productId;
                 const qty = row.querySelector('.cart-qty');
                 qty.value = Math.min(Math.max(1, Number(qty.value || 1)), stock);
                 calculateTotals();
             }
 
-            function searchProduct() {
+            function renderProductSearchResults() {
                 const search = productSearch.value.trim().toLocaleLowerCase('id-ID');
-                if (!search) {
-                    productSearch.focus();
-                    return;
-                }
+                productResults.replaceChildren();
+                searchMatches = [];
+                if (!search) return;
+
                 const options = Array.from(rowTemplate.content.querySelectorAll('.cart-product option'))
-                    .filter(option => option.value && Number(option.dataset.stock) > 0);
-                const exact = options.find(option =>
-                    (option.dataset.code + ' - ' + option.dataset.name).toLocaleLowerCase('id-ID') === search
-                    || option.dataset.code.toLocaleLowerCase('id-ID') === search
-                    || option.dataset.name.toLocaleLowerCase('id-ID') === search
-                );
-                const matches = exact ? [exact] : options.filter(option =>
-                    option.dataset.code.toLocaleLowerCase('id-ID').includes(search)
-                    || option.dataset.name.toLocaleLowerCase('id-ID').includes(search)
-                );
-                if (matches.length !== 1) {
-                    notify(matches.length ? 'Pencarian cocok dengan beberapa barang. Pilih nama lengkap dari saran.' : 'Barang tidak ditemukan.', matches.length ? 'warning' : 'danger');
+                    .filter(option => option.value);
+                const exact = options.find(option => [
+                    option.dataset.code,
+                    option.dataset.name,
+                    option.dataset.code + ' - ' + option.dataset.name,
+                ].some(value => value.toLocaleLowerCase('id-ID') === search));
+                const matches = exact ? [exact] : options.filter(option => [
+                    option.dataset.code,
+                    option.dataset.name,
+                    option.dataset.brand,
+                    option.dataset.category,
+                ].some(value => (value || '').toLocaleLowerCase('id-ID').includes(search)));
+                searchMatches = matches.slice(0, 10);
+
+                if (!searchMatches.length) {
+                    const empty = document.createElement('div');
+                    empty.className = 'list-group-item small text-muted';
+                    empty.textContent = 'Barang tidak ditemukan.';
+                    productResults.appendChild(empty);
                     return;
                 }
-                if (addProduct(matches[0].value)) {
-                    notify(matches[0].dataset.name + ' ditambahkan ke keranjang.', 'success');
+
+                searchMatches.forEach(function(option) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'list-group-item list-group-item-action text-start';
+                    button.setAttribute('role', 'option');
+                    button.dataset.productId = option.value;
+                    button.disabled = Number(option.dataset.stock) < 1;
+
+                    const title = document.createElement('div');
+                    title.className = 'fw-semibold';
+                    title.textContent = option.dataset.code + ' - ' + option.dataset.name;
+                    const details = document.createElement('div');
+                    details.className = 'small text-muted';
+                    details.textContent = [
+                        option.dataset.brand,
+                        option.dataset.category,
+                        currency(option.dataset.price),
+                        'Stok ' + option.dataset.stock + ' ' + option.dataset.unit,
+                    ].filter(Boolean).join(' · ');
+                    button.append(title, details);
+                    productResults.appendChild(button);
+                });
+            }
+
+            function selectSearchProduct(productId) {
+                if (addProduct(productId)) {
                     productSearch.value = '';
+                    productResults.replaceChildren();
+                    searchMatches = [];
                     productSearch.focus();
                 }
+            }
+
+            function searchProduct() {
+                if (!productSearch.value.trim()) {
+                    productSearch.focus();
+                    return;
+                }
+                if (searchMatches.length === 1) {
+                    selectSearchProduct(searchMatches[0].value);
+                    return;
+                }
+                notify(
+                    searchMatches.length ? 'Pilih barang dari hasil pencarian.' : 'Barang tidak ditemukan.',
+                    searchMatches.length ? 'warning' : 'danger'
+                );
             }
 
             cart.addEventListener('change', function(event) {
@@ -607,11 +777,22 @@
                 if (event.key === 'Enter') {
                     event.preventDefault();
                     searchProduct();
+                } else if (event.key === 'Escape') {
+                    productResults.replaceChildren();
                 }
+            });
+            productSearch.addEventListener('input', renderProductSearchResults);
+            productResults.addEventListener('click', function(event) {
+                const button = event.target.closest('button[data-product-id]');
+                if (button && !button.disabled) selectSearchProduct(button.dataset.productId);
             });
             document.getElementById('add-search-product').addEventListener('click', searchProduct);
 
             form.addEventListener('submit', function(event) {
+                if (submitting) {
+                    event.preventDefault();
+                    return;
+                }
                 reindexCart();
                 const rows = cart.querySelectorAll('.cart-row');
                 const total = calculateTotals();
@@ -627,6 +808,7 @@
                     return;
                 }
                 document.getElementById('bayar').value = numericValue(document.getElementById('bayar').value);
+                submitting = true;
                 document.getElementById('submit-sale').disabled = true;
             });
 

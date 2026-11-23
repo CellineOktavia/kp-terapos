@@ -21,6 +21,32 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## TERAPOS Owner Product Codes
+
+The Owner product master is sourced from `database/seeders/data/Data_Master_Toko_Terang_Abadi_v4.xlsx`.
+Preview the exact-name code mapping before applying it to SQLite:
+
+```bash
+php artisan products:sync-owner-codes-v4 --dry-run
+php artisan products:sync-owner-codes-v4 --apply
+```
+
+The apply command creates and verifies a SQLite backup, validates the full mapping, and updates only
+`products.kode_produk` in one transaction. The legacy `products:sync-owner-master` command is disabled.
+
+## Product Search and Cross Subsidy
+
+Product search in sales, receipts, and the product master filters active products by code, name, brand,
+and category. Sales and receipt forms load the catalog once and filter it in the browser.
+
+The Owner-only **Subsidi Silang** page configures one provider/recipient pair. Contributions are based
+on realized margin after transaction discounts and become available to later sales. Subsidy usage is
+limited by the available ledger balance, the transaction cap, and the recipient's minimum selling
+price. Owner-only partial returns and cancellations restore stock and reverse the associated ledger
+entries; a reversal may leave a negative balance, which pauses further subsidies until replenished.
+
+Apply database changes with `php artisan migrate`; do not reset or reseed the active database.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
