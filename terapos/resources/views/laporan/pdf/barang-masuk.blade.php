@@ -26,8 +26,8 @@
                     <td>{{ $detail->penerimaanBarang->user?->name ?? '-' }}</td>
                     <td>{{ $detail->product?->nama_produk ?? 'Barang tidak tersedia' }}</td>
                     <td class="right">{{ number_format($detail->qty, 0, ',', '.') }}</td>
-                    <td class="right">{{ $detail->harga_beli === null ? '-' : 'Rp ' . number_format($detail->harga_beli, 0, ',', '.') }}</td>
-                    <td class="right">{{ $detail->harga_beli === null ? '-' : 'Rp ' . number_format($detail->qty * $detail->harga_beli, 0, ',', '.') }}</td>
+                    <td class="right">{{ $detail->harga_beli === null ? 'Belum tercatat' : 'Rp ' . number_format($detail->harga_beli, 0, ',', '.') }}</td>
+                    <td class="right">{{ $detail->harga_beli === null ? 'Belum tercatat' : 'Rp ' . number_format($detail->qty * $detail->harga_beli, 0, ',', '.') }}</td>
                 </tr>
             @endforeach
         </tbody>
@@ -37,5 +37,8 @@
         <tr><th>Total Qty Masuk</th><td>{{ number_format($summary['qty'], 0, ',', '.') }}</td></tr>
         <tr><th>Total Nilai Barang Masuk</th><td>Rp {{ number_format($summary['value'], 0, ',', '.') }}</td></tr>
     </table>
+    @if(($summary['unknown_value_rows'] ?? 0) > 0)
+        <p>Sebanyak {{ $summary['unknown_value_rows'] }} baris belum memiliki snapshot harga beli. Total hanya mencakup nilai yang diketahui.</p>
+    @endif
 </body>
 </html>

@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiscountSettingController;
-use App\Http\Controllers\CrossSubsidyController;
 use App\Http\Controllers\PenjualanReturnController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
@@ -25,6 +24,8 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
 Route::middleware(['auth', \App\Http\Middleware\EnsureActiveUser::class])->group(function () {
+    Route::get('/api/search/autocomplete', [ProductController::class, 'autocomplete'])
+        ->name('search.autocomplete');
     // Kategori Routes
     Route::get('/kategori', [CategoryController::class, 'index'])->name('kategori.index');
     Route::post('/kategori', [CategoryController::class, 'store'])->name('kategori.store');
@@ -71,8 +72,6 @@ Route::middleware(['auth', \App\Http\Middleware\EnsureActiveUser::class])->group
     Route::middleware('role:owner')->group(function () {
         Route::get('/diskon', [DiscountSettingController::class, 'edit'])->name('diskon.edit');
         Route::put('/diskon', [DiscountSettingController::class, 'update'])->name('diskon.update');
-        Route::get('/subsidi-silang', [CrossSubsidyController::class, 'edit'])->name('subsidi-silang.edit');
-        Route::put('/subsidi-silang', [CrossSubsidyController::class, 'update'])->name('subsidi-silang.update');
         Route::post('/penjualan/{penjualan}/returns', [PenjualanReturnController::class, 'store'])
             ->name('penjualan.returns.store');
         Route::post('/penjualan/{penjualan}/cancel', [PenjualanReturnController::class, 'cancel'])
@@ -124,5 +123,5 @@ Route::middleware(['auth', 'role:owner'])->group(function () {
 });
 
 // Realtime Dashboard Data Endpoint
-    Route::get('/api/dashboard/realtime', [OwnerDashboardController::class, 'realtime'])
+    Route::middleware(['auth'])->get('/api/dashboard/realtime', [OwnerDashboardController::class, 'realtime'])
         ->name('dashboard.realtime');

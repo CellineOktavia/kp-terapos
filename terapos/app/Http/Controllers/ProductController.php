@@ -14,6 +14,48 @@ use Illuminate\Validation\ValidationException;
 
 class ProductController extends Controller
 {
+    public function autocomplete(Request $request)
+    {
+        $search = trim((string) $request->input('q', ''));
+        $includeInactive = $request->boolean('include_inactive');
+        $activeOnly = !$includeInactive;
+
+        $products = Product::query()
+            ->with('category:id,nama_kategori')
+            ->when($activeOnly, fn ($query) => $query->where('aktif', true))
+            ->when($search !== '', function ($query) use ($search) {
+                $term = '%' . mb_strtolower($search) . '%';
+                $query->where(function ($productQuery) use ($term, $search) {
+                    $productQuery->whereRaw('LOWER(kode_produk) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(nama_produk) LIKE ?', [$term])
+                        ->orWhereRaw('LOWER(COALESCE(merk, \'\')) LIKE ?', [$term])
+                        ->orWhereHas('category', fn ($categoryQuery) =>
+                            $categoryQuery->whereRaw('LOWER(nama_kategori) LIKE ?', ['%' . mb_strtolower($search) . '%']));
+                });
+            })
+            ->orderByRaw("CASE WHEN LOWER(kode_produk) = ? THEN 0 WHEN LOWER(kode_produk) LIKE ? THEN 1 WHEN LOWER(nama_produk) LIKE ? THEN 2 ELSE 3 END",
+                [mb_strtolower($search), mb_strtolower($search) . '%', mb_strtolower($search) . '%'])
+            ->orderBy('nama_produk')
+            ->limit(10)
+            ->get();
+
+        return response()->json($products->map(fn (Product $product) => [
+            'id' => $product->id,
+            'code' => $product->kode_produk,
+            'name' => $product->nama_produk,
+            'merk' => $product->merk,
+            'category' => $product->category?->nama_kategori,
+            'stock' => (int) $product->stok,
+            'buy_price' => (float) $product->harga_beli,
+            'sell_price' => (float) $product->harga_jual,
+            'unit' => $product->satuan,
+            'extra' => implode(' · ', array_filter([
+                $product->category?->nama_kategori,
+                $product->merk,
+                'Stok ' . $product->stok . ' ' . $product->satuan,
+            ])),
+        ]));
+    }
     public function index(Request $request)
     {
         $filters = $request->validate([
@@ -77,7 +119,9 @@ class ProductController extends Controller
             ->get(['id', 'category_id', 'kode_produk', 'nama_produk', 'merk', 'satuan', 'harga_jual']);
 
         return view('produk.create', [
-            'categories' => Category::orderBy('nama_kategori')->get(),
+            'categories' => Category::whereHas('products', fn ($query) => $query->where('aktif', true))
+                ->orderBy('nama_kategori')
+                ->get(),
             'existingProducts' => $existingProducts,
         ]);
     }
@@ -147,7 +191,13 @@ class ProductController extends Controller
     {
         return view('produk.edit', [
             'product' => $product,
-            'categories' => Category::orderBy('nama_kategori')->get(),
+            'categories' => Category::where(function ($query) use ($product) {
+                    $query->whereHas('products', fn ($productQuery) => $productQuery->where('aktif', true))
+                        ->orWhereKey($product->category_id);
+                })
+                ->orderBy('nama_kategori')
+                ->get(),
+            'existingProducts' => Product::query()->with('category:id,nama_kategori')->orderBy('nama_produk')->get(['id','category_id','kode_produk','nama_produk','merk','satuan','harga_beli','harga_jual']),
             'codeBase' => $this->codeBase($product->kode_produk),
         ]);
     }
@@ -167,19 +217,28 @@ class ProductController extends Controller
             'stok_minimum' => ['required', 'integer', 'min:0'],
             'harga_beli' => ['required', 'numeric', 'min:0'],
             'harga_jual' => ['required', 'numeric', 'min:0'],
+            'alasan_harga_beli' => ['nullable', 'string', 'max:255'],
             'deskripsi' => ['nullable', 'string'],
         ]);
 
         $newSalePrice = (float) $validated['harga_jual'];
-        $belowBuyPrice = DB::transaction(function () use ($product, $validated, $newSalePrice) {
+        $newBuyPrice = (float) $validated['harga_beli'];
+        $belowBuyPrice = DB::transaction(function () use ($product, $validated, $newSalePrice, $newBuyPrice) {
             $lockedProduct = Product::query()->whereKey($product->id)->lockForUpdate()->firstOrFail();
             $oldSalePrice = (float) $lockedProduct->harga_jual;
             $oldBuyPrice = (float) $lockedProduct->harga_beli;
             if ($oldSalePrice !== $newSalePrice && !Auth::user()->isOwner()) {
                 abort(403, 'Hanya Owner yang dapat mengubah harga jual.');
             }
+            if ($oldBuyPrice !== $newBuyPrice && !Auth::user()->isOwner()) {
+                abort(403, 'Hanya Owner yang dapat mengubah harga beli.');
+            }
+            if ($oldBuyPrice !== $newBuyPrice && trim((string) ($validated['alasan_harga_beli'] ?? '')) === '') {
+                throw ValidationException::withMessages([
+                    'alasan_harga_beli' => 'Alasan perubahan harga beli wajib diisi.',
+                ]);
+            }
 
-            $validated['harga_beli'] = $oldBuyPrice;
             if ($oldSalePrice !== $newSalePrice) {
                 $base = $this->codeBase($lockedProduct->kode_produk);
                 $newCode = $this->codeFromBaseAndPrice($base, $newSalePrice);
@@ -194,6 +253,16 @@ class ProductController extends Controller
             }
 
             $lockedProduct->update($validated);
+            if ($oldBuyPrice !== $newBuyPrice) {
+                ProductPriceHistory::create([
+                    'product_id' => $lockedProduct->id,
+                    'jenis_harga' => 'beli',
+                    'harga_lama' => $oldBuyPrice,
+                    'harga_baru' => $newBuyPrice,
+                    'user_id' => Auth::id(),
+                    'keterangan' => 'Koreksi manual: ' . trim((string) $validated['alasan_harga_beli']),
+                ]);
+            }
             if ($oldSalePrice !== $newSalePrice) {
                 ProductPriceHistory::create([
                     'product_id' => $lockedProduct->id,
@@ -205,7 +274,7 @@ class ProductController extends Controller
                 ]);
             }
 
-            return $newSalePrice < $oldBuyPrice;
+            return $newSalePrice < $newBuyPrice;
         });
 
         $warning = $belowBuyPrice

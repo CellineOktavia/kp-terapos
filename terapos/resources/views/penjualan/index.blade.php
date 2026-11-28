@@ -233,6 +233,10 @@
                                 </span>
                                 <input type="text" name="search"
                                     class="form-control form-control-terapos border-start-0"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                    data-autocomplete-fields="code,name,merk,category"
+                                    data-autocomplete-include-inactive="1"
                                     placeholder="No. Penjualan, nama/kode barang, user..." value="{{ $filters['search'] ?? '' }}">
                             </div>
                         </div>

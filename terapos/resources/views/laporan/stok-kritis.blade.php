@@ -250,6 +250,9 @@
                     <div class="col-lg-4 col-md-6">
                         <label for="search" class="label-title">Cari Barang</label>
                         <input type="text" id="search" name="search" class="form-control form-control-terapos"
+                            data-terapos-autocomplete
+                            data-autocomplete-url="{{ route('search.autocomplete') }}"
+                            data-autocomplete-fields="code,name,merk,category"
                             placeholder="Kode atau nama barang..." value="{{ $filters['search'] ?? '' }}">
                     </div>
                     <div class="col-lg-3 col-md-6">

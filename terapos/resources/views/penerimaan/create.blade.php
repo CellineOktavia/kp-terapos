@@ -242,9 +242,12 @@
                             <label for="receipt-product-search" class="label-title">Cari kode, nama, merk, atau kategori</label>
                             <input id="receipt-product-search" type="search"
                                 class="form-control form-control-terapos"
+                                data-terapos-autocomplete
+                                data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                data-autocomplete-fields="code,name,merk,category"
                                 placeholder="Ketik kode, nama, merk, atau kategori..."
                                 autocomplete="off" aria-controls="receipt-product-results" aria-autocomplete="list">
-                            <div id="receipt-product-results" class="list-group mt-2" role="listbox"></div>
+                            <div id="receipt-product-results" class="list-group mt-2" role="listbox" style="display:none"></div>
                         </div>
                         <div class="col-md-3">
                             <button type="button" class="btn btn-primary w-100" id="add-search-receipt-product">
@@ -581,7 +584,9 @@
                 reindexRows();
             });
             document.getElementById('add-search-receipt-product').addEventListener('click', addSearchedProduct);
-            search.addEventListener('input', renderSearchResults);
+            search.addEventListener('teraposautocomplete:select', function(event) {
+                selectReceiptProduct(String(event.detail.id));
+            });
             productResults.addEventListener('click', function(event) {
                 const button = event.target.closest('button[data-product-id]');
                 if (button) selectReceiptProduct(button.dataset.productId);

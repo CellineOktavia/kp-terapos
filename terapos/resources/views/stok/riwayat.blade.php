@@ -171,6 +171,9 @@
                                     <i class="bi bi-search"></i>
                                 </span>
                                 <input id="movement-search" type="search" name="search"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                    data-autocomplete-fields="code,name,merk,category"
                                     class="form-control form-control-terapos border-start-0" value="{{ request('search') }}"
                                     placeholder="Kode barang, nama barang, atau keterangan...">
                             </div>

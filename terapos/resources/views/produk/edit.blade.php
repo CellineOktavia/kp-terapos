@@ -172,18 +172,21 @@
                         <div class="col-md-6">
                             <label for="nama_produk" class="info-label">Nama Barang</label>
                             <input id="nama_produk" type="text" name="nama_produk" class="form-control form-control-terapos"
+                                data-terapos-autocomplete
+                                data-autocomplete-fields="name,code"
+                                data-autocomplete-items="{{ $existingProducts->map(fn($item)=>['id'=>$item->id,'code'=>$item->kode_produk,'name'=>$item->nama_produk,'extra'=>($item->category->nama_kategori ?? 'Tanpa kategori')])->toJson() }}"
                                 value="{{ old('nama_produk', $product->nama_produk) }}" required>
                         </div>
                         <div class="col-md-6">
                             <label for="category_id" class="info-label">Kategori</label>
-                            <select id="category_id" name="category_id" class="form-select form-select-terapos">
-                                <option value="">Tanpa kategori</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" @selected(old('category_id', $product->category_id) == $category->id)>
-                                        {{ $category->nama_kategori }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input id="category-search" type="search" class="form-control form-control-terapos"
+                                data-terapos-autocomplete
+                                data-autocomplete-fields="name"
+                                data-autocomplete-items="{{ $categories->map(fn($category)=>['id'=>$category->id,'name'=>$category->nama_kategori])->toJson() }}"
+                                data-autocomplete-target="#category_id"
+                                value="{{ optional($categories->firstWhere('id',(int)old('category_id',$product->category_id)))->nama_kategori }}"
+                                placeholder="Cari atau pilih kategori..." autocomplete="off">
+                            <input type="hidden" id="category_id" name="category_id" value="{{ old('category_id',$product->category_id) }}">
                         </div>
                         <div class="col-md-6">
                             <label for="merk" class="info-label">Merk</label>
@@ -251,12 +254,22 @@
                                 <label for="harga_beli" class="info-label">Harga Beli (Modal)</label>
                                 <div class="input-group input-group-terapos">
                                     <span class="input-group-text input-group-text-terapos">Rp</span>
-                                    <input id="harga_beli" type="text" name="harga_beli" class="form-control form-control-terapos form-control-readonly"
-                                        value="{{ number_format($product->harga_beli, 0, ',', '.') }}" readonly>
+                                    <input id="harga_beli" type="text" inputmode="numeric" name="harga_beli"
+                                        class="form-control form-control-terapos {{ auth()->user()->isOwner() ? '' : 'form-control-readonly' }}"
+                                        value="{{ number_format($product->harga_beli, 0, ',', '.') }}"
+                                        @unless(auth()->user()->isOwner()) readonly @endunless required>
                                 </div>
-                                <small class="text-muted d-block mt-1" style="font-size: .78rem;">Harga modal per
-                                    unit.</small>
+                                <small class="text-muted d-block mt-1" style="font-size: .78rem;">Harga modal per unit.</small>
                             </div>
+                            @if(auth()->user()->isOwner())
+                            <div class="mb-3">
+                                <label for="alasan_harga_beli" class="info-label">Alasan Koreksi Harga Beli</label>
+                                <input id="alasan_harga_beli" type="text" name="alasan_harga_beli" maxlength="255"
+                                    class="form-control form-control-terapos"
+                                    value="{{ old('alasan_harga_beli') }}"
+                                    placeholder="Wajib diisi jika harga beli berubah">
+                            </div>
+                            @endif
                             <div>
                                 <label for="harga_jual" class="info-label">Harga Jual</label>
                                 <div class="input-group input-group-terapos">
@@ -268,6 +281,7 @@
                                 <small class="text-muted d-block mt-1" style="font-size: .78rem;">
                                     Harga jual ditentukan dengan mempertimbangkan harga beli dan kisaran harga retail.
                                 </small>
+                                <div id="price-margin-preview" class="mt-3 p-3 rounded-3 bg-light small"></div>
                             </div>
                         </div>
                     </div>
@@ -298,11 +312,18 @@
             const originalPrice = sell.value.replace(/\D/g, '');
             const warning = document.createElement('div');
             warning.className = 'alert alert-warning mt-3 mb-0';
-            warning.textContent = 'Peringatan: harga jual berada di bawah harga beli terakhir. Pastikan harga ini merupakan keputusan Owner/subsidi silang.';
+            warning.textContent = 'Harga jual berada di bawah harga modal. Pastikan penetapan harga ini sesuai strategi subsidi silang Owner.';
             warning.hidden = true;
             sell.closest('.card-body').appendChild(warning);
             function check() {
-                warning.hidden = Number(sell.value.replace(/\D/g, '') || 0) >= Number(buy.value.replace(/\D/g, '') || 0);
+                const buyPrice = Number(buy.value.replace(/\D/g, '') || 0);
+                const sellPrice = Number(sell.value.replace(/\D/g, '') || 0);
+                const difference = sellPrice - buyPrice;
+                const margin = sellPrice > 0 ? (difference / sellPrice * 100) : 0;
+                warning.hidden = sellPrice >= buyPrice;
+                document.getElementById('price-margin-preview').innerHTML =
+                    '<strong>Selisih Harga:</strong> Rp ' + difference.toLocaleString('id-ID') +
+                    '<br><strong>Margin Kotor:</strong> ' + margin.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
             }
             function updateCodePreview() {
                 const price = Number(sell.value.replace(/\D/g, '') || 0);
@@ -310,11 +331,17 @@
                 document.getElementById('kode-preview').textContent =
                     price ? codeBase + '-' + suffix : oldCode;
             }
+            check();
             sell.addEventListener('input', function() {
                 const digits = this.value.replace(/\D/g, '');
                 this.value = digits ? Number(digits).toLocaleString('id-ID') : '';
                 check();
                 updateCodePreview();
+            });
+            buy.addEventListener('input', function() {
+                const digits = this.value.replace(/\D/g, '');
+                this.value = digits ? Number(digits).toLocaleString('id-ID') : '';
+                check();
             });
             form.addEventListener('submit', function(event) {
                 const newPrice = sell.value.replace(/\D/g, '');

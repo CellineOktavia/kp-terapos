@@ -273,13 +273,6 @@
                     <span>Kelola Diskon</span>
                 </div>
             </a>
-            <a href="{{ route('subsidi-silang.edit') }}"
-                class="list-group-item list-group-item-action {{ request()->routeIs('subsidi-silang.*') ? 'active' : '' }}">
-                <div class="sidebar-item-left">
-                    <i class="bi bi-arrow-left-right"></i>
-                    <span>Subsidi Silang</span>
-                </div>
-            </a>
         @endif
 
         <!-- Stok -->

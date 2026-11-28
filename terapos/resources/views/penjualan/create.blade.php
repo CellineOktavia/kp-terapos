@@ -235,19 +235,10 @@
                                     <span class="text-muted small" id="sale-discount-label">Diskon</span>
                                     <span class="fw-semibold text-success" id="sale-discount">Rp 0</span>
                                 </div>
-                                @if ($crossSubsidySetting['is_active'])
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <span class="text-muted small">Subsidi Silang</span>
-                                        <span class="fw-semibold text-success" id="sale-cross-subsidy">Rp 0</span>
-                                    </div>
-                                @endif
                                 <span class="label-title">Total Bayar</span>
                                 <div class="price-total-display" id="sale-total">Rp 0</div>
                                 @if ($discountSetting->is_active)
                                     <small class="text-muted d-block mt-2" id="sale-discount-info" aria-live="polite"></small>
-                                @endif
-                                @if ($crossSubsidySetting['is_active'])
-                                    <small class="text-muted d-block mt-1" id="sale-cross-subsidy-info" aria-live="polite"></small>
                                 @endif
                             </div>
 
@@ -290,9 +281,12 @@
                                     <label for="product-search" class="label-title">Kode, Nama, Merk, atau Kategori</label>
                                     <input id="product-search" type="search"
                                         class="form-control form-control-terapos"
+                                        data-terapos-autocomplete
+                                        data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                        data-autocomplete-fields="code,name,merk,category"
                                         placeholder="Ketik kode, nama, merk, atau kategori..." autocomplete="off"
                                         aria-controls="product-search-results" aria-autocomplete="list">
-                                    <div id="product-search-results" class="list-group mt-2" role="listbox"></div>
+                                    <div id="product-search-results" class="list-group mt-2" role="listbox" style="display:none"></div>
                                 </div>
                                 <div class="col-md-4">
                                     <button type="button" class="btn btn-success w-100 py-2 fw-semibold" id="add-search-product">
@@ -394,7 +388,6 @@
                 'percentage' => (float) $discountSetting->percentage,
                 'condition_operator' => $discountSetting->condition_operator,
             ]);
-            const crossSubsidySetting = @js($crossSubsidySetting);
             let submitting = false;
             let searchMatches = [];
 
@@ -475,46 +468,13 @@
                 const discountPercent = meetsDiscount ? Number(discountSetting.percentage) : 0;
                 const discount = Math.round((subtotalPenjualan * discountPercent / 100 + Number.EPSILON) * 100) / 100;
                 const discountShares = allocateDiscountCents(discount, saleLines.map(line => line.subtotal));
-                let crossSubsidy = 0;
-                const subsidyInfo = document.getElementById('sale-cross-subsidy-info');
-                if (crossSubsidySetting.is_active) {
-                    const recipientIndex = saleLines.findIndex(line =>
-                        line.productId === String(crossSubsidySetting.recipient_product_id)
-                    );
-                    if (recipientIndex >= 0 && saleLines[recipientIndex].qty > 0) {
-                        const recipient = saleLines[recipientIndex];
-                        const netSubtotal = recipient.subtotal - discountShares[recipientIndex];
-                        const headroom = Math.max(0,
-                            netSubtotal - Number(crossSubsidySetting.minimum_selling_price) * recipient.qty
-                        );
-                        const grantCents = Math.min(
-                            Math.round(Number(crossSubsidySetting.subsidy_amount) * 100) * recipient.qty,
-                            Math.round(Number(crossSubsidySetting.maximum_subsidy) * 100),
-                            Math.round(Number(crossSubsidySetting.balance) * 100),
-                            Math.round(headroom * 100)
-                        );
-                        const perUnitCents = Math.floor(Math.max(0, grantCents) / recipient.qty);
-                        crossSubsidy = perUnitCents * recipient.qty / 100;
-                        if (subsidyInfo) {
-                            subsidyInfo.textContent = crossSubsidy > 0 ?
-                                'Subsidi Silang Rp ' + currency(crossSubsidy).replace('Rp ', '') + ' aktif.' :
-                                'Subsidi belum dapat digunakan: saldo tidak cukup atau harga minimum telah tercapai.';
-                        }
-                    } else if (subsidyInfo) {
-                        subsidyInfo.textContent = Number(crossSubsidySetting.balance) > 0 ?
-                            'Saldo Subsidi Silang tersedia untuk produk penerima.' :
-                            'Saldo Subsidi Silang belum tersedia.';
-                    }
-                }
-                const total = Math.round((subtotalPenjualan - discount - crossSubsidy + Number.EPSILON) * 100) / 100;
+                const total = Math.round((subtotalPenjualan - discount + Number.EPSILON) * 100) / 100;
 
                 document.getElementById('sale-subtotal').textContent = currency(subtotalPenjualan);
                 document.getElementById('sale-discount-label').textContent = discountPercent ?
                     'Diskon ' + discountPercent + '%' : 'Diskon';
                 document.getElementById('sale-discount').textContent = currency(discount);
                 document.getElementById('sale-discount-row').style.display = 'flex';
-                const crossSubsidyDisplay = document.getElementById('sale-cross-subsidy');
-                if (crossSubsidyDisplay) crossSubsidyDisplay.textContent = currency(crossSubsidy);
                 document.getElementById('sale-total').textContent = currency(total);
                 const discountInfo = document.getElementById('sale-discount-info');
                 if (discountInfo) {
@@ -781,7 +741,9 @@
                     productResults.replaceChildren();
                 }
             });
-            productSearch.addEventListener('input', renderProductSearchResults);
+            productSearch.addEventListener('teraposautocomplete:select', function(event) {
+                selectSearchProduct(String(event.detail.id));
+            });
             productResults.addEventListener('click', function(event) {
                 const button = event.target.closest('button[data-product-id]');
                 if (button && !button.disabled) selectSearchProduct(button.dataset.productId);

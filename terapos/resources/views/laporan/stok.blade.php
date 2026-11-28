@@ -241,6 +241,9 @@
                                     <i class="bi bi-search"></i>
                                 </span>
                                 <input id="stock-search" type="search" name="search"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                    data-autocomplete-fields="code,name,merk,category"
                                     class="form-control form-control-terapos border-start-0"
                                     value="{{ $filters['search'] ?? '' }}" placeholder="Kode barang atau nama barang...">
                             </div>

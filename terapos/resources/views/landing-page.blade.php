@@ -917,7 +917,7 @@
 
                         <p class="contact-info">
                             <i class="bi bi-geo-alt-fill"></i>
-                            Jl. Soekarno-Hatta,
+                            Jalan Jaksa Agung R.Suprapto No.3,
                             Palembang
                         </p>
                     </div>
@@ -1032,7 +1032,7 @@
                 <p class="footer-contact">
 
                     <i class="bi bi-geo-alt-fill"></i>
-                    Jl. Soekarno-Hatta, Palembang
+                    Jalan Jaksa Agung R.Suprapto No.3, Kemang Manis, Ilir Barat II
 
                 </p>
 

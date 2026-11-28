@@ -200,6 +200,10 @@
                                 </span>
                                 <input id="receipt-search" type="search" name="search"
                                     class="form-control form-control-terapos border-start-0"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                    data-autocomplete-fields="code,name,merk,category"
+                                    data-autocomplete-include-inactive="1"
                                     placeholder="Nomor, barang, kode, atau user..." value="{{ $filters['search'] ?? '' }}">
                             </div>
                         </div>

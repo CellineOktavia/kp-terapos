@@ -328,9 +328,16 @@ class LaporanController extends Controller
             'receipts' => (clone $query)->distinct('penerimaan_barangs.id')->count('penerimaan_barangs.id'),
             'qty' => (int) (clone $query)->sum('detail_penerimaan_barangs.qty'),
             'value' => (float) (clone $query)
+                ->whereNotNull('detail_penerimaan_barangs.harga_beli')
                 ->selectRaw('COALESCE(SUM(detail_penerimaan_barangs.qty * detail_penerimaan_barangs.harga_beli), 0) as total_value')
                 ->first()
                 ->total_value,
+            'unknown_value_rows' => (int) (clone $query)
+                ->whereNull('detail_penerimaan_barangs.harga_beli')
+                ->count(),
+            'known_value_rows' => (int) (clone $query)
+                ->whereNotNull('detail_penerimaan_barangs.harga_beli')
+                ->count(),
         ];
     }
 
@@ -346,6 +353,7 @@ class LaporanController extends Controller
     private function stockQuery(array $filters): Builder
     {
         return Product::query()
+            ->where('aktif', true)
             ->when($filters['search'] ?? null, function (Builder $query, string $search) {
                 $query->where(function (Builder $productQuery) use ($search) {
                     $productQuery->where('kode_produk', 'like', "%{$search}%")

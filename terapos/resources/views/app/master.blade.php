@@ -534,6 +534,7 @@
             });
         });
     </script>
+    <script src="{{ asset('js/terapos-autocomplete.js') }}"></script>
     @stack('scripts')
 
 </body>

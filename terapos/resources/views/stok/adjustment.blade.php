@@ -151,15 +151,14 @@
                             <!-- Pilih Barang -->
                             <div class="mb-4">
                                 <label for="product_id" class="label-title">Pilih Barang</label>
-                                <select id="product_id" name="product_id" class="form-select form-select-terapos" required>
-                                    <option value="">Pilih barang...</option>
-                                    @foreach ($products as $product)
-                                        <option value="{{ $product->id }}" data-stock="{{ $product->stok }}"
-                                            data-unit="{{ $product->satuan }}" @selected(old('product_id') == $product->id)>
-                                            {{ $product->kode_produk }} - {{ $product->nama_produk }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <input id="adjustment-product-search" type="search"
+                                    class="form-control form-control-terapos"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                    data-autocomplete-fields="code,name,merk,category"
+                                    data-autocomplete-target="#product_id"
+                                    placeholder="Ketik kode atau nama barang..." autocomplete="off" required>
+                                <input type="hidden" id="product_id" name="product_id" value="{{ old('product_id') }}">
                                 <div class="stock-info-box">
                                     <i class="bi bi-info-circle-fill text-primary"></i>
                                     <span id="system-stock">Pilih barang untuk melihat stok sistem saat ini.</span>
@@ -215,13 +214,31 @@
 
 @push('scripts')
     <script>
-        document.getElementById('product_id').addEventListener('change', function() {
-            const option = this.selectedOptions[0];
-            const text = option.value ?
-                'Stok sistem saat ini: <strong>' + option.dataset.stock + ' ' + option.dataset.unit + '</strong>' :
-                'Pilih barang untuk melihat stok sistem saat ini.';
-            document.getElementById('system-stock').innerHTML = text;
+        document.addEventListener('DOMContentLoaded', function () {
+            const search = document.getElementById('adjustment-product-search');
+            const jenis = document.getElementById('jenis');
+            const qty = document.getElementById('qty');
+            let selectedStock = null;
+            let selectedUnit = '';
+            function updatePreview() {
+                if (selectedStock === null) return;
+                const amount = Number(qty.value || 0);
+                const next = jenis.value === 'masuk'
+                    ? selectedStock + amount
+                    : jenis.value === 'keluar'
+                        ? selectedStock - amount
+                        : selectedStock;
+                document.getElementById('system-stock').innerHTML =
+                    'Stok saat ini: <strong>' + selectedStock + ' ' + selectedUnit +
+                    '</strong>' + (amount > 0 && jenis.value ? ' · Stok setelah koreksi: <strong>' + next + ' ' + selectedUnit + '</strong>' : '');
+            }
+            search.addEventListener('teraposautocomplete:select', function (event) {
+                selectedStock = Number(event.detail.stock || 0);
+                selectedUnit = event.detail.unit || '';
+                updatePreview();
+            });
+            jenis.addEventListener('change', updatePreview);
+            qty.addEventListener('input', updatePreview);
         });
-        document.getElementById('product_id').dispatchEvent(new Event('change'));
     </script>
 @endpush

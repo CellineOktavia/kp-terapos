@@ -163,7 +163,11 @@
                         <div class="col-md-6">
                             <label for="kode_dasar" class="info-label">Kode Dasar</label>
                             <input id="kode_dasar" type="text" name="kode_dasar"
-                                class="form-control form-control-terapos" value="{{ old('kode_dasar') }}"
+                                class="form-control form-control-terapos"
+                                data-terapos-autocomplete
+                                data-autocomplete-fields="code,name"
+                                data-autocomplete-items="{{ $existingProducts->map(fn($item)=>['id'=>$item->id,'code'=>$item->kode_produk,'name'=>$item->nama_produk,'extra'=>($item->category->nama_kategori ?? 'Tanpa kategori').' · '.number_format($item->harga_jual,0,',','.').' rupiah'])->toJson() }}"
+                                value="{{ old('kode_dasar') }}"
                                 placeholder="Contoh: snc3w" required>
                             <small class="text-muted d-block mt-1" style="font-size: .78rem;">Preview kode: <span
                                     id="kode-preview">-</span>. Kode final ditentukan server.</small>
@@ -171,19 +175,22 @@
                         <div class="col-md-6">
                             <label for="nama_produk" class="info-label">Nama Barang</label>
                             <input id="nama_produk" type="text" name="nama_produk" class="form-control form-control-terapos"
+                                data-terapos-autocomplete
+                                data-autocomplete-fields="name,code"
+                                data-autocomplete-items="{{ $existingProducts->map(fn($item)=>['id'=>$item->id,'code'=>$item->kode_produk,'name'=>$item->nama_produk,'extra'=>($item->category->nama_kategori ?? 'Tanpa kategori').' · '.number_format($item->harga_jual,0,',','.').' rupiah'])->toJson() }}"
                                 value="{{ old('nama_produk') }}" placeholder="Masukkan nama barang" required>
                             <div id="product-suggestions" class="list-group mt-2 small" role="status" aria-live="polite"></div>
                         </div>
                         <div class="col-md-6">
                             <label for="category_id" class="info-label">Kategori</label>
-                            <select id="category_id" name="category_id" class="form-select form-select-terapos">
-                                <option value="">Tanpa kategori</option>
-                                @foreach ($categories as $category)
-                                    <option value="{{ $category->id }}" @selected(old('category_id') == $category->id)>
-                                        {{ $category->nama_kategori }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input id="category-search" type="search" class="form-control form-control-terapos"
+                                data-terapos-autocomplete
+                                data-autocomplete-fields="name"
+                                data-autocomplete-items="{{ $categories->map(fn($category)=>['id'=>$category->id,'name'=>$category->nama_kategori])->toJson() }}"
+                                data-autocomplete-target="#category_id"
+                                value="{{ old('category_id') ? optional($categories->firstWhere('id',(int)old('category_id')))->nama_kategori : '' }}"
+                                placeholder="Cari atau pilih kategori..." autocomplete="off">
+                            <input type="hidden" id="category_id" name="category_id" value="{{ old('category_id') }}">
                         </div>
                         <div class="col-md-6">
                             <label for="merk" class="info-label">Merk</label>
@@ -291,7 +298,7 @@
             let currentMatches = [];
             const warning = document.createElement('div');
             warning.className = 'alert alert-warning mt-3 mb-0';
-            warning.textContent = 'Peringatan: harga jual berada di bawah harga beli terakhir. Pastikan harga ini merupakan keputusan Owner/subsidi silang.';
+            warning.textContent = 'Harga jual berada di bawah harga modal. Pastikan penetapan harga ini sesuai strategi subsidi silang Owner.';
             warning.hidden = true;
             sell.closest('.card-body').appendChild(warning);
             function format(input) {

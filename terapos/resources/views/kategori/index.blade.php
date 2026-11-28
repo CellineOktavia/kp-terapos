@@ -212,6 +212,9 @@
                                 </span>
                                 <input id="nama_kategori" type="text" name="nama_kategori"
                                     class="form-control form-control-terapos border-start-0"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-fields="name"
+                                    data-autocomplete-items="{{ $categories->map(fn($category)=>['id'=>$category->id,'name'=>$category->nama_kategori])->toJson() }}"
                                     placeholder="Masukkan nama kategori baru..." value="{{ old('nama_kategori') }}"
                                     maxlength="100" required>
                             </div>

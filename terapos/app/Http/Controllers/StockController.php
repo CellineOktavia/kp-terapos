@@ -53,6 +53,7 @@ class StockController extends Controller
 
             $products = Product::query()
                 ->with('category')
+                ->where('aktif', true)
                 ->whereColumn('stok', '<=', 'stok_minimum')
                 ->when($validated['search'] ?? null, function ($query, $search) {
                     $query->where(function ($productQuery) use ($search) {
@@ -75,7 +76,7 @@ class StockController extends Controller
 
     public function createAdjustment()
     {
-        $products = Product::orderBy('nama_produk')->get();
+        $products = Product::where('aktif', true)->orderBy('nama_produk')->get();
 
         return view('stok.adjustment', compact('products'));
     }
@@ -91,6 +92,7 @@ class StockController extends Controller
 
         DB::transaction(function () use ($validated) {
             $product = Product::query()
+                ->where('aktif', true)
                 ->whereKey($validated['product_id'])
                 ->lockForUpdate()
                 ->firstOrFail();

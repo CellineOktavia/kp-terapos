@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\DetailPenjualan;
-use App\Models\CrossSubsidyProgram;
 use App\Models\DiscountSetting;
 use App\Models\Penjualan;
 use App\Models\Product;
 use App\Models\StockMovement;
 use App\Models\User;
 use App\Services\DiscountCalculator;
-use App\Services\CrossSubsidyService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -73,7 +71,7 @@ class PenjualanController extends Controller
         return view('penjualan.index', compact('penjualans', 'users', 'filters'));
     }
 
-    public function create(CrossSubsidyService $subsidyService)
+    public function create()
     {
         $products = Product::query()
             ->with('category:id,nama_kategori')
@@ -82,22 +80,12 @@ class PenjualanController extends Controller
             ->get(['id', 'category_id', 'kode_produk', 'nama_produk', 'merk', 'satuan', 'harga_beli', 'harga_jual', 'stok']);
         $generatedNumber = $this->generateNextSaleNumber();
         $discountSetting = DiscountSetting::current();
-        $crossSubsidyProgram = CrossSubsidyProgram::current();
-        $crossSubsidySetting = [
-            'is_active' => $crossSubsidyProgram->is_active,
-            'recipient_product_id' => $crossSubsidyProgram->recipient_product_id,
-            'subsidy_amount' => (float) $crossSubsidyProgram->subsidy_amount,
-            'maximum_subsidy' => (float) $crossSubsidyProgram->maximum_subsidy,
-            'minimum_selling_price' => (float) $crossSubsidyProgram->minimum_selling_price,
-            'balance' => max(0, $subsidyService->balance($crossSubsidyProgram)),
-        ];
         $requestToken = (string) Str::uuid();
 
         return view('penjualan.create', compact(
             'products',
             'generatedNumber',
             'discountSetting',
-            'crossSubsidySetting',
             'requestToken'
         ));
     }
@@ -174,10 +162,6 @@ class PenjualanController extends Controller
                     }
 
                     $discountSetting = DiscountSetting::query()->whereKey(1)->lockForUpdate()->firstOrFail();
-                    $crossSubsidyProgram = CrossSubsidyProgram::query()
-                        ->whereKey(1)
-                        ->lockForUpdate()
-                        ->first();
                     $lines = [];
                     $subtotalPenjualan = 0.0;
                     foreach ($items as $item) {
@@ -194,15 +178,23 @@ class PenjualanController extends Controller
 
                     $subtotalPenjualan = round($subtotalPenjualan, 2);
                     $discount = app(DiscountCalculator::class)->calculate($subtotalPenjualan, $discountSetting);
+                    $discountShares = [];
+                    $totalWeight = (int) round($subtotalPenjualan * 100);
+                    $allocated = 0;
+                    $totalCents = (int) round((float) $discount['discount'] * 100);
+                    foreach ($lines as $productId => $line) {
+                        $weight = (int) round((float) $line['subtotal'] * 100);
+                        $share = $totalWeight > 0 ? (int) floor($totalCents * $weight / $totalWeight) : 0;
+                        $discountShares[$productId] = $share / 100;
+                        $allocated += $share;
+                    }
+                    if ($lines && $totalCents > $allocated) {
+                        $firstId = array_key_first($lines);
+                        $discountShares[$firstId] += ($totalCents - $allocated) / 100;
+                    }
                     $diskonPersen = $discount['percentage'];
                     $diskonNominal = $discount['discount'];
-                    $benefits = app(CrossSubsidyService::class)->calculateSaleBenefits(
-                        $lines,
-                        $diskonNominal,
-                        $crossSubsidyProgram
-                    );
-                    $crossSubsidyAmount = $benefits['subsidy_total'];
-                    $total = round($discount['total'] - $crossSubsidyAmount, 2);
+                    $total = $discount['total'];
                     $bayar = round((float) $validated['bayar'], 2);
 
                     if ($bayar < $total) {
@@ -221,7 +213,7 @@ class PenjualanController extends Controller
                         'diskon_aktif' => $discountSetting->is_active,
                         'diskon_minimum_pembelian' => $discountSetting->minimum_purchase,
                         'diskon_operator' => $discountSetting->condition_operator,
-                        'cross_subsidy_amount' => $crossSubsidyAmount,
+                        'cross_subsidy_amount' => 0,
                         'status' => 'completed',
                         'total' => $total,
                         'bayar' => $bayar,
@@ -239,8 +231,8 @@ class PenjualanController extends Controller
                             'qty' => $qty,
                             'harga' => $product->harga_jual,
                             'subtotal' => $line['subtotal'],
-                            'discount_share' => $benefits['discount_shares'][$productId] ?? 0,
-                            'cross_subsidy_per_unit' => $benefits['subsidy_per_unit'][$productId] ?? 0,
+                            'discount_share' => $discountShares[$productId] ?? 0,
+                            'cross_subsidy_per_unit' => 0,
                         ]);
                         $details[$productId] = $detail;
 
@@ -254,15 +246,6 @@ class PenjualanController extends Controller
                             'keterangan' => 'Penjualan ' . $saleNumber,
                         ]);
                     }
-
-                    app(CrossSubsidyService::class)->recordSaleEntries(
-                        $penjualan,
-                        $lines,
-                        $details,
-                        $benefits,
-                        $crossSubsidyProgram,
-                        (int) Auth::id()
-                    );
 
                     return [$penjualan->id, $saleNumber];
                 });

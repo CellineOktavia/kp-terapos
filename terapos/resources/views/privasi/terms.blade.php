@@ -356,7 +356,7 @@
                             <p>
                                 Toko Terang Abadi<br>
                                 Phone: 06987234690<br>
-                                Address: Jl. Soekarno-Hatta, Palembang
+                                Address: Jalan Jaksa Agung R.Suprapto No.3, Kemang Manis, Ilir Barat II
                             </p>
 
                             <div class="text-center mt-5">

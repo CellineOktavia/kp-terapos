@@ -4,17 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Services\DashboardDataService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OwnerDashboardController extends Controller
 {
-    public function index(DashboardDataService $dashboardData)
+    public function index(Request $request, DashboardDataService $dashboardData)
     {
-        return view('dashboard.terapos', $dashboardData->getDashboardData());
+        return view('dashboard.terapos', $dashboardData->getDashboardData($request));
     }
 
-    public function realtime(DashboardDataService $dashboardData): JsonResponse
+    public function realtime(Request $request, DashboardDataService $dashboardData): JsonResponse
     {
-        $data = $dashboardData->getDashboardData();
+        abort_unless(in_array(Auth::user()?->role, ['owner', 'co_owner'], true), 403);
+        $data = $dashboardData->getDashboardData($request);
 
         return response()->json([
             'todaySales' => (float) ($data['todaySales'] ?? 0),

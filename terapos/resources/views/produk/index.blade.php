@@ -243,6 +243,10 @@
                                 </span>
                                 <input id="product-search" type="text" name="search"
                                     class="form-control form-control-terapos border-start-0"
+                                    data-terapos-autocomplete
+                                    data-autocomplete-url="{{ route('search.autocomplete') }}"
+                                    data-autocomplete-fields="code,name,merk,category"
+                                    data-autocomplete-include-inactive="{{ request('status') === 'inactive' ? '1' : '0' }}"
                                     placeholder="Cari kode, nama barang, merk, atau kategori..."
                                     value="{{ request('search') }}">
                             </div>
@@ -308,9 +312,13 @@
                                 <th class="ps-4">Kode Barang</th>
                                 <th>Nama Barang</th>
                                 <th>Kategori</th>
-                                <th>Status</th>
-                                <th class="text-center">Stok</th>
+                                <th>Merk</th>
+                                <th>Satuan</th>
+                                @if(auth()->user()->isOwner())
+                                    <th class="text-end">Harga Modal</th>
+                                @endif
                                 <th class="text-end">Harga Jual</th>
+                                <th>Status Aktif</th>
                                 <th class="text-center pe-4" width="130">Aksi</th>
                             </tr>
                         </thead>
@@ -329,23 +337,15 @@
                                         <span
                                             class="text-muted small">{{ $product->category?->nama_kategori ?? '-' }}</span>
                                     </td>
-                                    <td><span class="badge {{ $product->aktif ? 'bg-success' : 'bg-secondary' }}">{{ $product->aktif ? 'Aktif' : 'Tidak Aktif' }}</span></td>
-                                    <td class="text-center">
-                                        @if ($product->stok <= $product->stok_minimum)
-                                            <span class="stock-critical">
-                                                <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                                                {{ number_format($product->stok, 0, ',', '.') }} {{ $product->satuan }}
-                                            </span>
-                                        @else
-                                            <span class="stock-good">
-                                                <i class="bi bi-check-circle-fill me-1"></i>
-                                                {{ number_format($product->stok, 0, ',', '.') }} {{ $product->satuan }}
-                                            </span>
-                                        @endif
-                                    </td>
+                                    <td>{{ $product->merk ?: '-' }}</td>
+                                    <td>{{ $product->satuan }}</td>
+                                    @if(auth()->user()->isOwner())
+                                        <td class="text-end fw-bold">Rp {{ number_format($product->harga_beli, 0, ',', '.') }}</td>
+                                    @endif
                                     <td class="text-end fw-bold text-dark">
                                         Rp {{ number_format($product->harga_jual, 0, ',', '.') }}
                                     </td>
+                                    <td><span class="badge {{ $product->aktif ? 'bg-success' : 'bg-secondary' }}">{{ $product->aktif ? 'Aktif' : 'Tidak Aktif' }}</span></td>
                                     <td class="text-center pe-4">
                                         <div class="d-flex justify-content-center gap-2">
                                             <a href="{{ route('produk.show', $product->id) }}" class="action-btn btn-view"
@@ -368,7 +368,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-5 text-muted">
+                                    <td colspan="{{ auth()->user()->isOwner() ? '9' : '8' }}" class="text-center py-5 text-muted">
                                         <i class="bi bi-box-seam fs-1 d-block mb-3 text-secondary opacity-50"></i>
                                         <div class="fw-bold fs-6 text-dark">Tidak ada barang yang ditemukan</div>
                                         <p class="small text-muted mb-0">Coba ubah kata kunci pencarian Anda atau tambahkan
